@@ -373,6 +373,9 @@ export default class Project extends EventEmitter {
     }
 
     const thumbnailedEntries = json.entries.map(entry => {
+      if(!entry.url.startsWith("https://") && entry.url.startsWith("http://")){
+        entry.url = entry.url.replace("http://","https://");//promote insecure content
+      }
       if (entry.images && entry.images.preview && entry.images.preview.url) {
         if (entry.images.preview.type === "mp4") {
           entry.images.preview.url = proxiedUrlFor(entry.images.preview.url);
@@ -1050,6 +1053,11 @@ export default class Project extends EventEmitter {
 
     this.lastUploadAssetRequest = Date.now();
 
+    
+  if(!asset.file_url.startsWith("https://") && asset.file_url.startsWith("http://")){
+    asset.file_url = asset.file_url.replace("http://","https://");//promote insecure content
+  }
+    
     return {
       id: asset.asset_id,
       name: asset.name,
@@ -1117,6 +1125,12 @@ export default class Project extends EventEmitter {
   }
 
   async fetch(url, options) {
+      if(typeof url === 'string' || url instanceof String){
+          if(!url.startsWith("https://") && url.startsWith("http://")){
+            url = url.replace("http://","https://");//promote insecure content
+          }
+      }
+    console.log(url);
     const res = await fetch(url, options);
 
     if (res.ok) {
