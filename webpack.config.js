@@ -67,7 +67,7 @@ function createHTTPSConfig() {
   }
 }
 
-const defaultHostName = "hubs.local";
+const defaultHostName = "localhost";
 const host = process.env.HOST_IP || defaultHostName;
 const port = process.env.HOST_PORT || 9090;
 
@@ -245,6 +245,12 @@ module.exports = env => {
         {
           from: path.join(__dirname, "src", "assets", "favicon-editor.ico"),
           to: "assets/images/favicon-editor.ico"
+        }
+      ]),
+      new CopyWebpackPlugin([
+        {
+          from: path.join(__dirname, "src", "properties.js"),
+          to: "properties.js"
         }
       ]),
       new HTMLWebpackPlugin({

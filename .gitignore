@@ -20,3 +20,4 @@ test/integration/project/generated
 .tersercache
 results/
 docker/www/
+.idea
