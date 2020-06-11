@@ -73,14 +73,18 @@ class NavBar extends Component {
         <MiddleContainer>
           <nav>
             <NavList>
+              {configs.isMoz() && (
               <li>
                 <Link to="/whats-new">What&apos;s New</Link>
               </li>
+              )}
+              {configs.isMoz() && (
               <li>
                 <a href="https://github.com/mozilla/Spoke" rel="noopener noreferrer">
                   Source
                 </a>
               </li>
+              )}
               {configs.isMoz() && (
                 <li>
                   <a href="https://discord.gg/wHmY4nd" rel="noopener noreferrer">
