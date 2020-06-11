@@ -9,7 +9,6 @@ import {
   AudioListener,
   Raycaster,
   Clock,
-  Color,
   Scene
 } from "three";
 import { GLTFExporter } from "./gltf/GLTFExporter";
@@ -22,6 +21,7 @@ import SceneNode from "./nodes/SceneNode";
 import FloorPlanNode from "./nodes/FloorPlanNode";
 
 import LoadingCube from "./objects/LoadingCube";
+import ErrorIcon from "./objects/ErrorIcon";
 import TransformGizmo from "./objects/TransformGizmo";
 import SpokeInfiniteGridHelper from "./helpers/SpokeInfiniteGridHelper";
 
@@ -31,13 +31,14 @@ import TextureCache from "./caches/TextureCache";
 import getDetachedObjectsRoots from "./utils/getDetachedObjectsRoots";
 import { loadEnvironmentMap } from "./utils/EnvironmentMap";
 import makeUniqueName from "./utils/makeUniqueName";
-import eventToMessage from "./utils/eventToMessage";
+import { RethrownError, MultiError } from "./utils/errors";
 import cloneObject3D from "./utils/cloneObject3D";
 import isEmptyObject from "./utils/isEmptyObject";
 import getIntersectingNode from "./utils/getIntersectingNode";
 import { generateImageFileThumbnail, generateVideoFileThumbnail } from "./utils/thumbnails";
 import resizeShadowCameraFrustum from "./utils/resizeShadowCameraFrustum";
 import isInputSelected from "./utils/isInputSelected";
+import { calculateGLTFPerformanceScores } from "./utils/performance";
 
 import InputManager from "./controls/InputManager";
 import FlyControls from "./controls/FlyControls";
@@ -84,7 +85,9 @@ import GroupNode from "./nodes/GroupNode";
 import ModelNode from "./nodes/ModelNode";
 import VideoNode from "./nodes/VideoNode";
 import ImageNode from "./nodes/ImageNode";
+import AudioNode from "./nodes/AudioNode";
 import LinkNode from "./nodes/LinkNode";
+import AssetManifestSource from "../ui/assets/AssetManifestSource";
 
 const tempMatrix1 = new Matrix4();
 const tempMatrix2 = new Matrix4();
@@ -132,6 +135,7 @@ export default class Editor extends EventEmitter {
     this.nodeTypes = new Set();
     this.nodeEditors = new Map();
     this.sources = [];
+    this.defaultUploadSource = null;
 
     this.textureCache = new TextureCache();
     this.gltfCache = new GLTFCache();
@@ -174,6 +178,18 @@ export default class Editor extends EventEmitter {
 
   registerSource(source) {
     this.sources.push(source);
+
+    if (source.uploadSource && !this.defaultUploadSource) {
+      this.defaultUploadSource = source;
+    }
+  }
+
+  async installAssetSource(manifestUrl) {
+    const proxiedUrl = this.api.proxyUrl(new URL(manifestUrl, window.location).href);
+    const res = await this.api.fetch(proxiedUrl);
+    const json = await res.json();
+    this.sources.push(new AssetManifestSource(this, json.name, manifestUrl));
+    this.emit("settingsChanged");
   }
 
   getSource(sourceId) {
@@ -220,7 +236,7 @@ export default class Editor extends EventEmitter {
 
     this.initializing = true;
 
-    const tasks = [rendererPromise, loadEnvironmentMap(), LoadingCube.load(), TransformGizmo.load()];
+    const tasks = [rendererPromise, loadEnvironmentMap(), LoadingCube.load(), ErrorIcon.load(), TransformGizmo.load()];
 
     for (const NodeConstructor of this.nodeTypes) {
       tasks.push(NodeConstructor.load());
@@ -275,7 +291,7 @@ export default class Editor extends EventEmitter {
     this.sceneLoading = true;
     this.disableUpdate = true;
 
-    const scene = await SceneNode.loadProject(this, projectFile);
+    const [scene, errors] = await SceneNode.loadProject(this, projectFile);
 
     this.sceneLoading = false;
     this.disableUpdate = false;
@@ -287,7 +303,6 @@ export default class Editor extends EventEmitter {
 
     this.spokeControls.center.set(0, 0, 0);
     this.spokeControls.onSceneSet(scene);
-    scene.background = new Color(0xaaaaaa);
 
     this.renderer.onSceneSet();
 
@@ -305,11 +320,20 @@ export default class Editor extends EventEmitter {
       }
     });
 
-    this.emit("projectLoaded");
+    if (errors.length === 0) {
+      this.emit("projectLoaded");
+    }
+
     this.emit("sceneGraphChanged");
 
     this.addListener("objectsChanged", this.onEmitSceneModified);
     this.addListener("sceneGraphChanged", this.onEmitSceneModified);
+
+    if (errors.length > 0) {
+      const error = new MultiError("Errors loading project", errors);
+      this.emit("error", error);
+      throw error;
+    }
 
     return scene;
   }
@@ -385,38 +409,10 @@ export default class Editor extends EventEmitter {
     try {
       chunks = await exporter.exportChunks(clonedScene);
     } catch (error) {
-      throw new Error(`Error exporting scene. ${eventToMessage(error)}`);
+      throw new RethrownError(`Error exporting scene`, error);
     }
 
     const json = chunks.json;
-
-    // De-duplicate images.
-    const imageDefs = json.images;
-    if (imageDefs && imageDefs.length > 0) {
-      // Map containing imageProp -> newIndex
-      const uniqueImageProps = new Map();
-      // Map containing oldIndex -> newIndex
-      const imageIndexMap = new Map();
-      // Array containing unique imageDefs
-      const uniqueImageDefs = [];
-      // Array containing unique image blobs
-      const uniqueImages = [];
-      for (const [index, imageDef] of imageDefs.entries()) {
-        const imageProp = imageDef.uri === undefined ? imageDef.bufferView : imageDef.uri;
-        let newIndex = uniqueImageProps.get(imageProp);
-        if (newIndex === undefined) {
-          newIndex = uniqueImageDefs.push(imageDef) - 1;
-          uniqueImageProps.set(imageProp, newIndex);
-          uniqueImages.push(chunks.images[index]);
-        }
-        imageIndexMap.set(index, newIndex);
-      }
-      json.images = uniqueImageDefs;
-      chunks.images = uniqueImages;
-      for (const textureDef of json.textures) {
-        textureDef.source = imageIndexMap.get(textureDef.source);
-      }
-    }
 
     const nodeDefs = json.nodes;
     if (nodeDefs) {
@@ -439,9 +435,13 @@ export default class Editor extends EventEmitter {
         if (nodeDef.extensions && nodeDef.extensions.MOZ_hubs_components) {
           const components = nodeDef.extensions.MOZ_hubs_components;
           for (const componentName in components) {
+            if (!Object.prototype.hasOwnProperty.call(components, componentName)) continue;
+
             const component = components[componentName];
 
             for (const propertyName in component) {
+              if (!Object.prototype.hasOwnProperty.call(component, propertyName)) continue;
+
               const property = component[propertyName];
 
               if (
@@ -471,9 +471,16 @@ export default class Editor extends EventEmitter {
 
     try {
       const glbBlob = await exporter.exportGLBBlob(chunks);
-      return glbBlob;
+
+      let scores;
+
+      if (options.scores) {
+        scores = calculateGLTFPerformanceScores(scene, glbBlob, chunks);
+      }
+
+      return { glbBlob, chunks, scores };
     } catch (error) {
-      throw new Error(`Error creating glb blob. ${eventToMessage(error)}`);
+      throw new RethrownError("Error creating glb blob", error);
     }
   }
 
@@ -554,6 +561,7 @@ export default class Editor extends EventEmitter {
         node.onPlay();
       }
     });
+    this.emit("playModeChanged");
   }
 
   leavePlayMode() {
@@ -565,6 +573,7 @@ export default class Editor extends EventEmitter {
         node.onPause();
       }
     });
+    this.emit("playModeChanged");
   }
 
   update = () => {
@@ -588,7 +597,7 @@ export default class Editor extends EventEmitter {
       this.flyControls.update(delta);
       this.spokeControls.update(delta);
 
-      this.renderer.update();
+      this.renderer.update(delta, time);
       this.inputManager.reset();
     }
 
@@ -1021,7 +1030,7 @@ export default class Editor extends EventEmitter {
       }
     });
 
-    this.addObject(clonedObject, parent, before, false, false, false);
+    this.addObject(clonedObject, parent || object.parent, before, false, false, false);
 
     if (selectObject) {
       this.setSelection([clonedObject], false, false, false);
@@ -1050,9 +1059,16 @@ export default class Editor extends EventEmitter {
     }
 
     const validNodes = objects.filter(object => object.constructor.canAddNode(this));
-    const duplicatedRoots = getDetachedObjectsRoots(validNodes).map(object => object.clone());
+    const roots = getDetachedObjectsRoots(validNodes);
+    const duplicatedRoots = roots.map(object => object.clone());
 
-    this.addMultipleObjects(duplicatedRoots, parent, before, false, false, false, true);
+    if (parent) {
+      this.addMultipleObjects(duplicatedRoots, parent, before, false, false, false, true);
+    } else {
+      for (let i = 0; i < roots.length; i++) {
+        this.addObject(duplicatedRoots[i], roots[i].parent, undefined, false, false, false, true);
+      }
+    }
 
     if (selectObjects) {
       this.setSelection(duplicatedRoots, false, false, false);
@@ -1077,7 +1093,11 @@ export default class Editor extends EventEmitter {
 
   reparent(object, newParent, newBefore, useHistory = true, emitEvent = true, selectObject = true) {
     if (!object.parent) {
-      throw new Error("Object has no parent. Reparent only works on objects that are currently in the scene.");
+      throw new Error(
+        `${object.nodeName || object.type} "${
+          object.name
+        }" has no parent. Reparent only works on objects that are currently in the scene.`
+      );
     }
 
     if (!newParent) {
@@ -1736,6 +1756,8 @@ export default class Editor extends EventEmitter {
     }
 
     for (const propertyName in properties) {
+      if (!Object.prototype.hasOwnProperty.call(properties, propertyName)) continue;
+
       const value = properties[propertyName];
 
       if (value && value.copy) {
@@ -1901,11 +1923,13 @@ export default class Editor extends EventEmitter {
     }
   };
 
-  async addMedia(url) {
+  async addMedia(url, parent, before) {
     let contentType = "";
 
+    const { hostname } = new URL(url);
+
     try {
-      contentType = await this.api.getContentType(url);
+      contentType = (await this.api.getContentType(url)) || "";
     } catch (error) {
       console.warn(`Couldn't fetch content type for url ${url}. Using LinkNode instead.`);
     }
@@ -1915,24 +1939,29 @@ export default class Editor extends EventEmitter {
     if (contentType.startsWith("model/gltf")) {
       node = new ModelNode(this);
       this.getSpawnPosition(node.position);
-      this.addObject(node);
+      this.addObject(node, parent, before);
       node.initialScale = "fit";
       await node.load(url);
-    } else if (contentType.startsWith("video/")) {
+    } else if (contentType.startsWith("video/") || hostname === "www.twitch.tv") {
       node = new VideoNode(this);
       this.getSpawnPosition(node.position);
-      this.addObject(node);
+      this.addObject(node, parent, before);
       await node.load(url);
     } else if (contentType.startsWith("image/")) {
       node = new ImageNode(this);
       this.getSpawnPosition(node.position);
-      this.addObject(node);
+      this.addObject(node, parent, before);
+      await node.load(url);
+    } else if (contentType.startsWith("audio/")) {
+      node = new AudioNode(this);
+      this.getSpawnPosition(node.position);
+      this.addObject(node, parent, before);
       await node.load(url);
     } else {
       node = new LinkNode(this);
       this.getSpawnPosition(node.position);
-      this.addObject(node);
       node.href = url;
+      this.addObject(node, parent, before);
     }
 
     return node;
@@ -1974,6 +2003,9 @@ export default class Editor extends EventEmitter {
 
   dispose() {
     this.clearCaches();
-    this.renderer.dispose();
+
+    if (this.renderer) {
+      this.renderer.dispose();
+    }
   }
 }

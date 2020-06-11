@@ -8,6 +8,8 @@ export class BaseSource extends EventEmitter {
     this.iconComponent = undefined;
     this.assetPanelComponent = undefined;
     this.requiresAuthentication = false;
+    this.uploadSource = false;
+    this.searchDebounceTimeout = 500;
   }
 
   search(_query, _params, _cursor, _abortSignal) {

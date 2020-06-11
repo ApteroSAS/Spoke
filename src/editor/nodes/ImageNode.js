@@ -1,6 +1,8 @@
 import EditorNodeMixin from "./EditorNodeMixin";
 import Image from "../objects/Image";
 import spokeLogoSrc from "../../assets/spoke-icon.png";
+import { RethrownError } from "../utils/errors";
+import { getObjectPerfIssues, maybeAddLargeFileIssue } from "../utils/performance";
 
 export default class ImageNode extends EditorNodeMixin(Image) {
   static legacyComponentName = "image";
@@ -11,14 +13,15 @@ export default class ImageNode extends EditorNodeMixin(Image) {
     src: new URL(spokeLogoSrc, location).href
   };
 
-  static async deserialize(editor, json, loadAsync) {
+  static async deserialize(editor, json, loadAsync, onError) {
     const node = await super.deserialize(editor, json);
 
-    const { src, projection } = json.components.find(c => c.name === "image").props;
+    const { src, projection, controls } = json.components.find(c => c.name === "image").props;
 
     loadAsync(
       (async () => {
-        await node.load(src);
+        await node.load(src, onError);
+        node.controls = controls || false;
         node.projection = projection;
       })()
     );
@@ -30,6 +33,7 @@ export default class ImageNode extends EditorNodeMixin(Image) {
     super(editor);
 
     this._canonicalUrl = "";
+    this.controls = true;
   }
 
   get src() {
@@ -48,26 +52,48 @@ export default class ImageNode extends EditorNodeMixin(Image) {
     return this.editor.textureCache.get(src);
   }
 
-  async load(src) {
+  async load(src, onError) {
     const nextSrc = src || "";
 
-    if (nextSrc === this._canonicalUrl) {
+    if (nextSrc === this._canonicalUrl && nextSrc !== "") {
       return;
     }
 
     this._canonicalUrl = nextSrc;
 
+    this.issues = [];
     this._mesh.visible = false;
 
+    this.hideErrorIcon();
     this.showLoadingCube();
 
     try {
       const { accessibleUrl } = await this.editor.api.resolveMedia(src);
       await super.load(accessibleUrl);
-    } catch (e) {
-      console.error(e);
+      this.issues = getObjectPerfIssues(this._mesh, false);
+
+      const perfEntries = performance.getEntriesByName(accessibleUrl);
+
+      if (perfEntries.length > 0) {
+        const imageSize = perfEntries[0].encodedBodySize;
+        maybeAddLargeFileIssue("image", imageSize, this.issues);
+      }
+    } catch (error) {
+      this.showErrorIcon();
+
+      const imageError = new RethrownError(`Error loading image ${this._canonicalUrl}`, error);
+
+      if (onError) {
+        onError(this, imageError);
+      }
+
+      console.error(imageError);
+
+      this.issues.push({ severity: "error", message: "Error loading image." });
     }
 
+    this.editor.emit("objectsChanged", [this]);
+    this.editor.emit("selectionChanged");
     this.hideLoadingCube();
 
     return this;
@@ -76,6 +102,7 @@ export default class ImageNode extends EditorNodeMixin(Image) {
   copy(source, recursive = true) {
     super.copy(source, recursive);
 
+    this.controls = source.controls;
     this._canonicalUrl = source._canonicalUrl;
 
     return this;
@@ -85,6 +112,7 @@ export default class ImageNode extends EditorNodeMixin(Image) {
     return super.serialize({
       image: {
         src: this._canonicalUrl,
+        controls: this.controls,
         projection: this.projection
       }
     });
@@ -94,11 +122,18 @@ export default class ImageNode extends EditorNodeMixin(Image) {
     super.prepareForExport();
     this.addGLTFComponent("image", {
       src: this._canonicalUrl,
+      controls: this.controls,
       projection: this.projection
     });
     this.addGLTFComponent("networked", {
       id: this.uuid
     });
     this.replaceObject();
+  }
+
+  getRuntimeResourcesForStats() {
+    if (this._texture) {
+      return { textures: [this._texture], meshes: [this._mesh], materials: [this._mesh.material] };
+    }
   }
 }

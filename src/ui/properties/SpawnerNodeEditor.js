@@ -4,6 +4,7 @@ import NodeEditor from "./NodeEditor";
 import InputGroup from "../inputs/InputGroup";
 import ModelInput from "../inputs/ModelInput";
 import { Magic } from "styled-icons/fa-solid/Magic";
+import { GLTFInfo } from "../inputs/GLTFInfo";
 
 export default class SpawnerNodeEditor extends Component {
   static propTypes = {
@@ -24,9 +25,10 @@ export default class SpawnerNodeEditor extends Component {
 
     return (
       <NodeEditor {...this.props} description={SpawnerNodeEditor.description}>
-        <InputGroup name="Model">
+        <InputGroup name="Model Url">
           <ModelInput value={node.src} onChange={this.onChangeSrc} />
         </InputGroup>
+        {node.model && <GLTFInfo node={node} />}
       </NodeEditor>
     );
   }

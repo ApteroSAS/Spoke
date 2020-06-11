@@ -2,7 +2,6 @@ import { Object3D, Color, Vector3 } from "three";
 import { GLTFLoader } from "../gltf/GLTFLoader";
 import transformGizmoUrl from "../../assets/TransformGizmo.glb";
 import cloneObject3D from "../utils/cloneObject3D";
-import eventToMessage from "../utils/eventToMessage";
 import { TransformMode, TransformAxis } from "../controls/SpokeControls";
 
 let gizmoGltf = null;
@@ -13,15 +12,11 @@ export default class TransformGizmo extends Object3D {
       return Promise.resolve(gizmoGltf);
     }
 
-    try {
-      const gltf = await new GLTFLoader(transformGizmoUrl).loadGLTF();
+    const gltf = await new GLTFLoader(transformGizmoUrl).loadGLTF();
 
-      gizmoGltf = gltf;
+    gizmoGltf = gltf;
 
-      return gizmoGltf;
-    } catch (error) {
-      throw new Error(`Error loading Model. ${eventToMessage(error)}`);
-    }
+    return gizmoGltf;
   }
 
   constructor() {
@@ -256,6 +251,28 @@ export default class TransformGizmo extends Object3D {
     }
 
     return newAxisInfo.axis;
+  }
+
+  highlightHoveredAxis(raycaster) {
+    if (!this.activeControls) {
+      return undefined;
+    }
+
+    if (this.hoveredAxis) {
+      this.hoveredAxis.axisInfo.selectionColorTarget.opacity = 0.5;
+    }
+
+    this.raycasterResults.length = 0;
+    raycaster.intersectObject(this.activeControls, true, this.raycasterResults);
+
+    const axisResult = this.raycasterResults.find(result => result.object.axisInfo !== undefined);
+
+    if (!axisResult) {
+      return undefined;
+    }
+
+    axisResult.object.axisInfo.selectionColorTarget.opacity = 1;
+    this.hoveredAxis = axisResult.object;
   }
 
   deselectAxis() {

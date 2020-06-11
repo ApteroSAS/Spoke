@@ -1,13 +1,24 @@
+import { NativeTypes } from "react-dnd-html5-backend";
+
 export const ItemTypes = {
+  File: NativeTypes.FILE,
   Node: "Node",
   Model: "Model",
   Image: "Image",
   Video: "Video",
+  Audio: "Audio",
   Element: "Element",
   KitPiece: "KitPiece"
 };
 
-export const AssetTypes = [ItemTypes.Model, ItemTypes.Image, ItemTypes.Video, ItemTypes.Element, ItemTypes.KitPiece];
+export const AssetTypes = [
+  ItemTypes.Model,
+  ItemTypes.Image,
+  ItemTypes.Video,
+  ItemTypes.Audio,
+  ItemTypes.Element,
+  ItemTypes.KitPiece
+];
 
 export function isAsset(item) {
   return AssetTypes.indexOf(item.type) !== -1;

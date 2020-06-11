@@ -37,6 +37,8 @@ import {
   Object3D
 } from "three";
 
+import { LightmapExporterExtension } from "./extensions/exporter/LightmapExporterExtension";
+
 //------------------------------------------------------------------------------
 // Constants
 //------------------------------------------------------------------------------
@@ -144,6 +146,8 @@ class GLTFExporter {
 
     this.extensions = [];
     this.hooks = [];
+
+    this.registerExtension(LightmapExporterExtension);
   }
 
   registerExtension(Extension, options = {}) {
@@ -162,7 +166,7 @@ class GLTFExporter {
     hooks.push({ test, callback });
   }
 
-  runHook(hookName, ...args) {
+  async runFirstHook(hookName, ...args) {
     const hooks = this.hooks[hookName];
 
     if (hooks) {
@@ -174,6 +178,22 @@ class GLTFExporter {
     }
 
     return undefined;
+  }
+
+  async runAllHooks(hookName, ...args) {
+    const hooks = this.hooks[hookName];
+
+    const matchedHooks = [];
+
+    if (hooks) {
+      for (const { test, callback } of hooks) {
+        if (test(...args)) {
+          matchedHooks.push(callback(...args));
+        }
+      }
+    }
+
+    return Promise.all(matchedHooks);
   }
 
   /**
@@ -263,7 +283,10 @@ class GLTFExporter {
           gltfProperty.extensions = {};
         }
 
-        for (const extensionName in serializedUserData.gltfExtensions) {
+        const gltfExtensions = serializedUserData.gltfExtensions;
+
+        for (const extensionName in gltfExtensions) {
+          if (!Object.prototype.hasOwnProperty.call(gltfExtensions, extensionName)) continue;
           gltfProperty.extensions[extensionName] = serializedUserData.gltfExtensions[extensionName];
           this.extensionsUsed[extensionName] = true;
         }
@@ -300,7 +323,7 @@ class GLTFExporter {
       const obj = {};
 
       for (const key in value) {
-        if (value.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(value, key)) {
           obj[key] = this.serializeUserDataProperty(value[key]);
         }
       }
@@ -549,18 +572,13 @@ class GLTFExporter {
     return this.outputJSON.accessors.length - 1;
   }
 
-  transformImage(image, mimeType, flipY, onError, onDone) {
+  async transformImage(image, mimeType, flipY) {
     const shouldResize = this.options.forcePowerOfTwoTextures && !GLTFExporter.Utils.isPowerOfTwo(image);
 
     if (!shouldResize && !flipY) {
-      fetch(image.src)
-        .then(response => {
-          return response.blob();
-        })
-        .then(onDone)
-        .catch(onError);
-
-      return;
+      const response = await fetch(image.src);
+      const blob = await response.blob();
+      return { blob, src: image.src, width: image.width, height: image.height };
     }
 
     const canvas = (this.cachedCanvas = this.cachedCanvas || document.createElement("canvas"));
@@ -584,7 +602,9 @@ class GLTFExporter {
 
     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-    canvas.toBlob(onDone, mimeType);
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, mimeType));
+
+    return { blob, src: image.src, width: canvas.width, height: canvas.height };
   }
 
   /**
@@ -621,16 +641,9 @@ class GLTFExporter {
 
     if (this.options.mode === "glb") {
       this.pending.push(
-        new Promise((resolve, reject) => {
-          this.transformImage(image, mimeType, flipY, reject, blob => {
-            this.processBufferViewImage(blob)
-              .then(bufferViewIndex => {
-                gltfImage.bufferView = bufferViewIndex;
-
-                resolve();
-              })
-              .catch(reject);
-          });
+        this.transformImage(image, mimeType, flipY).then(async result => {
+          gltfImage.bufferView = await this.processBufferViewImage(result.blob);
+          this.outputImages[index] = result;
         })
       );
     } else {
@@ -639,13 +652,7 @@ class GLTFExporter {
       gltfImage.uri = fileName + index + extension;
 
       this.pending.push(
-        new Promise((resolve, reject) => {
-          this.transformImage(image, mimeType, flipY, reject, blob => {
-            this.outputImages[index] = blob;
-
-            resolve();
-          });
-        })
+        this.transformImage(image, mimeType, flipY).then(result => (this.outputImages[index] = result))
       );
     }
 
@@ -851,12 +858,12 @@ class GLTFExporter {
 
     this.serializeUserData(material, gltfMaterial);
 
+    this.runAllHooks("addMaterialProperties", material, gltfMaterial);
+
     this.outputJSON.materials.push(gltfMaterial);
 
     const index = this.outputJSON.materials.length - 1;
     this.cachedData.materials.set(material, index);
-
-    this.runHook("afterProcessMaterial", material, gltfMaterial, index);
 
     return index;
   }
@@ -977,9 +984,13 @@ class GLTFExporter {
       const targetNames = [];
       const reverseDictionary = {};
 
-      if (mesh.morphTargetDictionary !== undefined) {
-        for (const key in mesh.morphTargetDictionary) {
-          reverseDictionary[mesh.morphTargetDictionary[key]] = key;
+      const morphTargetDictionary = mesh.morphTargetDictionary;
+
+      if (morphTargetDictionary !== undefined) {
+        for (const key in morphTargetDictionary) {
+          if (Object.prototype.hasOwnProperty.call(morphTargetDictionary, key)) {
+            reverseDictionary[morphTargetDictionary[key]] = key;
+          }
         }
       }
 
@@ -989,6 +1000,8 @@ class GLTFExporter {
         let warned = false;
 
         for (const attributeName in geometry.morphAttributes) {
+          if (!Object.prototype.hasOwnProperty.call(geometry.morphAttributes, attributeName)) continue;
+
           // glTF 2.0 morph supports only POSITION/NORMAL/TANGENT.
           // Three.js doesn't support TANGENT yet.
 
@@ -1129,47 +1142,6 @@ class GLTFExporter {
   }
 
   /**
-   * Process camera
-   * @param  {THREE.Camera} camera Camera to process
-   * @return {Integer}      Index of the processed mesh in the "camera" array
-   */
-  processCamera(camera) {
-    if (!this.outputJSON.cameras) {
-      this.outputJSON.cameras = [];
-    }
-
-    const isOrtho = camera.isOrthographicCamera;
-
-    const gltfCamera = {
-      type: isOrtho ? "orthographic" : "perspective"
-    };
-
-    if (isOrtho) {
-      gltfCamera.orthographic = {
-        xmag: camera.right * 2,
-        ymag: camera.top * 2,
-        zfar: camera.far <= 0 ? 0.001 : camera.far,
-        znear: camera.near < 0 ? 0 : camera.near
-      };
-    } else {
-      gltfCamera.perspective = {
-        aspectRatio: camera.aspect,
-        yfov: _Math.degToRad(camera.fov),
-        zfar: camera.far <= 0 ? 0.001 : camera.far,
-        znear: camera.near < 0 ? 0 : camera.near
-      };
-    }
-
-    if (camera.name !== "") {
-      gltfCamera.name = camera.type;
-    }
-
-    this.outputJSON.cameras.push(gltfCamera);
-
-    return this.outputJSON.cameras.length - 1;
-  }
-
-  /**
    * Creates glTF animation entry from AnimationClip object.
    *
    * Status:
@@ -1292,52 +1264,6 @@ class GLTFExporter {
     return skinIndex;
   }
 
-  processLight(light) {
-    const lightDef = {};
-
-    if (light.name) lightDef.name = light.name;
-
-    lightDef.color = light.color.toArray();
-
-    lightDef.intensity = light.intensity;
-
-    if (light.isDirectionalLight) {
-      lightDef.type = "directional";
-    } else if (light.isPointLight) {
-      lightDef.type = "point";
-      if (light.distance > 0) lightDef.range = light.distance;
-    } else if (light.isSpotLight) {
-      lightDef.type = "spot";
-      if (light.distance > 0) lightDef.range = light.distance;
-      lightDef.spot = {};
-      lightDef.spot.innerConeAngle = (light.penumbra - 1.0) * light.angle * -1.0;
-      lightDef.spot.outerConeAngle = light.angle;
-    }
-
-    if (light.decay !== undefined && light.decay !== 2) {
-      console.warn(
-        "THREE.GLTFExporter: Light decay may be lost. glTF is physically-based, " + "and expects light.decay=2."
-      );
-    }
-
-    if (
-      light.target &&
-      (light.target.parent !== light ||
-        light.target.position.x !== 0 ||
-        light.target.position.y !== 0 ||
-        light.target.position.z !== -1)
-    ) {
-      console.warn(
-        "THREE.GLTFExporter: Light direction may be lost. For best results, " +
-          "make light.target a child of the light with position 0,0,-1."
-      );
-    }
-
-    const lights = this.outputJSON.extensions["KHR_lights_punctual"].lights;
-    lights.push(lightDef);
-    return lights.length - 1;
-  }
-
   /**
    * Process Object3D node
    * @param  {THREE.Object3D} node Object3D to processNode
@@ -1389,20 +1315,6 @@ class GLTFExporter {
       if (mesh !== null) {
         gltfNode.mesh = mesh;
       }
-    } else if (object.isCamera) {
-      gltfNode.camera = this.processCamera(object);
-    } else if (object.isDirectionalLight || object.isPointLight || object.isSpotLight) {
-      if (!this.extensionsUsed["KHR_lights_punctual"]) {
-        this.outputJSON.extensions = this.outputJSON.extensions || {};
-        this.outputJSON.extensions["KHR_lights_punctual"] = { lights: [] };
-        this.extensionsUsed["KHR_lights_punctual"] = true;
-      }
-
-      gltfNode.extensions = gltfNode.extensions || {};
-      gltfNode.extensions["KHR_lights_punctual"] = { light: this.processLight(object) };
-    } else if (object.isLight) {
-      console.warn("THREE.GLTFExporter: Only directional, point, and spot lights are supported.", object);
-      return null;
     }
 
     if (object.isSkinnedMesh) {
@@ -1435,8 +1347,6 @@ class GLTFExporter {
 
     const nodeIndex = this.outputJSON.nodes.length - 1;
     this.nodeMap.set(object, nodeIndex);
-
-    this.runHook("afterProcessNode", object, gltfNode, nodeIndex);
 
     return nodeIndex;
   }

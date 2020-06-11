@@ -12,6 +12,7 @@ import { ApiContextProvider } from "./contexts/ApiContext";
 import { AuthContextProvider } from "./contexts/AuthContext";
 
 import RedirectRoute from "./router/RedirectRoute";
+import { Telemetry } from "../telemetry";
 
 import LandingPage from "./landing/LandingPage";
 import WhatsNewPage from "./whats-new/WhatsNewPage";
@@ -84,6 +85,7 @@ export default class App extends Component {
                   <Route render={() => <Error message="Page not found." />} />
                 </Switch>
               </Column>
+              <Telemetry />
             </Router>
           </ThemeProvider>
         </AuthContextProvider>

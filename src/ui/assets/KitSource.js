@@ -16,17 +16,19 @@ function hasTags(result, tags) {
 }
 
 export default class KitSource extends BaseSource {
-  constructor(kitUrl) {
+  constructor(api, kitUrl) {
     super();
+    this.api = api;
     this.kitUrl = proxiedUrlFor(new URL(kitUrl, window.location).href);
     this.component = KitSourcePanel;
     this.assets = [];
     this.tags = [];
     this.loaded = false;
+    this.searchDebounceTimeout = 0;
   }
 
   async load() {
-    const response = await fetch(this.kitUrl);
+    const response = await this.api.fetch(this.kitUrl);
     const gltf = await response.json();
     const tagsSet = new Set();
 

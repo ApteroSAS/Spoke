@@ -309,6 +309,9 @@ export default class SpokeControls extends EventEmitter {
     this.transformPivotChanged = false;
     this.transformSpaceChanged = false;
 
+    // Set up the transformRay
+    const cursorPosition = input.get(Spoke.cursorPosition);
+
     if (selectStart) {
       const selectStartPosition = input.get(Spoke.selectStartPosition);
       this.selectStartPosition.copy(selectStartPosition);
@@ -330,14 +333,14 @@ export default class SpokeControls extends EventEmitter {
           this.dragging = false;
         }
       }
+    } else if (this.transformGizmo.activeControls && !this.dragging) {
+      this.raycaster.setFromCamera(cursorPosition, this.camera);
+      this.transformGizmo.highlightHoveredAxis(this.raycaster);
     }
 
     const selectEnd = input.get(Spoke.selectEnd) === 1;
 
     if (this.dragging || this.transformMode === TransformMode.Grab || this.transformMode === TransformMode.Placement) {
-      // Set up the transformRay
-      const cursorPosition = input.get(Spoke.cursorPosition);
-
       let constraint;
 
       if (this.transformMode === TransformMode.Grab || this.transformMode === TransformMode.Placement) {
@@ -471,6 +474,14 @@ export default class SpokeControls extends EventEmitter {
         }
 
         if (this.transformSpace === TransformSpace.World) {
+          if (!selectedAxisInfo.rotationTarget) {
+            throw new Error(
+              `Couldn't rotate object due to an unknown error. The selected axis is ${
+                this.transformGizmo.selectedAxis.name
+              } The selected axis info is: ${JSON.stringify(selectedAxisInfo)}`
+            );
+          }
+
           selectedAxisInfo.rotationTarget.rotateOnAxis(selectedAxisInfo.planeNormal, relativeRotationAngle);
         } else {
           this.transformGizmo.rotateOnAxis(selectedAxisInfo.planeNormal, relativeRotationAngle);
@@ -760,7 +771,8 @@ export default class SpokeControls extends EventEmitter {
     if (
       (excludeObjects && excludeObjects.indexOf(object) !== -1) ||
       (excludeLayers && excludeLayers.test(object.layers)) ||
-      (this.editor.renderer.batchManager && this.editor.renderer.batchManager.batches.indexOf(object) !== -1)
+      (this.editor.renderer.batchManager && this.editor.renderer.batchManager.batches.indexOf(object) !== -1) ||
+      !object.visible
     ) {
       return;
     }

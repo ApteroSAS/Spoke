@@ -8,6 +8,8 @@ import styled from "styled-components";
 import { DndProvider } from "react-dnd";
 import HTML5Backend from "react-dnd-html5-backend";
 
+import { trackEvent } from "../telemetry";
+
 import ToolBar from "./toolbar/ToolBar";
 
 import HierarchyPanelContainer from "./hierarchy/HierarchyPanelContainer";
@@ -115,6 +117,7 @@ class EditorContainer extends Component {
     }
 
     if (projectId === "tutorial") {
+      trackEvent("Tutorial Start");
       this.setState({ onboardingContext: { enabled: true } });
     }
   }
@@ -139,6 +142,7 @@ class EditorContainer extends Component {
       }
 
       if (projectId === "tutorial") {
+        trackEvent("Tutorial Start");
         this.setState({ onboardingContext: { enabled: true } });
       }
     }
@@ -163,6 +167,14 @@ class EditorContainer extends Component {
 
       await editor.init();
 
+      if (templateFile.metadata) {
+        delete templateFile.metadata.sceneUrl;
+        delete templateFile.metadata.sceneId;
+        delete templateFile.metadata.creatorAttribution;
+        delete templateFile.metadata.allowRemixing;
+        delete templateFile.metadata.allowPromotion;
+      }
+
       await editor.loadProject(templateFile);
 
       this.hideDialog();
@@ -178,6 +190,8 @@ class EditorContainer extends Component {
   }
 
   async loadScene(sceneId) {
+    trackEvent("Remix Scene");
+
     this.setState({
       project: null,
       parentSceneId: sceneId,
@@ -200,6 +214,8 @@ class EditorContainer extends Component {
         delete projectFile.metadata.sceneUrl;
         delete projectFile.metadata.sceneId;
         delete projectFile.metadata.creatorAttribution;
+        delete projectFile.metadata.allowRemixing;
+        delete projectFile.metadata.allowPromotion;
       }
 
       await editor.init();
@@ -265,18 +281,16 @@ class EditorContainer extends Component {
 
     const editor = this.state.editor;
 
+    let project;
+
     try {
-      const project = await this.props.api.getProject(projectId);
+      project = await this.props.api.getProject(projectId);
 
       const projectFile = await this.props.api.fetch(project.project_url).then(response => response.json());
 
       await editor.init();
 
       await editor.loadProject(projectFile);
-
-      this.setState({
-        project
-      });
 
       this.hideDialog();
     } catch (error) {
@@ -287,6 +301,12 @@ class EditorContainer extends Component {
         message: error.message || "There was an error when loading the project.",
         error
       });
+    } finally {
+      if (project) {
+        this.setState({
+          project
+        });
+      }
     }
   }
 
@@ -349,6 +369,7 @@ class EditorContainer extends Component {
               const { projectId } = this.props.match.params;
 
               if (projectId === "tutorial") {
+                trackEvent("Tutorial Start");
                 this.setState({ onboardingContext: { enabled: true } });
               } else {
                 this.props.history.push("/projects/tutorial");
@@ -430,6 +451,7 @@ class EditorContainer extends Component {
     window.addEventListener("resize", this.onResize);
     this.onResize();
     editor.addListener("projectLoaded", this.onProjectLoaded);
+    editor.addListener("error", this.onEditorError);
     editor.addListener("sceneModified", this.onSceneModified);
     editor.addListener("saveProject", this.onSaveProject);
   };
@@ -525,6 +547,14 @@ class EditorContainer extends Component {
   async createProject() {
     const { editor, parentSceneId } = this.state;
 
+    this.showDialog(ProgressDialog, {
+      title: "Generating Project Screenshot",
+      message: "Generating project screenshot..."
+    });
+
+    // Wait for 5ms so that the ProgressDialog shows up.
+    await new Promise(resolve => setTimeout(resolve, 5));
+
     const { blob } = await editor.takeScreenshot(512, 320);
 
     const result = await new Promise(resolve => {
@@ -536,42 +566,45 @@ class EditorContainer extends Component {
       });
     });
 
-    if (result) {
-      const abortController = new AbortController();
-
-      this.showDialog(ProgressDialog, {
-        title: "Saving Project",
-        message: "Saving project...",
-        cancelable: true,
-        onCancel: () => {
-          abortController.abort();
-          this.hideDialog();
-        }
-      });
-
-      editor.setProperty(editor.scene, "name", result.name, false);
-      editor.scene.setMetadata({ name: result.name });
-
-      const project = await this.props.api.createProject(
-        editor.scene,
-        parentSceneId,
-        blob,
-        abortController.signal,
-        this.showDialog,
-        this.hideDialog
-      );
-
-      editor.sceneModified = false;
-
-      this.updateModifiedState(() => {
-        this.setState({ creatingProject: true, project }, () => {
-          this.props.history.replace(`/projects/${project.project_id}`);
-          this.setState({ creatingProject: false });
-        });
-      });
-
-      return project;
+    if (!result) {
+      this.hideDialog();
+      return null;
     }
+
+    const abortController = new AbortController();
+
+    this.showDialog(ProgressDialog, {
+      title: "Saving Project",
+      message: "Saving project...",
+      cancelable: true,
+      onCancel: () => {
+        abortController.abort();
+        this.hideDialog();
+      }
+    });
+
+    editor.setProperty(editor.scene, "name", result.name, false);
+    editor.scene.setMetadata({ name: result.name });
+
+    const project = await this.props.api.createProject(
+      editor.scene,
+      parentSceneId,
+      blob,
+      abortController.signal,
+      this.showDialog,
+      this.hideDialog
+    );
+
+    editor.sceneModified = false;
+
+    this.updateModifiedState(() => {
+      this.setState({ creatingProject: true, project }, () => {
+        this.props.history.replace(`/projects/${project.project_id}`);
+        this.setState({ creatingProject: false });
+      });
+    });
+
+    return project;
   }
 
   onNewProject = async () => {
@@ -583,6 +616,8 @@ class EditorContainer extends Component {
   };
 
   onSaveProject = async () => {
+    trackEvent("Project Save Start");
+
     const abortController = new AbortController();
 
     this.showDialog(ProgressDialog, {
@@ -619,6 +654,8 @@ class EditorContainer extends Component {
       this.updateModifiedState();
 
       this.hideDialog();
+
+      trackEvent("Project Save Successful");
     } catch (error) {
       console.error(error);
 
@@ -626,6 +663,8 @@ class EditorContainer extends Component {
         title: "Error Saving Project",
         message: error.message || "There was an error when saving the project."
       });
+
+      trackEvent("Project Save Error");
     }
   };
 
@@ -684,7 +723,7 @@ class EditorContainer extends Component {
     try {
       const editor = this.state.editor;
 
-      const glbBlob = await editor.exportScene(abortController.signal, options);
+      const { glbBlob } = await editor.exportScene(abortController.signal, options);
 
       this.hideDialog();
 
@@ -694,6 +733,8 @@ class EditorContainer extends Component {
       document.body.appendChild(el);
       el.click();
       document.body.removeChild(el);
+
+      trackEvent("Export Project as glTF");
     } catch (error) {
       if (error.aborted) {
         this.hideDialog();
@@ -745,6 +786,8 @@ class EditorContainer extends Component {
       }
     };
     el.click();
+
+    trackEvent("Import Legacy Project");
   };
 
   onExportLegacyProject = async () => {
@@ -765,9 +808,13 @@ class EditorContainer extends Component {
     document.body.appendChild(el);
     el.click();
     document.body.removeChild(el);
+
+    trackEvent("Project Exported");
   };
 
   onPublishProject = async () => {
+    trackEvent("Project Publish Started");
+
     try {
       const editor = this.state.editor;
       let project = this.state.project;
@@ -786,10 +833,16 @@ class EditorContainer extends Component {
         return;
       }
 
+      editor.sceneModified = false;
+      this.updateModifiedState();
+
+      trackEvent("Project Publish Successful");
+
       this.setState({ project });
     } catch (error) {
       if (error.aborted) {
         this.hideDialog();
+        trackEvent("Project Publish Canceled");
         return;
       }
 
@@ -799,12 +852,16 @@ class EditorContainer extends Component {
         message: error.message || "There was an unknown error.",
         error
       });
+
+      trackEvent("Project Publish Error");
     }
   };
 
   getSceneId() {
     const { editor, project } = this.state;
-    return (project && project.scene && project.scene.scene_id) || editor.scene.metadata.sceneId;
+    return (
+      (project && project.scene && project.scene.scene_id) || (editor.scene.metadata && editor.scene.metadata.sceneId)
+    );
   }
 
   onOpenScene = () => {
@@ -816,7 +873,13 @@ class EditorContainer extends Component {
     }
   };
 
-  onFinishTutorial = () => {
+  onFinishTutorial = nextAction => {
+    trackEvent("Tutorial Finished", nextAction);
+    this.setState({ onboardingContext: { enabled: false } });
+  };
+
+  onSkipTutorial = lastCompletedStep => {
+    trackEvent("Tutorial Skipped", lastCompletedStep);
     this.setState({ onboardingContext: { enabled: false } });
   };
 
@@ -871,7 +934,9 @@ class EditorContainer extends Component {
                       message={`${editor.scene.name} has unsaved changes, are you sure you wish to navigate away from the page?`}
                     />
                   )}
-                  {onboardingContext.enabled && <Onboarding onFinish={this.onFinishTutorial} />}
+                  {onboardingContext.enabled && (
+                    <Onboarding onFinish={this.onFinishTutorial} onSkip={this.onSkipTutorial} />
+                  )}
                 </DndProvider>
               </OnboardingContextProvider>
             </DialogContextProvider>

@@ -9,6 +9,7 @@ import {
 import { Color, Object3D } from "three";
 import serializeColor from "../utils/serializeColor";
 import LoadingCube from "../objects/LoadingCube";
+import ErrorIcon from "../objects/ErrorIcon";
 
 export default function EditorNodeMixin(Object3DClass) {
   return class extends Object3DClass {
@@ -78,6 +79,8 @@ export default function EditorNodeMixin(Object3DClass) {
       this.originalStaticMode = null;
       this.saveParent = false;
       this.loadingCube = null;
+      this.errorIcon = null;
+      this.issues = [];
     }
 
     clone(recursive) {
@@ -87,6 +90,7 @@ export default function EditorNodeMixin(Object3DClass) {
     copy(source, recursive = true) {
       if (recursive) {
         this.remove(this.loadingCube);
+        this.remove(this.errorIcon);
       }
 
       super.copy(source, recursive);
@@ -97,7 +101,15 @@ export default function EditorNodeMixin(Object3DClass) {
         if (loadingCubeIndex !== -1) {
           this.loadingCube = this.children[loadingCubeIndex];
         }
+
+        const errorIconIndex = source.children.findIndex(child => child === source.errorIcon);
+
+        if (errorIconIndex !== -1) {
+          this.errorIcon = this.children[errorIconIndex];
+        }
       }
+
+      this.issues = source.issues.slice();
 
       return this;
     }
@@ -159,10 +171,14 @@ export default function EditorNodeMixin(Object3DClass) {
 
       if (components) {
         for (const componentName in components) {
+          if (!Object.prototype.hasOwnProperty.call(components, componentName)) continue;
+
           const serializedProps = {};
           const componentProps = components[componentName];
 
           for (const propName in componentProps) {
+            if (!Object.prototype.hasOwnProperty.call(componentProps, propName)) continue;
+
             const propValue = componentProps[propName];
 
             if (propValue instanceof Color) {
@@ -208,6 +224,8 @@ export default function EditorNodeMixin(Object3DClass) {
       const componentProps = {};
 
       for (const key in props) {
+        if (!Object.prototype.hasOwnProperty.call(props, key)) continue;
+
         const value = props[key];
 
         if (value instanceof Color) {
@@ -269,12 +287,42 @@ export default function EditorNodeMixin(Object3DClass) {
         this.loadingCube = new LoadingCube();
         this.add(this.loadingCube);
       }
+
+      const worldScale = this.getWorldScale(this.loadingCube.scale);
+
+      if (worldScale.x === 0 || worldScale.y === 0 || worldScale.z === 0) {
+        this.loadingCube.scale.set(1, 1, 1);
+      } else {
+        this.loadingCube.scale.set(1 / worldScale.x, 1 / worldScale.y, 1 / worldScale.z);
+      }
     }
 
     hideLoadingCube() {
       if (this.loadingCube) {
         this.remove(this.loadingCube);
         this.loadingCube = null;
+      }
+    }
+
+    showErrorIcon() {
+      if (!this.errorIcon) {
+        this.errorIcon = new ErrorIcon();
+        this.add(this.errorIcon);
+      }
+
+      const worldScale = this.getWorldScale(this.errorIcon.scale);
+
+      if (worldScale.x === 0 || worldScale.y === 0 || worldScale.z === 0) {
+        this.errorIcon.scale.set(1, 1, 1);
+      } else {
+        this.errorIcon.scale.set(1 / worldScale.x, 1 / worldScale.y, 1 / worldScale.z);
+      }
+    }
+
+    hideErrorIcon() {
+      if (this.errorIcon) {
+        this.remove(this.errorIcon);
+        this.errorIcon = null;
       }
     }
 
@@ -326,6 +374,11 @@ export default function EditorNodeMixin(Object3DClass) {
       }
 
       return nodes;
+    }
+
+    // Used for calculating stats for the Performance Check Dialog
+    getRuntimeResourcesForStats() {
+      // return { textures: [], materials: [], meshes: [], lights: [] };
     }
   };
 }
