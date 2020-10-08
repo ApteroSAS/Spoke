@@ -19,5 +19,6 @@ test/integration/.spoke-server
 test/integration/project/generated
 .tersercache
 results/
+test/reports/*.xml
 docker/www/
 .idea

@@ -339,12 +339,14 @@ export default class Editor extends EventEmitter {
   }
 
   static DefaultExportOptions = {
-    combineMeshes: true,
+    combineMeshes: false,
     removeUnusedObjects: true
   };
 
   async exportScene(signal, options = {}) {
     const { combineMeshes, removeUnusedObjects } = Object.assign({}, Editor.DefaultExportOptions, options);
+
+    this.deselectAll(false);
 
     const scene = this.scene;
 
@@ -386,16 +388,6 @@ export default class Editor extends EventEmitter {
     if (removeUnusedObjects) {
       clonedScene.removeUnusedObjects();
     }
-
-    // Add a preview camera to the exported GLB if there is a transform in the metadata.
-    const previewCamera = this.camera.clone();
-    previewCamera.name = "scene-preview-camera";
-    previewCamera.userData.gltfExtensions = {
-      MOZ_hubs_components: {
-        "scene-preview-camera": {}
-      }
-    };
-    clonedScene.add(previewCamera);
 
     const exporter = new GLTFExporter({
       mode: "glb",
