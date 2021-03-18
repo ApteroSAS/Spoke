@@ -7,6 +7,7 @@ import BooleanInput from "../inputs/BooleanInput";
 import ModelInput from "../inputs/ModelInput";
 import { Cube } from "styled-icons/fa-solid/Cube";
 import { GLTFInfo } from "../inputs/GLTFInfo";
+import AttributionNodeEditor from "./AttributionNodeEditor";
 
 export default class ModelNodeEditor extends Component {
   static propTypes = {
@@ -23,8 +24,8 @@ export default class ModelNodeEditor extends Component {
     this.props.editor.setPropertiesSelected({ ...initialProps, src });
   };
 
-  onChangeAnimation = activeClipIndices => {
-    this.props.editor.setPropertySelected("activeClipIndices", activeClipIndices || []);
+  onChangeAnimation = activeClipItems => {
+    this.props.editor.setPropertySelected("activeClipItems", activeClipItems || []);
   };
 
   onChangeCollidable = collidable => {
@@ -45,6 +46,10 @@ export default class ModelNodeEditor extends Component {
 
   onChangeCombine = combine => {
     this.props.editor.setPropertySelected("combine", combine);
+  };
+
+  onChangeBillboard = billboard => {
+    this.props.editor.setPropertySelected("billboard", billboard);
   };
 
   isAnimationPropertyDisabled() {
@@ -69,7 +74,7 @@ export default class ModelNodeEditor extends Component {
           <SelectInput
             disabled={this.isAnimationPropertyDisabled()}
             options={node.getClipOptions()}
-            value={node.activeClipIndices}
+            value={node.activeClipItems}
             onChange={this.onChangeAnimation}
             className="basic-multi-select"
             classNamePrefix="select"
@@ -91,7 +96,11 @@ export default class ModelNodeEditor extends Component {
         <InputGroup name="Combine">
           <BooleanInput value={node.combine} onChange={this.onChangeCombine} />
         </InputGroup>
+        <InputGroup name="Billboard" info="Model always faces user in Hubs. Does not billboard in Spoke.">
+          <BooleanInput value={node.billboard} onChange={this.onChangeBillboard} />
+        </InputGroup>
         {node.model && <GLTFInfo node={node} />}
+        <AttributionNodeEditor name="Attribution" {...this.props} />
       </NodeEditor>
     );
   }

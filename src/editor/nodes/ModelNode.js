@@ -42,7 +42,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         // Legacy, might be a raw string left over before switch to JSON.
         if (attribution && typeof attribution === "string") {
           const [name, author] = attribution.split(" by ");
-          node.attribution = { name, author };
+          node.attribution = node.attribution || {};
+          Object.assign(node.attribution, author ? { author: author } : null, name ? { title: name } : null);
         } else {
           node.attribution = attribution;
         }
@@ -61,10 +62,10 @@ export default class ModelNode extends EditorNodeMixin(Model) {
             const clipIndex = node.model.animations.findIndex(animation => animation.name === clip);
 
             if (clipIndex !== -1) {
-              node.activeClipIndices = [clipIndex];
+              node.activeClipItems = node.getActiveItems([clipIndex]);
             }
           } else {
-            node.activeClipIndices = activeClipIndices;
+            node.activeClipItems = node.getActiveItems(activeClipIndices);
           }
         }
 
@@ -73,6 +74,10 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         if (shadowComponent) {
           node.castShadow = shadowComponent.props.cast;
           node.receiveShadow = shadowComponent.props.receive;
+        }
+
+        if (json.components.find(c => c.name === "billboard")) {
+          node.billboard = true;
         }
       })()
     );
@@ -92,6 +97,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.boundingSphere = new Sphere();
     this.stats = defaultStats;
     this.gltfJson = null;
+    this._billboard = false;
   }
 
   // Overrides Model's src property and stores the original (non-resolved) url.
@@ -102,6 +108,15 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   // When getters are overridden you must also override the setter.
   set src(value) {
     this.load(value).catch(console.error);
+  }
+
+  get billboard() {
+    return this._billboard;
+  }
+
+  set billboard(value) {
+    this._billboard = value;
+    this.updateStaticModes();
   }
 
   // Overrides Model's loadGLTF method and uses the Editor's gltf cache.
@@ -115,15 +130,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
 
     const clonedScene = cloneObject3D(scene);
 
-    const sketchfabExtras = json.asset && json.asset.extras;
-
-    if (sketchfabExtras) {
-      const name = sketchfabExtras.title;
-      const author = sketchfabExtras.author ? sketchfabExtras.author.replace(/ \(http.+\)/, "") : "";
-      const url = sketchfabExtras.source || this._canonicalUrl;
-      clonedScene.name = name;
-      this.attribution = { name, author, url };
-    }
+    this.updateAttribution();
 
     return clonedScene;
   }
@@ -152,7 +159,9 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.showLoadingCube();
 
     try {
-      const { accessibleUrl, files } = await this.editor.api.resolveMedia(src);
+      const { accessibleUrl, files, meta } = await this.editor.api.resolveMedia(src);
+
+      this.meta = meta;
 
       if (this.model) {
         this.editor.renderer.removeBatchedObject(this.model);
@@ -259,6 +268,23 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     return this;
   }
 
+  getAttribution() {
+    // Sketchfab models use an extra object inside the asset object
+    // Blender & Google Poly exporters add a copyright property to the asset object
+    const name = this.name.replace(/\.[^/.]+$/, "");
+    const assetDef = this.gltfJson.asset;
+    const attributions = {};
+    Object.assign(
+      attributions,
+      assetDef.extras && assetDef.extras.author
+        ? { author: assetDef.extras.author }
+        : (assetDef.copyright && { author: assetDef.copyright }) || null,
+      assetDef.extras && assetDef.extras.source ? { url: assetDef.extras.source } : null,
+      assetDef.extras && assetDef.extras.title ? { title: assetDef.extras.title } : this.name ? { title: name } : null
+    );
+    return attributions;
+  }
+
   onAdd() {
     if (this.model) {
       this.editor.renderer.addBatchedObject(this.model);
@@ -308,6 +334,10 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         }
       }
     }
+
+    if (this.billboard) {
+      setStaticMode(this.model, StaticModes.Dynamic);
+    }
   }
 
   serialize() {
@@ -340,6 +370,10 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       components.combine = {};
     }
 
+    if (this.billboard) {
+      components.billboard = {};
+    }
+
     return super.serialize(components);
   }
 
@@ -350,7 +384,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       this.initialScale = source.initialScale;
       this.load(source.src);
     } else {
-      this.updateStaticModes();
       this.stats = JSON.parse(JSON.stringify(source.stats));
       this.gltfJson = source.gltfJson;
       this._canonicalUrl = source._canonicalUrl;
@@ -360,17 +393,22 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.collidable = source.collidable;
     this.walkable = source.walkable;
     this.combine = source.combine;
+    this._billboard = source._billboard;
+
+    this.updateStaticModes();
+
     return this;
   }
 
   prepareForExport(ctx) {
     super.prepareForExport();
+
     this.addGLTFComponent("shadow", {
       cast: this.castShadow,
       receive: this.receiveShadow
     });
 
-    const activeClipIndices = this.getActiveClipIndices().map(index => {
+    const clipIndices = this.activeClipIndices.map(index => {
       return ctx.animations.indexOf(this.model.animations[index]);
     });
 
@@ -382,10 +420,14 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       }
     });
 
-    if (activeClipIndices.length > 0) {
+    if (clipIndices.length > 0) {
       this.addGLTFComponent("loop-animation", {
-        activeClipIndices
+        activeClipIndices: clipIndices
       });
+    }
+
+    if (this.billboard) {
+      this.addGLTFComponent("billboard", {});
     }
   }
 }
