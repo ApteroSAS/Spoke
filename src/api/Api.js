@@ -56,13 +56,17 @@ function shouldCorsProxy(url) {
 }
 
 export const proxiedUrlFor = url => {
-  if (!(url.startsWith("http:") || url.startsWith("https:"))) return url;
+  if (url.startsWith("https:")) return url;
 
   if (!shouldCorsProxy(url)) {
     return url;
   }
 
-  return `https://${configs.CORS_PROXY_SERVER}/${url}`;
+  if (url.startsWith("http:")){
+    return url.replace("http:","https:");
+  }else {
+    return `https://${configs.CORS_PROXY_SERVER}/${url}`;
+  }
 };
 
 export const scaledThumbnailUrlFor = (url, width, height) => {
