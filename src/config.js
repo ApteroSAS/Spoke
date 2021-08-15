@@ -63,6 +63,8 @@ import MyAssetsSource from "./ui/assets/sources/MyAssetsSource";
 import ArchitectureKitSource from "./ui/assets/sources/ArchitectureKitSource";
 import RockKitSource from "./ui/assets/sources/RockKitSource";
 import HubsSoundPackSource from "./ui/assets/sources/HubsSoundPackSource";
+import ApteroElementsSource from "./ui/assets/sources/ApteroElementsSource";
+import TriggerNode from "./editor/nodes/TriggerNode";
 
 export function createEditor(api, settings) {
   const editor = new Editor(api, settings);
@@ -93,16 +95,19 @@ export function createEditor(api, settings) {
   editor.registerNode(ScenePreviewCameraNode, ScenePreviewCameraNodeEditor);
   editor.registerNode(MediaFrameNode, MediaFrameNodeEditor);
   editor.registerNode(AudioZoneNode, AudioZoneNodeEditor);
+  //aptero
+  editor.registerNode(TriggerNode, TriggerVolumeNodeEditor);
 
   editor.registerSource(new ElementsSource(editor));
+  editor.registerSource(new ApteroElementsSource(editor));//aptero
   editor.registerSource(new MyAssetsSource(editor));
   editor.registerSource(new ArchitectureKitSource(api));
   editor.registerSource(new RockKitSource(api));
-  editor.registerSource(new SketchfabSource(api));
-  editor.registerSource(new BingImagesSource(api));
-  editor.registerSource(new BingVideosSource(api));
-  editor.registerSource(new HubsSoundPackSource(editor));
-  editor.registerSource(new TenorSource(api));
+  //editor.registerSource(new SketchfabSource(api));
+  //editor.registerSource(new BingImagesSource(api));
+  //editor.registerSource(new BingVideosSource(api));
+  //editor.registerSource(new HubsSoundPackSource(editor));
+  //editor.registerSource(new TenorSource(api));
 
   return editor;
 }

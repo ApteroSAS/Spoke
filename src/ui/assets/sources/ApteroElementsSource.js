@@ -3,13 +3,13 @@ import { BaseSource } from "./index";
 import { ItemTypes } from "../../dnd";
 import MediaSourcePanel from "../MediaSourcePanel";
 
-export default class ElementsSource extends BaseSource {
+export default class ApteroElementsSource extends BaseSource {
   constructor(editor) {
     super();
     this.component = MediaSourcePanel;
     this.editor = editor;
-    this.id = "elements";
-    this.name = "Elements";
+    this.id = "aptero-elements";
+    this.name = "Aptero Elements";
     this.enableExperimentalFeatures = editor.settings.enableExperimentalFeatures;
     this.editor.addListener("settingsChanged", this.onSettingsChanged);
     this.editor.addListener("sceneGraphChanged", this.onSceneGraphChanged);
@@ -38,7 +38,7 @@ export default class ElementsSource extends BaseSource {
         return acc;
       }
 
-      if(nodeType.subtype){
+      if(nodeType.subtype !== "aptero"){
         return acc;
       }
 
