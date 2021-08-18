@@ -65,6 +65,7 @@ import RockKitSource from "./ui/assets/sources/RockKitSource";
 import HubsSoundPackSource from "./ui/assets/sources/HubsSoundPackSource";
 import ApteroElementsSource from "./ui/assets/sources/ApteroElementsSource";
 import TriggerNode from "./editor/nodes/TriggerNode";
+import TriggerNodeEditor from "./ui/properties/TriggerNodeEditor";
 
 export function createEditor(api, settings) {
   const editor = new Editor(api, settings);
@@ -96,7 +97,7 @@ export function createEditor(api, settings) {
   editor.registerNode(MediaFrameNode, MediaFrameNodeEditor);
   editor.registerNode(AudioZoneNode, AudioZoneNodeEditor);
   //aptero
-  editor.registerNode(TriggerNode, TriggerVolumeNodeEditor);
+  editor.registerNode(TriggerNode, TriggerNodeEditor);
 
   editor.registerSource(new ElementsSource(editor));
   editor.registerSource(new ApteroElementsSource(editor));//aptero

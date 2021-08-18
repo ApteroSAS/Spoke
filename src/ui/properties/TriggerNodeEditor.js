@@ -9,17 +9,11 @@ import { Running } from "styled-icons/fa-solid/Running";
 
 const componentOptions = [
   {
-    label: "video",
-    value: "video",
-    nodeNames: ["Video"],
-    propertyOptions: [{ label: "paused", value: "paused", component: "video", input: BooleanInput, default: false }]
-  },
-  {
-    label: "loop-animation",
-    value: "loop-animation",
-    nodeNames: ["Model"],
+    label: "audio-sub-room",
+    value: "audio-sub-room",
+    nodeNames: ["audio-system"],
     propertyOptions: [
-      { label: "paused", value: "paused", component: "loop-animation", input: BooleanInput, default: false }
+      { label: "sub room id", value: "sub-room-id", component: "audio-sub-room", input: StringInput, default: "eg 'sub-room-1' or 'default'" }
     ]
   }
 ];
@@ -33,13 +27,13 @@ export default class TriggerNodeEditor extends Component {
 
   static iconComponent = Running;
 
-  static description = "Sets a property on the target object on enter and leave.";
+  static description = "Sets a property on avatar enter and leave.";
 
   constructor(props) {
     super(props);
 
     this.state = {
-      options: []
+      options: [{label:"Audio System",value:"audio-system",nodeName:"audio-system"}]
     };
   }
 
@@ -94,17 +88,6 @@ export default class TriggerNodeEditor extends Component {
   };
 
   componentDidMount() {
-    const options = [];
-
-    const sceneNode = this.props.editor.scene;
-
-    sceneNode.traverse(o => {
-      if (o.isNode && o !== sceneNode) {
-        options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName });
-      }
-    });
-
-    this.setState({ options });
   }
 
   render() {
@@ -112,7 +95,6 @@ export default class TriggerNodeEditor extends Component {
 
     const targetOption = this.state.options.find(o => o.value === node.target);
     const target = targetOption ? targetOption.value : null;
-    const targetNotFound = node.target && target === null;
 
     const filteredComponentOptions = targetOption
       ? componentOptions.filter(o => o.nodeNames.indexOf(targetOption.nodeName) !== -1)
@@ -141,8 +123,7 @@ export default class TriggerNodeEditor extends Component {
       <NodeEditor description={TriggerNodeEditor.description} {...this.props}>
         <InputGroup name="Target">
           <SelectInput
-            error={targetNotFound}
-            placeholder={targetNotFound ? "Error missing node." : "Select node..."}
+            placeholder={"Select node..."}
             value={node.target}
             onChange={this.onChangeTarget}
             options={this.state.options}

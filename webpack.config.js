@@ -69,7 +69,7 @@ function createHTTPSConfig() {
 
 const defaultHostName = "localhost";
 const host = process.env.HOST_IP || defaultHostName;
-const port = process.env.HOST_PORT || 9090;
+const port = process.env.HOST_PORT || 8080;
 
 module.exports = env => {
   return {
