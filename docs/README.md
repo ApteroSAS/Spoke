@@ -37,63 +37,63 @@ When running against a local self-signed cert reticulum server, you'll need to `
 ```
 spoke/
   src/
-    api/ <- Code for interacting with Reticulum and other Hubs services
-      Api.js <- The main class for interacting with Hubs services
-    assets/ <- Static assets
-    editor/ <- ThreeJS editor codebase
-      caches/ <- In-memory caches for editor content
-      commands/ <- All editor actions have a corresponding command for undo/redo functionality
-      controls/ <- User input and viewport controls
-      gltf/ <- Custom Spoke glTF loader/exporter and related utilities
-      heightfield/ <- Raycast based heightfield generator
-      helpers/ <- ThreeJS helper Object3Ds for visualizing lights and other elements
-      kits/ <- Code for packaging glTF kits
-      nodes/ <- Nodes represent the Object3Ds surfaced to users as Elements
-        EditorNodeMixin.js <- Mixin to turn any Object3D into a Spoke Node
-        SceneNode.js <- Root Node that also contains the scene serialization/deserialization logic
-      objects/ <- Custom ThreeJS Object3Ds
-      recast/ <- Recast Navigation (NavMesh generation library) related code
-      renderer/ <- ThreeJS Renderer / shader / WebGL related code
-        Renderer.js <- Spoke's WebGLRenderer wrapper
-      utils/ <- Various ThreeJS / Spoke editor related utilities
-    Editor.js <- The main editor class controlling the internal state, commands, serialization, export, etc.
-    History.js <- Undo/Redo system class
-    MeshCombinationGroup.js <- Mesh combination optimization utility class
-    StaticMode.js <- Static Object3D tagging utilities, used in combination with MeshCombinationGroup
-    ui/ <- React UI codebase
-      assets/ <- Components/utilities related to the Assets Panel
-      auth/ <- Components/utilities related to authentication
-      contexts/ <- React Contexts for global app state
-      dialogs/ <- Components for various Spoke dialogs
-      dnd/ <- React Drag-n-Drop related utilities
-      hierarchy/ <- Components/utilities related to the Scene Hierarchy Panel
-      hooks/ <- Various generic React hooks for use in React Components
-      inputs/ <- Components related to input fields used throughout the Spoke app
-      landing/ <- Components related to the Spoke landing page
-      layout/ <- Components used for laying out other React components
-      navigation/ <- Common navigation components used for non-editor pages
-      onboarding/ <- Components/utilities used for the Spoke editor onboarding
-      projects/ <- Components/utilities used on the Spoke projects pages
-      properties/ <- Components used in the Properties panel (this includes editors for each element)
-      router/ <- react-router related components and utilities
-      toolbar/ <- Spoke's editor toolbar related components and utilities
-      viewport/ <- Components/utilities used in the Viewport panel
-      whats-new/ <- Components/utilities used in the what's new page
-      App.js <- The root component of the Spoke single page app, including the Routes
-      EditorContainer.js <- The root component of the Spoke editor
-      GlobalStyle.js <- Global css styles
-      theme.js <- The styled-components theme
-      utils.js <- Utility methods used in the ui
-    config.js <- Main Spoke configuration file. Where new elements/asset sources are configured.
-    configs.js <- Hubs Cloud related configuration
-    index.html <- The HTML entry point for the Spoke single page webapp
-    index.js <- Main application entry point
+    api/          <- Code for interacting with Reticulum and other Hubs services
+      Api.js      <- The main class for interacting with Hubs services
+    assets/       <- Static assets
+    editor/       <- ThreeJS editor codebase
+      caches/     <- In-memory caches for editor content
+      commands/   <- All editor actions have a corresponding command for undo/redo functionality
+      controls/   <- User input and viewport controls
+      gltf/       <- Custom Spoke glTF loader/exporter and related utilities
+      heightfield/      <- Raycast based heightfield generator
+      helpers/    <- ThreeJS helper Object3Ds for visualizing lights and other elements
+      kits/       <- Code for packaging glTF kits
+      nodes/      <- Nodes represent the Object3Ds surfaced to users as Elements
+        EditorNodeMixin.js    <- Mixin to turn any Object3D into a Spoke Node
+        SceneNode.js          <- Root Node that also contains the scene serialization/deserialization logic
+      objects/    <- Custom ThreeJS Object3Ds
+      recast/     <- Recast Navigation (NavMesh generation library) related code
+      renderer/   <- ThreeJS Renderer / shader / WebGL related code
+        Renderer.js     <- Spoke's WebGLRenderer wrapper
+      utils/      <- Various ThreeJS / Spoke editor related utilities
+    Editor.js     <- The main editor class controlling the internal state, commands, serialization, export, etc.
+    History.js    <- Undo/Redo system class
+    MeshCombinationGroup.js   <- Mesh combination optimization utility class
+    StaticMode.js       <- Static Object3D tagging utilities, used in combination with MeshCombinationGroup
+    ui/           <- React UI codebase
+      assets/     <- Components/utilities related to the Assets Panel
+      auth/       <- Components/utilities related to authentication
+      contexts/   <- React Contexts for global app state
+      dialogs/    <- Components for various Spoke dialogs
+      dnd/        <- React Drag-n-Drop related utilities
+      hierarchy/  <- Components/utilities related to the Scene Hierarchy Panel
+      hooks/      <- Various generic React hooks for use in React Components
+      inputs/     <- Components related to input fields used throughout the Spoke app
+      landing/    <- Components related to the Spoke landing page
+      layout/     <- Components used for laying out other React components
+      navigation/       <- Common navigation components used for non-editor pages
+      onboarding/       <- Components/utilities used for the Spoke editor onboarding
+      projects/         <- Components/utilities used on the Spoke projects pages
+      properties/       <- Components used in the Properties panel (this includes editors for each element)
+      router/     <- react-router related components and utilities
+      toolbar/    <- Spoke's editor toolbar related components and utilities
+      viewport/   <- Components/utilities used in the Viewport panel
+      whats-new/  <- Components/utilities used in the what's new page
+      App.js      <- The root component of the Spoke single page app, including the Routes
+      EditorContainer.js  <- The root component of the Spoke editor
+      GlobalStyle.js      <- Global css styles
+      theme.js    <- The styled-components theme
+      utils.js    <- Utility methods used in the ui
+    config.js     <- Main Spoke configuration file. Where new elements/asset sources are configured.
+    configs.js    <- Hubs Cloud related configuration
+    index.html    <- The HTML entry point for the Spoke single page webapp
+    index.js      <- Main application entry point
   test/
-    fixtures/ <- Test scenes and other assets used in tests (served by webpack-dev server in test mode)
-    helpers/ <- Test helpers including the Puppetteer integration testing script
-    integration/ <- Integration tests ran in Ava + Puppeteer
-    unit/ <- Unit tests ran in Ava
-    entry.js <- Unit test entrypoint used to mock the browser context
+    fixtures/     <- Test scenes and other assets used in tests (served by webpack-dev server in test mode)
+    helpers/      <- Test helpers including the Puppetteer integration testing script
+    integration/      <- Integration tests ran in Ava + Puppeteer
+    unit/         <- Unit tests ran in Ava
+    entry.js      <- Unit test entrypoint used to mock the browser context
 ```
 
 ## Architecture
