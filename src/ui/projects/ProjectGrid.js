@@ -63,10 +63,10 @@ const StyledProjectGrid = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 `;
 
-export function ProjectGrid({ newProjectPath, newProjectLabel, projects, scenes, contextMenuId, loading }) {
+export function ProjectGrid({ newProjectPath, newProjectLabel, projects, scenes, contextMenuId, loading, isAllowedToCreateProjects }) {
   return (
     <StyledProjectGrid>
-      {newProjectPath && !loading && <NewProjectGridItem path={newProjectPath} label={newProjectLabel} />}
+      {newProjectPath && !loading && isAllowedToCreateProjects && <NewProjectGridItem path={newProjectPath} label={newProjectLabel} />}
       {scenes &&
         scenes.map(scene => (
           <ProjectGridSceneItem key={scene.scene_id || scene.id} scene={scene} contextMenuId={contextMenuId} />

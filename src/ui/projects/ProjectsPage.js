@@ -141,10 +141,13 @@ class ProjectsPage extends Component {
 
   ProjectContextMenu = connectMenu(contextMenuId)(this.renderContextMenu);
 
+  isAllowedToCreateProjects = this.props.api.isAllowedToCreateProjects;
+
   render() {
     const { error, loading, projects, scenes, isAuthenticated } = this.state;
 
     const ProjectContextMenu = this.ProjectContextMenu;
+    const isAllowedToCreateProjects = this.isAllowedToCreateProjects()
 
     return (
       <>
@@ -152,16 +155,6 @@ class ProjectsPage extends Component {
         <main>
           {!isAuthenticated || (projects.length === 0 && !loading) ? (
             <ProjectsSection flex={0}>
-              <WelcomeContainer>
-                <h1>Welcome{configs.isMoz() ? " to Spoke" : ""}</h1>
-                <h2>
-                  If you&#39;re new here we recommend going through the tutorial. Otherwise, jump right in and create a
-                  project from scratch or from one of our templates.
-                </h2>
-                <MediumButton as={Link} to="/projects/tutorial">
-                  Start Tutorial
-                </MediumButton>
-              </WelcomeContainer>
             </ProjectsSection>
           ) : (
             <LatestUpdate />
@@ -175,9 +168,11 @@ class ProjectsPage extends Component {
                 <ProjectGridHeader>
                   <ProjectGridHeaderRow></ProjectGridHeaderRow>
                   <ProjectGridHeaderRow>
+                    { isAllowedToCreateProjects ? (
                     <Button as={Link} to="/projects/create">
                       New Project
                     </Button>
+                    ) : <></>}
                   </ProjectGridHeaderRow>
                 </ProjectGridHeader>
                 <ProjectGridContent>
@@ -189,6 +184,7 @@ class ProjectsPage extends Component {
                       scenes={scenes}
                       newProjectPath="/projects/templates"
                       contextMenuId={contextMenuId}
+                      isAllowedToCreateProjects={isAllowedToCreateProjects}
                     />
                   )}
                 </ProjectGridContent>

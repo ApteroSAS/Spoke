@@ -159,6 +159,12 @@ export default class Project extends EventEmitter {
     return !!(store && store.credentials && store.credentials.token);
   }
 
+  //Aptero
+  isAllowedToCreateProjects(){
+    console.log(this.state.isAuthenticated)
+    return this.state.isAuthenticated;
+  }
+
   getToken() {
     const value = localStorage.getItem(LOCAL_STORE_KEY);
 

@@ -50,11 +50,17 @@ export async function* getUpdates(perPage = 30) {
 
     const json = await response.json();
 
-    if (json.errors) {
+    if (json.errors || json.message == "Bad credentials") {
       let message = "Error fetching pull requests from GitHub:";
 
-      for (const error of json.errors) {
-        message += "\n" + error.message;
+      if(json.errors)
+      {
+        for (const error of json.errors) {
+          message += "\n" + error.message;
+        }
+      }
+      else {
+        message += "\n" + json.message;
       }
 
       throw new Error(message);
