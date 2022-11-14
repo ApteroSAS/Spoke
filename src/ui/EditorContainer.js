@@ -356,7 +356,7 @@ class EditorContainer extends Component {
             action: this.onDuplicateProject
           },
           {
-            name: configs.isMoz() ? "Publish to Hubs..." : "Publish Scene...",
+            name: "Publish Scene...",
             action: this.onPublishProject
           },
           {
@@ -391,7 +391,7 @@ class EditorContainer extends Component {
           },
           {
             name: "Keyboard and Mouse Controls",
-            action: () => window.open("https://hubs.mozilla.com/docs/spoke-controls.html")
+            action: () => window.open("https://aptero.co")
           },
           {
             name: "Get Support",
@@ -399,15 +399,15 @@ class EditorContainer extends Component {
           },
           {
             name: "Submit Feedback",
-            action: () => window.open("https://forms.gle/2PAFXKwW1SXdfSK17")
+            action: () => window.open("https://aptero.co")
           },
           {
             name: "Report an Issue",
-            action: () => window.open("https://github.com/mozilla/Spoke/issues/new")
+            action: () => window.open("https://aptero.co")
           },
           {
             name: "Join us on Discord",
-            action: () => window.open("https://discord.gg/wHmY4nd")
+            action: () => window.open("https://aptero.co")
           },
           {
             name: "Terms of Use",
@@ -436,7 +436,7 @@ class EditorContainer extends Component {
       },
       {
         name: "Submit Feedback",
-        action: () => window.open("https://forms.gle/2PAFXKwW1SXdfSK17")
+        action: () => window.open("https://aptero.co")
       }
     ];
   };

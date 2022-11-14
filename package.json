@@ -59,8 +59,8 @@
     ]
   },
   "storybook-deployer": {
-    "gitUsername": "SpokeBot",
-    "gitEmail": "hubs@mozilla.com",
+    "gitUsername": "ApteroSAS",
+    "gitEmail": "constact@aptero.co",
     "commitMessage": "Deploy Storybook [skip ci]"
   },
   "dependencies": {

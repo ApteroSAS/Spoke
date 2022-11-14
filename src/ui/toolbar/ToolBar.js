@@ -484,11 +484,11 @@ export default class ToolBar extends Component {
         <Spacer />
         {this.props.isPublishedScene && (
           <PublishButton onClick={this.props.onOpenScene}>
-            {configs.isMoz() ? "Open in Hubs" : "Open Scene"}
+            Open Scene
           </PublishButton>
         )}
         <PublishButton id="publish-button" onClick={this.props.onPublish}>
-          {configs.isMoz() ? "Publish to Hubs..." : "Publish Scene..."}
+          Publish Scene...
         </PublishButton>
         <ContextMenu id="menu">
           {this.props.menu.map(menu => {

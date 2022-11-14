@@ -106,8 +106,8 @@ export default class LandingPage extends Component {
                 </LogoContainer>
                 <h3>
                   Create 3D social scenes for{" "}
-                  <a href="https://hubs.mozilla.com" rel="noopener noreferrer">
-                    Hubs
+                  <a href="https://contact@aptero.co" rel="noopener noreferrer">
+                    Aptero
                   </a>
                 </h3>
                 <LargeButton as={Link} to="/new">
@@ -142,7 +142,7 @@ export default class LandingPage extends Component {
               <Callout imageSrc={meeting}>
                 <h3>Share</h3>
                 <p>
-                  Invite people to meet in your new space by publishing your content to Hubs immediately. With just a
+                  Invite people to meet in your new space by publishing your content immediately. With just a
                   few clicks, you&#39;ll have a world of your own to experience and share - all from your browser.
                 </p>
               </Callout>

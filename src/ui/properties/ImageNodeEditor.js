@@ -33,11 +33,11 @@ export default function ImageNodeEditor(props) {
       </InputGroup>
       <InputGroup
         name="Controls"
-        info="Toggle the visibility of the media controls in Hubs. Does not billboard in Spoke."
+        info="Toggle the visibility of the media controls. Does not billboard."
       >
         <BooleanInput value={node.controls} onChange={onChangeControls} />
       </InputGroup>
-      <InputGroup name="Billboard" info="Image always faces user in Hubs.">
+      <InputGroup name="Billboard" info="Image always faces user.">
         <BooleanInput value={node.billboard} onChange={onChangeBillboard} />
       </InputGroup>
       {node.projection === ImageProjection.Flat && (

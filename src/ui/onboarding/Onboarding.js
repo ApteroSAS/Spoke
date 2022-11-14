@@ -386,7 +386,7 @@ const steps = [
           <h2>Saving and Publishing</h2>
           <h1>Publishing Your Project</h1>
           <p>
-            Once your project is ready, you can publish it{configs.isMoz() && " to Hubs"} and invite your friends with
+            Once your project is ready, you can publish it and invite your friends with
             the click of a button.
           </p>
         </OnboardingDialog>
@@ -403,8 +403,7 @@ const steps = [
           <h2>Saving and Publishing</h2>
           <h1>Great Job!</h1>
           <p>
-            Great job! You&#39;ve touched all the basics {configs.isMoz() && "of Spoke "}and published a scene{" "}
-            {configs.isMoz() && "to Hubs"}! To get started on your own scene check out your projects page. Or click
+            Great job! You&#39;ve touched all the basics and published a scene{" "}! To get started on your own scene check out your projects page. Or click
             finish to continue working on this scene.
           </p>
           <Button as={Link} onClick={() => props.onFinish("Navigate to Projects Page")} to="/projects">

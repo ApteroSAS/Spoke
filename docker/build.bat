@@ -1,3 +1,1 @@
-cd ..
-docker build -t aptero-spoke .
-cd docker
+python py_docker.py build

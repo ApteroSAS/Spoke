@@ -80,7 +80,7 @@ class NavBar extends Component {
               )}
               {configs.isMoz() && (
               <li>
-                <a href="https://github.com/mozilla/Spoke" rel="noopener noreferrer">
+                <a href="https://github.com/ApteroSAS/Spoke" rel="noopener noreferrer">
                   Source
                 </a>
               </li>
@@ -94,8 +94,8 @@ class NavBar extends Component {
               )}
               {configs.isMoz() && (
                 <li>
-                  <a href="https://hubs.mozilla.com" rel="noopener noreferrer">
-                    Hubs
+                  <a href="https://meet.aptero.co" rel="noopener noreferrer">
+                    Aptero Meet
                   </a>
                 </li>
               )}

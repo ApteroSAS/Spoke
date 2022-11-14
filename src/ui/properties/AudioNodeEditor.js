@@ -21,7 +21,7 @@ export default function AudioNodeEditor(props) {
       <InputGroup name="Audio Url">
         <AudioInput value={node.src} onChange={onChangeSrc} />
       </InputGroup>
-      <InputGroup name="Controls" info="Toggle the visibility of the media controls in Hubs.">
+      <InputGroup name="Controls" info="Toggle the visibility of the media controls.">
         <BooleanInput value={node.controls} onChange={onChangeControls} />
       </InputGroup>
       <InputGroup name="Auto Play" info="If true, the media will play when first entering the scene.">

@@ -39,7 +39,7 @@ export default class SketchfabSource extends ModelMediaSource {
         value: "collections",
         children: [
           {
-            label: "Hubs Scene Props",
+            label: "Scene Props",
             value: "51b7fd61abd04bc888cc8e7146125741",
             paramsKey: "collection",
             initialNodeProps: {
@@ -52,7 +52,7 @@ export default class SketchfabSource extends ModelMediaSource {
             }
           },
           {
-            label: "Hubs Recommended Props",
+            label: "Recommended Props",
             value: "6cc8879692694161b1208c4626c48aba",
             paramsKey: "collection",
             initialNodeProps: {
@@ -383,7 +383,7 @@ export default class SketchfabSource extends ModelMediaSource {
           },
           {
             disabled: true,
-            label: "Hubs Clubhouse Contest",
+            label: "Clubhouse Contest",
             value: "hubs-clubhouse-contest",
             children: [
               {

@@ -8,7 +8,7 @@ export default function PublishedSceneDialog({ onCancel, sceneName, sceneUrl, sc
   return (
     <PreviewDialog imageSrc={screenshotUrl} title="Scene Published" {...props}>
       <h1>{sceneName}</h1>
-      <p>Your scene has been published{configs.isMoz() && " to Hubs"}.</p>
+      <p>Your scene has been published.</p>
       <Button as="a" href={sceneUrl} target="_blank">
         View Your Scene
       </Button>

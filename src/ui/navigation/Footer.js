@@ -68,21 +68,21 @@ export default class Footer extends Component {
               <Link to="/whats-new">What&apos;s New</Link>
             </NavListItem>
             <NavListItem mobileOnly>
-              <a href="https://github.com/mozilla/Spoke" rel="noopener noreferrer">
+              <a href="https://github.com/ApteroSAS/Spoke" rel="noopener noreferrer">
                 Source
               </a>
             </NavListItem>
             {configs.isMoz() && (
               <NavListItem mobileOnly>
-                <a href="https://discord.gg/wHmY4nd" rel="noopener noreferrer">
+                <a href="https://discord.gg/undefined" rel="noopener noreferrer">
                   Community
                 </a>
               </NavListItem>
             )}
             {configs.isMoz() && (
               <NavListItem mobileOnly>
-                <a href="https://hubs.mozilla.com" rel="noopener noreferrer">
-                  Hubs
+                <a href="https://aptero.co" rel="noopener noreferrer">
+                  Aptero
                 </a>
               </NavListItem>
             )}
@@ -102,8 +102,8 @@ export default class Footer extends Component {
             )}
             {configs.isMoz() && (
               <NavListItem>
-                <a href="https://mozilla.com" rel="noopener noreferrer">
-                  <img alt="Mozilla" src={mozillaLogo} />
+                <a href="https://aptero.co" rel="noopener noreferrer">
+                  <img alt="Aptero" src={mozillaLogo} />
                 </a>
               </NavListItem>
             )}

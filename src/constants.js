@@ -1,5 +1,5 @@
-const PRIVACY = "https://www.mozilla.org/en-US/privacy/hubs/";
-const TERMS = "https://www.mozilla.org/en-US/about/legal/terms/hubs/";
+const PRIVACY = "https://aptero.co/en-US/privacy/";
+const TERMS = "https://aptero.co/en-US/about/legal/terms";
 
 module.exports = {
   PRIVACY,

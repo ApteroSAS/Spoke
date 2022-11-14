@@ -272,7 +272,7 @@ function CreateScenePage({ match, api }) {
 
         {sceneUrl && (
           <Button disabled={isUploading} onClick={openScene}>
-            {configs.isMoz() ? "Open in Hubs" : "Open Scene"}
+            "Open Scene"
           </Button>
         )}
       </SceneUploadHeader>
@@ -315,7 +315,7 @@ function CreateScenePage({ match, api }) {
               <label htmlFor="allowRemixing">
                 Allow{" "}
                 <a
-                  href="https://github.com/mozilla/Spoke/blob/master/REMIXING.md"
+                  href="https://github.com/ApteroSAS/Spoke/blob/master/REMIXING.md"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -334,7 +334,7 @@ function CreateScenePage({ match, api }) {
               <label htmlFor="allowPromotion">
                 Allow {configs.isMoz() ? "Mozilla to " : ""}
                 <a
-                  href="https://github.com/mozilla/Spoke/blob/master/PROMOTION.md"
+                  href="https://github.com/ApteroSAS/Spoke/blob/master/PROMOTION.md"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -365,7 +365,7 @@ function CreateScenePage({ match, api }) {
       </SceneUploadFormContainer>
       <InfoBox>
         For more info on creating scenes in Blender, check out the{" "}
-        <a href="https://github.com/mozillareality/hubs-blender-exporter">Hubs Blender Exporter</a>
+        <a href="https://github.com/ApteroSAS/Spoke/hubs-blender-exporter">Blender Exporter</a>
       </InfoBox>
     </>
   );

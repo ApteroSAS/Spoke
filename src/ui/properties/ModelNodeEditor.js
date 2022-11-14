@@ -96,7 +96,7 @@ export default class ModelNodeEditor extends Component {
         <InputGroup name="Combine">
           <BooleanInput value={node.combine} onChange={this.onChangeCombine} />
         </InputGroup>
-        <InputGroup name="Billboard" info="Model always faces user in Hubs. Does not billboard in Spoke.">
+        <InputGroup name="Billboard" info="Model always faces user. Does not billboard.">
           <BooleanInput value={node.billboard} onChange={this.onChangeBillboard} />
         </InputGroup>
         {node.model && <GLTFInfo node={node} />}

@@ -51,7 +51,7 @@ export default class PublishDialog extends Component {
     return (
       <PreviewDialog
         imageSrc={screenshotUrl}
-        title={configs.isMoz() ? "Publish to Hubs" : "Publish Scene"}
+        title={"Publish Scene"}
         onConfirm={this.onConfirm}
         onCancel={onCancel}
         confirmLabel="Save and Publish"
@@ -75,7 +75,7 @@ export default class PublishDialog extends Component {
           <label htmlFor="allowRemixing">
             Allow{" "}
             <a
-              href="https://github.com/mozilla/Spoke/blob/master/REMIXING.md"
+              href="https://aptero.co"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -94,7 +94,7 @@ export default class PublishDialog extends Component {
           <label htmlFor="allowPromotion">
             Allow {configs.isMoz() ? "Mozilla to " : ""}
             <a
-              href="https://github.com/mozilla/Spoke/blob/master/PROMOTION.md"
+              href="https://aptero.co/PROMOTION.md"
               target="_blank"
               rel="noopener noreferrer"
             >

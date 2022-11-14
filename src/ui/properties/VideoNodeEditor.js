@@ -30,7 +30,7 @@ export default function VideoNodeEditor(props) {
       <InputGroup name="Video">
         <VideoInput value={node.src} onChange={onChangeSrc} />
       </InputGroup>
-      <InputGroup name="Billboard" info="Video always faces user in Hubs. Does not billboard in Spoke.">
+      <InputGroup name="Billboard" info="Video always faces user. Does not billboard.">
         <BooleanInput value={node.billboard} onChange={onChangeBillboard} />
       </InputGroup>
       {node.projection === VideoProjection.Flat && (
@@ -41,7 +41,7 @@ export default function VideoNodeEditor(props) {
       <InputGroup name="Projection">
         <SelectInput options={videoProjectionOptions} value={node.projection} onChange={onChangeProjection} />
       </InputGroup>
-      <InputGroup name="Controls" info="Toggle the visibility of the media controls in Hubs.">
+      <InputGroup name="Controls" info="Toggle the visibility of the media controls.">
         <BooleanInput value={node.controls} onChange={onChangeControls} />
       </InputGroup>
       <InputGroup name="Auto Play" info="If true, the media will play when first entering the scene.">
