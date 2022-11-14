@@ -69,6 +69,10 @@ import ApteroElementsSource from "./ui/assets/sources/ApteroElementsSource";
 import TroikaTextNode from "./editor/nodes/TroikaTextNode";
 import TroikaTextNodeEditor from "./ui/properties/TroikaTextNodeEditor";
 
+//APTERO
+import TriggerNode from "./editor/nodes/TriggerNode";
+import TriggerNodeEditor from "./ui/properties/TriggerNodeEditor";
+
 export function createEditor(api, settings) {
   const editor = new Editor(api, settings);
 
@@ -99,7 +103,7 @@ export function createEditor(api, settings) {
   editor.registerNode(MediaFrameNode, MediaFrameNodeEditor);
   editor.registerNode(AudioZoneNode, AudioZoneNodeEditor);
   
-  //aptero
+  //APTERO
   editor.registerNode(TriggerNode, TriggerNodeEditor);
   
   editor.registerNode(TroikaTextNode, TroikaTextNodeEditor);
