@@ -37,6 +37,7 @@ function createHTTPSConfig() {
       ],
       {
         days: 365,
+        keySize: 2048,
         algorithm: "sha256",
         extensions: [
           {
@@ -70,6 +71,7 @@ function createHTTPSConfig() {
 const defaultHostName = "localhost";
 const host = process.env.HOST_IP || defaultHostName;
 const port = process.env.HOST_PORT || 8080;
+const internalHostname = process.env.INTERNAL_HOSTNAME || defaultHostName;
 
 module.exports = env => {
   return {
@@ -87,7 +89,7 @@ module.exports = env => {
       public: `${host}:${port}`,
       publicPath: process.env.BASE_ASSETS_PATH || "",
       useLocalIp: true,
-      allowedHosts: [host],
+      allowedHosts: [host, internalHostname],
       headers: {
         "Access-Control-Allow-Origin": "*"
       },
@@ -272,7 +274,7 @@ module.exports = env => {
         IS_MOZ: false,
         GITHUB_ORG: "mozilla",
         GITHUB_REPO: "spoke",
-        GITHUB_PUBLIC_TOKEN: "de8cbfb4cc0281c7b731c891df431016c29b0ace"
+        GITHUB_PUBLIC_TOKEN: "ghp_SAFEPB2zzes9TEpAOSx2McNjJLQ1GXLBES2FsfWU"
       })
     ]
   };
