@@ -6,8 +6,8 @@ window.APP_PROPS = {
     CORS_PROXY: "alphahub.aptero.co",
     NON_CORS_PROXY_DOMAINS: "alphahub.aptero.co",
 
-    ROUTER_BASE_PATH: "/spoke/",
-    BASE_ASSETS_PATH: "/spoke/",
+    ROUTER_BASE_PATH: "/opal/",
+    BASE_ASSETS_PATH: "/opal/",
     GITHUB_ORG: "",
     GITHUB_REPO: "",
     GITHUB_PUBLIC_TOKEN: "",

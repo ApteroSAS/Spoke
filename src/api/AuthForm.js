@@ -83,8 +83,8 @@ export default class AuthForm extends Component {
     return (
       <StyledAuthForm onSubmit={this.onSubmit}>
         {this.props.error && <ErrorMessage>{this.props.error}</ErrorMessage>}
-        <h3>Register or Login</h3>
-        <h4>Login to save projects and publish scenes{configs.isMoz() && " to Hubs"}.</h4>
+        <h3>Enter Aptero's editor Opal</h3>
+        <h4>Register or Login</h4>
         <FormInput
           type="email"
           name="email"

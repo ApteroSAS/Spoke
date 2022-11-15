@@ -315,7 +315,7 @@ function CreateScenePage({ match, api }) {
               <label htmlFor="allowRemixing">
                 Allow{" "}
                 <a
-                  href="https://github.com/ApteroSAS/Spoke/blob/master/REMIXING.md"
+                  href="https://aptero.co/opal/docs/remixing.html"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -334,7 +334,7 @@ function CreateScenePage({ match, api }) {
               <label htmlFor="allowPromotion">
                 Allow {configs.isMoz() ? "Mozilla to " : ""}
                 <a
-                  href="https://github.com/ApteroSAS/Spoke/blob/master/PROMOTION.md"
+                  href="https://aptero.co/opal/docs/promotion.html"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -365,7 +365,7 @@ function CreateScenePage({ match, api }) {
       </SceneUploadFormContainer>
       <InfoBox>
         For more info on creating scenes in Blender, check out the{" "}
-        <a href="https://github.com/ApteroSAS/Spoke/hubs-blender-exporter">Blender Exporter</a>
+        <a href="https://aptero.co/opal/docs/blender-exporter.html">Blender Exporter</a>
       </InfoBox>
     </>
   );
