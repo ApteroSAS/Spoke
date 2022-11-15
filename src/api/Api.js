@@ -74,7 +74,11 @@ export const scaledThumbnailUrlFor = (url, width, height) => {
     return url;
   }
 
-  return `https://${configs.THUMBNAIL_SERVER}/thumbnail/${farsparkEncodeUrl(url)}?w=${width}&h=${height}`;
+  if(configs.THUMBNAIL_SERVER) {
+    return `https://${configs.THUMBNAIL_SERVER}/thumbnail/${farsparkEncodeUrl(url)}?w=${width}&h=${height}`;
+  }else{
+    return url;
+  }
 };
 
 const CommonKnownContentTypes = {
