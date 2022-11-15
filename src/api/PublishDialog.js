@@ -75,7 +75,7 @@ export default class PublishDialog extends Component {
           <label htmlFor="allowRemixing">
             Allow{" "}
             <a
-              href="https://aptero.co"
+              href="https://aptero.co/opal/docs/remixing.html"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -94,7 +94,7 @@ export default class PublishDialog extends Component {
           <label htmlFor="allowPromotion">
             Allow {configs.isMoz() ? "Mozilla to " : ""}
             <a
-              href="https://aptero.co/PROMOTION.md"
+              href="https://aptero.co/opal/docs/promotion.html"
               target="_blank"
               rel="noopener noreferrer"
             >
