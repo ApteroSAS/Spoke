@@ -364,11 +364,11 @@ class EditorContainer extends Component {
             action: this.onExportProject
           },
           {
-            name: "Import legacy .spoke project",
+            name: "Import .json project",
             action: this.onImportLegacyProject
           },
           {
-            name: "Export legacy .spoke project",
+            name: "Export .json project",
             action: this.onExportLegacyProject
           }
         ]
@@ -767,7 +767,7 @@ class EditorContainer extends Component {
   onImportLegacyProject = async () => {
     const confirm = await new Promise(resolve => {
       this.showDialog(ConfirmDialog, {
-        title: "Import Legacy Spoke Project",
+        title: "Import JSON Project",
         message: "Warning! This will overwrite your existing scene! Are you sure you wish to continue?",
         onConfirm: () => resolve(true),
         onCancel: () => resolve(false)
@@ -780,7 +780,7 @@ class EditorContainer extends Component {
 
     const el = document.createElement("input");
     el.type = "file";
-    el.accept = ".spoke";
+    el.accept = ".json";
     el.style.display = "none";
     el.onchange = () => {
       if (el.files.length > 0) {
@@ -816,7 +816,7 @@ class EditorContainer extends Component {
     const projectBlob = new Blob([projectJson]);
     const el = document.createElement("a");
     const fileName = this.state.editor.scene.name.toLowerCase().replace(/\s+/g, "-");
-    el.download = fileName + ".spoke";
+    el.download = fileName + ".json";
     el.href = URL.createObjectURL(projectBlob);
     document.body.appendChild(el);
     el.click();
