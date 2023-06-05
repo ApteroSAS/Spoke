@@ -72,6 +72,7 @@ import TroikaTextNodeEditor from "./ui/properties/TroikaTextNodeEditor";
 //APTERO
 import TriggerNode from "./editor/nodes/TriggerNode";
 import TriggerNodeEditor from "./ui/properties/TriggerNodeEditor";
+import GenericKitSource from "./ui/assets/sources/GenericKitSource";
 
 export function createEditor(api, settings) {
   const editor = new Editor(api, settings);
@@ -114,6 +115,7 @@ export function createEditor(api, settings) {
   editor.registerSource(new MyAssetsSource(editor));
   editor.registerSource(new ArchitectureKitSource(api));
   editor.registerSource(new RockKitSource(api));
+  editor.registerSource(new GenericKitSource(api));
   //editor.registerSource(new SketchfabSource(api));
   //editor.registerSource(new BingImagesSource(api));
   //editor.registerSource(new BingVideosSource(api));
