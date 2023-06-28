@@ -376,7 +376,8 @@ class EditorContainer extends Component {
       {
         name: "Help",
         items: [
-          {
+          /*{
+          //APTERO removed because it does not works well in teams
             name: "Tutorial",
             action: () => {
               const { projectId } = this.props.match.params;
@@ -392,12 +393,12 @@ class EditorContainer extends Component {
           {
             name: "Keyboard and Mouse Controls",
             action: () => window.open("https://aptero.co")
-          },
+          },*/
           {
             name: "Get Support",
-            action: () => this.showDialog(SupportDialog)
+            action: () => window.open("https://www.aptero.co/help.html")
           },
-          {
+          /*{
             name: "Submit Feedback",
             action: () => window.open("https://aptero.co")
           },
@@ -408,7 +409,7 @@ class EditorContainer extends Component {
           {
             name: "Join us on Discord",
             action: () => window.open("https://aptero.co")
-          },
+          },*/
           {
             name: "Terms of Use",
             action: () => window.open(TERMS)
@@ -434,10 +435,10 @@ class EditorContainer extends Component {
           }
         ]
       },
-      {
+      /*{
         name: "Submit Feedback",
         action: () => window.open("https://aptero.co")
-      }
+      }*/
     ];
   };
 
