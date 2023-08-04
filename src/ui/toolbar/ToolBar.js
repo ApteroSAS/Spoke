@@ -21,6 +21,7 @@ import styled from "styled-components";
 import styledTheme from "../theme";
 import { InfoTooltip } from "../layout/Tooltip";
 import { Pause } from "styled-icons/fa-solid";
+import { isInsideIFrame } from "../../aptero/MsTeams";
 
 const StyledToolbar = styled.div`
   display: flex;
@@ -482,7 +483,7 @@ export default class ToolBar extends Component {
           )}
         </ToolToggles>
         <Spacer />
-        {this.props.isPublishedScene && (
+        {this.props.isPublishedScene && !isInsideIFrame() && (
           <PublishButton onClick={this.props.onOpenScene}>
             Open Scene
           </PublishButton>

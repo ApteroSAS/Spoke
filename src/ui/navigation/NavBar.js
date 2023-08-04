@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { withAuth } from "../contexts/AuthContext";
 import styled from "styled-components";
+import { isInsideIFrame } from "../../aptero/MsTeams";
 
 const StyledNavBar = styled.header`
   position: relative;
@@ -103,6 +104,7 @@ class NavBar extends Component {
           </nav>
         </MiddleContainer>
         <RightContainer>
+          {!isInsideIFrame() && (
           <NavList>
             {this.props.isAuthenticated ? (
               <>
@@ -118,7 +120,7 @@ class NavBar extends Component {
                 <Link to="/login">Login</Link>
               </li>
             )}
-          </NavList>
+          </NavList>)}
         </RightContainer>
       </StyledNavBar>
     );
