@@ -1,0 +1,21 @@
+[
+  {
+    "actions": [
+      {
+        "title": "Art & Festif",
+        "type": "sidebar_iframe",
+        "url": "https://meet.aptero.co/service/static/opensea-viewer/index.html?url=https%3A%2F%2Fopensea.io%2Fassets%2Fethereum%2F0x5cc5b05a8a13e3fbdb0bb9fccd98d38e50f90c38%2F1914"
+      }
+
+    ],
+    "triggers": [
+      {
+        "size": "2.4",
+        "style": "rounded-text-action-button",//"rounded-button" or "rounded-action-button" or "rounded-text-button"
+        "text": "OpenSea",
+        "textWidth": "1.7",
+        "type": "btn" // or btn-ask
+      }
+    ]
+  }
+]

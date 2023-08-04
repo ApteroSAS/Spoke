@@ -1,0 +1,688 @@
+{
+  "accessors": [
+    {
+      "bufferView": 0,
+      "componentType": 5126,
+      "count": 1263,
+      "max": [
+        110.17999267578125,
+        -4.8500003814697266,
+        95.67999267578125
+      ],
+      "min": [
+        -89.139999389648438,
+        -4.8500003814697266,
+        -103.63999938964844
+      ],
+      "normalized": false,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5123,
+      "count": 1263,
+      "max": [
+        1262
+      ],
+      "min": [
+        0
+      ],
+      "normalized": false,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 12,
+      "max": [
+        1,
+        2.5,
+        -1.5
+      ],
+      "min": [
+        -1,
+        0.5,
+        -1.5
+      ],
+      "normalized": false,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5126,
+      "count": 34,
+      "max": [
+        4000,
+        4000,
+        0
+      ],
+      "min": [
+        -4000,
+        -4000,
+        0
+      ],
+      "normalized": false,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 4,
+      "componentType": 5126,
+      "count": 34,
+      "max": [
+        0,
+        0,
+        1
+      ],
+      "min": [
+        0,
+        0,
+        1
+      ],
+      "normalized": false,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 5,
+      "componentType": 5126,
+      "count": 34,
+      "max": [
+        1,
+        1
+      ],
+      "min": [
+        0,
+        0
+      ],
+      "normalized": false,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 6,
+      "componentType": 5123,
+      "count": 96,
+      "max": [
+        33
+      ],
+      "min": [
+        0
+      ],
+      "normalized": false,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 7,
+      "componentType": 5126,
+      "count": 4,
+      "max": [
+        1,
+        1,
+        1
+      ],
+      "min": [
+        -1,
+        -1,
+        1
+      ],
+      "normalized": false,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 8,
+      "componentType": 5126,
+      "count": 4,
+      "max": [
+        0.625,
+        0.25
+      ],
+      "min": [
+        0.375,
+        0
+      ],
+      "normalized": false,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 9,
+      "componentType": 5126,
+      "count": 4,
+      "max": [
+        0,
+        0,
+        1
+      ],
+      "min": [
+        0,
+        0,
+        1
+      ],
+      "normalized": false,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 10,
+      "componentType": 5123,
+      "count": 6,
+      "max": [
+        3
+      ],
+      "min": [
+        0
+      ],
+      "normalized": false,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "generator": "Mozilla Spoke dev",
+    "version": "2.0"
+  },
+  "buffers": [
+    {
+      "byteLength": 19248
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 15156,
+      "byteOffset": 0,
+      "byteStride": 12,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 2528,
+      "byteOffset": 15156,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 144,
+      "byteOffset": 17684,
+      "byteStride": 12,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 408,
+      "byteOffset": 17828,
+      "byteStride": 12,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 408,
+      "byteOffset": 18236,
+      "byteStride": 12,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 272,
+      "byteOffset": 18644,
+      "byteStride": 8,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 192,
+      "byteOffset": 18916,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 48,
+      "byteOffset": 19108,
+      "byteStride": 12,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 32,
+      "byteOffset": 19156,
+      "byteStride": 8,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 48,
+      "byteOffset": 19188,
+      "byteStride": 12,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 12,
+      "byteOffset": 19236,
+      "target": 34963
+    }
+  ],
+  "extensions": {
+    "MOZ_hubs_components": {
+      "version": 4
+    }
+  },
+  "extensionsUsed": [
+    "MOZ_hubs_components",
+    "KHR_materials_unlit"
+  ],
+  "materials": [
+    {
+      "alphaMode": "BLEND",
+      "extensions": {
+        "KHR_materials_unlit": {}
+      },
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0,
+          0,
+          1,
+          0
+        ],
+        "metallicFactor": 0,
+        "roughnessFactor": 0.9
+      }
+    },
+    {
+      "alphaMode": "BLEND",
+      "extensions": {
+        "KHR_materials_unlit": {}
+      },
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "metallicFactor": 0,
+        "roughnessFactor": 0.9
+      }
+    },
+    {
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.36470588235294116,
+          0.8901960784313725,
+          0.21176470588235294,
+          1
+        ],
+        "metallicFactor": 0,
+        "roughnessFactor": 1
+      }
+    },
+    {
+      "alphaMode": "BLEND",
+      "doubleSided": true,
+      "name": "MatÃ©riau",
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.800000011920929,
+          0.800000011920929,
+          0.800000011920929,
+          0.13492065668106079
+        ],
+        "metallicFactor": 0,
+        "roughnessFactor": 0.5
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0
+          },
+          "indices": 1,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 2
+          },
+          "extras": {
+            "mergedUserData": [
+              {
+                "mergedUserData": [
+                  {}
+                ]
+              },
+              {
+                "mergedUserData": [
+                  {}
+                ]
+              }
+            ]
+          },
+          "material": 1,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 4,
+            "POSITION": 3,
+            "TEXCOORD_0": 5
+          },
+          "indices": 6,
+          "material": 2,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 9,
+            "POSITION": 7,
+            "TEXCOORD_0": 8
+          },
+          "indices": 10,
+          "material": 3,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "extensions": {
+        "MOZ_hubs_components": {
+          "spawn-point": {}
+        }
+      },
+      "name": "Spawn Point",
+      "rotation": [
+        6.123233995736766E-17,
+        -1,
+        6.123233995736766E-17,
+        3.749399456654644E-33
+      ]
+    },
+    {
+      "extensions": {
+        "MOZ_hubs_components": {
+          "nav-mesh": {},
+          "visible": {
+            "visible": false
+          }
+        }
+      },
+      "mesh": 0,
+      "name": "navMesh"
+    },
+    {
+      "extensions": {
+        "MOZ_hubs_components": {
+          "trimesh": {},
+          "visible": {
+            "visible": false
+          }
+        }
+      },
+      "mesh": 1,
+      "name": "trimesh"
+    },
+    {
+      "children": [
+        1,
+        2
+      ],
+      "name": "Floor Plan",
+      "translation": [
+        0,
+        0.005,
+        0
+      ]
+    },
+    {
+      "mesh": 2,
+      "name": "GroundPlaneMesh",
+      "rotation": [
+        -0.70710678118654746,
+        0,
+        0,
+        0.70710678118654757
+      ],
+      "translation": [
+        0,
+        -0.05,
+        0
+      ]
+    },
+    {
+      "extensions": {
+        "MOZ_hubs_components": {
+          "box-collider": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 100,
+              "y": 0.1,
+              "z": 100
+            }
+          }
+        }
+      },
+      "scale": [
+        100,
+        0.1,
+        100
+      ]
+    },
+    {
+      "children": [
+        4,
+        5
+      ],
+      "extensions": {
+        "MOZ_hubs_components": {
+          "shadow": {
+            "cast": false,
+            "receive": true
+          }
+        }
+      },
+      "name": "Ground Plane",
+      "translation": [
+        10.5,
+        -5,
+        -4
+      ]
+    },
+    {
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "extras": {
+        "apt.action.controller.btn1": "\"[{\"actions\":[{\"title\":\"Art & Festif\",\"type\":\"sidebar_iframe\",\"url\":\"https://meet.aptero.co/service/static/opensea-viewer/index.html?url=https%3A%2F%2Fopensea.io%2Fassets%2Fethereum%2F0x5cc5b05a8a13e3fbdb0bb9fccd98d38e50f90c38%2F1914\"}],\"triggers\":[{\"position\":{\"x\":0,\"y\":-1,\"z\":0},\"rotation\":{\"x\":0,\"y\":0,\"z\":0},\"size\":\"2.4\",\"style\":\"rounded-text-action-button\",\"text\":\"OpenSea\",\"textWidth\":\"1.7\",\"type\":\"btn\"}]}]\"",
+        "apt.limit.png": 1,
+        "prop": 1
+      },
+      "mesh": 3,
+      "name": "Cube"
+    },
+    {
+      "children": [
+        7
+      ],
+      "extras": {
+        "blenderkit_mat": {
+          "report": ""
+        },
+        "blenderkitUI": {
+          "assetbar_on": 0,
+          "turn_off": 0
+        },
+        "uuid": "a3ed3e74-14e6-40d3-a571-242329202720"
+      },
+      "name": "Scene"
+    },
+    {
+      "children": [
+        8
+      ],
+      "extensions": {
+        "MOZ_hubs_components": {
+          "shadow": {
+            "cast": false,
+            "receive": false
+          }
+        }
+      },
+      "name": "bouton.glb",
+      "translation": [
+        0,
+        1.5,
+        -2.5
+      ]
+    },
+    {
+      "extensions": {
+        "MOZ_hubs_components": {
+          "skybox": {
+            "azimuth": 0.23333333333333331,
+            "distance": 8000,
+            "inclination": 0.10471975511965978,
+            "luminance": 1.055,
+            "mieCoefficient": 0.043,
+            "mieDirectionalG": 0.8,
+            "rayleigh": 0.82,
+            "turbidity": 6.09
+          }
+        }
+      },
+      "name": "Skybox"
+    },
+    {
+      "extensions": {
+        "MOZ_hubs_components": {
+          "directional-light": {
+            "castShadow": true,
+            "color": "#ffffff",
+            "intensity": 3,
+            "shadowBias": -3.0000000000000004E-05,
+            "shadowMapResolution": [
+              1024,
+              1024
+            ],
+            "shadowRadius": 1
+          }
+        }
+      },
+      "name": "Directional Light",
+      "rotation": [
+        0.43831238780895926,
+        0.253497763477834,
+        -0.10487324462973141,
+        0.8559338392456376
+      ],
+      "scale": [
+        0.99999999999999956,
+        0.99999999999999978,
+        0.99999999999999967
+      ],
+      "translation": [
+        -1,
+        3,
+        0
+      ]
+    },
+    {
+      "extensions": {
+        "MOZ_hubs_components": {
+          "scene-preview-camera": {}
+        }
+      },
+      "name": "scene-preview-camera",
+      "rotation": [
+        -0.380427609763454,
+        0.49570585235042486,
+        0.255632309147846,
+        0.73770093140441673
+      ],
+      "scale": [
+        1,
+        0.99999999999999989,
+        1
+      ],
+      "translation": [
+        3.1102200353095704,
+        4.7199099216881422,
+        1.2693155731490351
+      ]
+    },
+    {
+      "extensions": {
+        "MOZ_hubs_components": {
+          "image": {
+            "alphaMode": "opaque",
+            "controls": true,
+            "projection": "flat",
+            "src": "https://alphahub.aptero.co/files/2660f8e6-2343-4f17-b347-1ddd7e6bf147.jpg"
+          },
+          "link": {
+            "href": "https://arthurmoug.in"
+          },
+          "networked": {
+            "id": "26FC7120-1B55-4828-A197-C4F95B9673FF"
+          }
+        }
+      },
+      "name": "Image",
+      "translation": [
+        -2,
+        2,
+        -1.5
+      ]
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "extensions": {
+        "MOZ_hubs_components": {
+          "background": {
+            "color": "#aaaaaa"
+          }
+        }
+      },
+      "name": "Arthur Test",
+      "nodes": [
+        0,
+        3,
+        6,
+        9,
+        10,
+        11,
+        12,
+        13
+      ]
+    }
+  ]
+}

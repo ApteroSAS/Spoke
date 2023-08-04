@@ -71,8 +71,10 @@ import TroikaTextNodeEditor from "./ui/properties/TroikaTextNodeEditor";
 
 //APTERO
 import TriggerNode from "./editor/nodes/TriggerNode";
+import ButtonNode from "./editor/nodes/ButtonNode";
 import TriggerNodeEditor from "./ui/properties/TriggerNodeEditor";
 import GenericKitSource from "./ui/assets/sources/GenericKitSource";
+import ButtonNodeEditor from "./ui/properties/ButtonNodeEditor";
 
 export function createEditor(api, settings) {
   const editor = new Editor(api, settings);
@@ -106,6 +108,7 @@ export function createEditor(api, settings) {
   
   //APTERO
   editor.registerNode(TriggerNode, TriggerNodeEditor);
+  editor.registerNode(ButtonNode, ButtonNodeEditor);
   
   editor.registerNode(TroikaTextNode, TroikaTextNodeEditor);
   editor.registerNode(MirrorNode, MirrorNodeEditor);

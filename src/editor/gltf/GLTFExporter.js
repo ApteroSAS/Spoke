@@ -276,7 +276,7 @@ class GLTFExporter {
     }
 
     try {
-      const serializedUserData = this.serializeUserDataProperty(object.userData);
+      const serializedUserData = this. serializeUserDataProperty(object.userData);
 
       if (this.options.includeCustomExtensions && serializedUserData.gltfExtensions) {
         if (gltfProperty.extensions === undefined) {
