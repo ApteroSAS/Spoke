@@ -77,7 +77,12 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
 
   //TODO : customize the config through the ButtonNodeEditor
   //Please use compileButtonConfigToUserData as a reference
-  config = {};
+  //config = {};
+  //config = {...defaultConfig};
+  config = 
+  {
+    btnType: "btn"
+  };
 
   //write get and set for each config property
   get btnType() {
@@ -119,7 +124,7 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
     if(value == "spawn" && this.subMode!="attach" && this.subMode!=null){
       this.subMode = null
     }
-    if(value == "link" && this.subMode!="API" && this.subMode!="Redirection"  && this.subMode!="Sidebar" && this.subMode!=null){
+    if(value == "Link" && this.subMode!="API" && this.subMode!="Redirection"  && this.subMode!="Sidebar" && this.subMode!=null){
       this.subMode = null
     }
     this.config.mode = value;
@@ -280,6 +285,7 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
             break;
         }
     }
+    console.log("Stringifying...");
     console.log(StringifiedAction, StringifiedTrigger);
     this.setUserData({
       "apt.action.controller.btn1": JSON.stringify([
@@ -305,6 +311,9 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
 
     super.copy(source, recursive);
 
+    //Copy config on the copied object
+    this.config = {...source.config};
+
     /*this.controls = source.controls;
 this.billboard = source.billboard;
 this.alphaMode = source.alphaMode;
@@ -324,22 +333,80 @@ this.href = source.href;*/
 
   serialize() {
     //setUserData
+    console.log("Saving config...");
+
     this.compileButtonConfigToUserData(this.config);
+
+    //this.config.style = this.btnStyle; //TEST
+    
+    console.log("Config saved!");
+    console.log(this.config);
+    console.log("--------------------");
+
     return super.serialize({
       [ButtonNode.componentName]: {
         config: JSON.stringify(this.config)
       }
     });
+
   }
-  deserialize(editor, json) {
-    super.deserialize(editor, json);
-    this.config = JSON.parse(json[ButtonNode.componentName].config);
+  static async deserialize(editor, json) {
+
+    const node = await super.deserialize(editor, json);
+
+    //super.deserialize(editor, json);
+    //node.config = JSON.parse(json[ButtonNode.componentName].config);
+    
+    //node.btnStyle = "rounded-text-action-button";
+    console.log(JSON.stringify(json))
+
+    console.log("Searching for: "+ButtonNode.componentName);
+
+    const { config } = json.components.find(c => c.name === ButtonNode.componentName).props;
+
+    console.log("Check config: "+config);
+
+    /*if (json[ButtonNode.componentName])
+    {
+      console.log("Component found!");
+
+      if (json[ButtonNode.componentName].config)
+      {console.log("Config component found!");}
+      else
+      {console.log("No config component found!");}
+    }
+    else
+    {console.log("No json component found!");}*/
+    
+    /*if (json[ButtonNode.componentName] && json[ButtonNode.componentName].config) {
+      node.config = JSON.parse(json[ButtonNode.componentName].config);
+      console.log("-->Config found!");
+    }
+    else
+    {
+      console.log("-->No config found!");
+    }*/
+
+    node.config = JSON.parse(config);
+
     //this.compileButtonConfigToUserData(this.config);
-    return this;
+    return node;
   }
+  
   prepareForExport() {
     super.prepareForExport();
-    //setUserData
+
+    //SetUserData for export (not for the editor)
+    this.compileButtonConfigToUserData(this.config);
+    super.serialize({ [ButtonNode.componentName]: { config: JSON.stringify(this.config) } });
+    
     this.remove(this.helper);
   }
+  /*
+  //btnType
+  prepareForExport() {
+    this.remove(this.helper);
+    return super.prepareForExport();
+  }*/
+
 }

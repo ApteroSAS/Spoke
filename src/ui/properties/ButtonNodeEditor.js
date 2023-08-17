@@ -14,7 +14,7 @@ export default function ButtonNodeEditor(props) {
   const buttonTypeOptions = [
     { label: "Spawn", value: "spawn" },
     { label: "Animation", value: "animation" },
-    { label: "Link", value: "link" },
+    { label: "Link", value: "Link" },
   ]
   const spawnSubModeOptions = [
     { label: "free", value: null },
@@ -81,7 +81,7 @@ export default function ButtonNodeEditor(props) {
           info={`How to choose the types of button:
 'Spawn' = Spawn linked element
 'Animation' = Trigger named animation in first parent that has it
-'link' = for everything API and navigation related
+'Link' = for everything API and navigation related
 `}
         >
           <SelectInput options={buttonTypeOptions} value={node.mode} onChange={onChangeMode} />
@@ -121,7 +121,7 @@ export default function ButtonNodeEditor(props) {
             </InputGroup>
           )
         }
-        {node.mode === "link" && (
+        {node.mode === "Link" && (
           <>
             <InputGroup name="Sub Mode" info={`How to choose the sub type of button:
 'api' = trigger an API call that you can configure
