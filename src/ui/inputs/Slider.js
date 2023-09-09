@@ -21,7 +21,7 @@ const SliderGlobalStyles = createGlobalStyle`
 
   .rc-slider-rail {
     position: absolute;
-    width: calc(100% + 16px);
+    width: calc(100% + 3px);
     height: 2px;
     background-color: ${props => props.theme.border};
     border-radius: 2px;

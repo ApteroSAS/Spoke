@@ -1,4 +1,4 @@
-FROM node:18
+FROM node:18.17-alpine as builder
 
 #install global yarn dependecies
 RUN yarn global add cross-env
