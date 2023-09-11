@@ -114,9 +114,6 @@ export default function ButtonNodeGPTEditor(props) {
       </PropertyGroup>
 
       <PropertyGroup name="Chat">
-      <InputGroup name="Ignore Cache" info="Enable this option to open a clean chat everytime">
-        <BooleanInput value={node.gptIgnorecache} onChange={onChangeGptIgnorecache}/>
-      </InputGroup>
       <InputGroup name="First message (Optional)" info="Set the first message from the Bot">
         <StringInput value={node.gptIntro} onChange={onChangeGptIntro}/>
       </InputGroup>

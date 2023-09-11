@@ -2,6 +2,7 @@ FROM node:18.17-alpine as builder
 
 #install global yarn dependecies
 RUN yarn global add cross-env
+RUN apk add git openssh
 
 # copy and download install
 WORKDIR /spoke/
