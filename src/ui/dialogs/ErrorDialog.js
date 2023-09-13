@@ -43,7 +43,8 @@ export default class ErrorDialog extends Component {
   };
 
   renderBottomNav() {
-    return this.state.eventId ? <Button onClick={this.onShowReportDialog}>Submit Feedback</Button> : null;
+    //return this.state.eventId ? <Button onClick={this.onShowReportDialog}>Submit Feedback</Button> : null;
+    return null; //APTERO
   }
 
   render() {
@@ -52,6 +53,7 @@ export default class ErrorDialog extends Component {
     return (
       <ErrorDialogContainer {...props} bottomNav={this.renderBottomNav()}>
         <ErrorMessage>{message}</ErrorMessage>
+        <div>For support on this issue please contact support@aptero.co</div>
       </ErrorDialogContainer>
     );
   }

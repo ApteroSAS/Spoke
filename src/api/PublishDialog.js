@@ -67,6 +67,8 @@ export default class PublishDialog extends Component {
             onChange={this.onChangeName}
           />
         </FormField>
+        {/*
+        APTERO Removed
         <FormField>
           <label htmlFor="creatorAttribution">Your Attribution (optional):</label>
           <StringInput id="creatorAttribution" value={creatorAttribution} onChange={this.onChangeCreatorAttribution} />
@@ -120,7 +122,7 @@ export default class PublishDialog extends Component {
               )}
             </ul>
           </FormField>
-        )}
+        )}*/}
       </PreviewDialog>
     );
   }
