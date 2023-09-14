@@ -51,10 +51,16 @@ export default class ErrorDialog extends Component {
     const { error, message, onCancel, ...props } = this.props;
 
     return (
-      <ErrorDialogContainer {...props} bottomNav={this.renderBottomNav()}>
-        <ErrorMessage>{message}</ErrorMessage>
-        <div>For support on this issue please contact support@aptero.co</div>
-      </ErrorDialogContainer>
+      <>
+        <ErrorDialogContainer {...props} bottomNav={this.renderBottomNav()}>
+          <ErrorMessage>
+            Error Details : {message}
+            <br/>
+            <br/>
+            <div>For support on this issue please contact <b>support@aptero.co</b></div>
+          </ErrorMessage>
+        </ErrorDialogContainer>
+      </>
     );
   }
 }
