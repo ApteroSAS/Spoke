@@ -14,7 +14,6 @@ import Slider from "../inputs/Slider";
 import ColorInput from "../inputs/ColorInput";
 import NumericInput from "../inputs/NumericInput";
 import ChatGPTLogo from "../../assets/ChatGPTLogo.svg";
-import { Button } from "../inputs/Button";
 
 export default function ButtonNodeGPTEditor(props) {
   const { editor, node } = props;

@@ -1,13 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
-import configs from "../configs";
 import PreviewDialog from "../ui/dialogs/PreviewDialog";
 import { Button } from "../ui/inputs/Button";
-import { isInsideIFrame } from "../aptero/MsTeams";
+import { isInsideTeams } from "../aptero/MsTeams";
 
 export default function PublishedSceneDialog({ onCancel, sceneName, sceneUrl, screenshotUrl, ...props }) {
   return (
-    isInsideIFrame()?(
+    isInsideTeams()?(
       <PreviewDialog imageSrc={screenshotUrl} title="Scene Published" {...props}>
         <h1>{sceneName}</h1>
         <p>Your scene has been published.</p>

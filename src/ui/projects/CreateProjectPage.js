@@ -21,7 +21,7 @@ import { ApiContext } from "../contexts/ApiContext";
 import { Link } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroller";
 import usePaginatedSearch from "./usePaginatedSearch";
-import { isInsideIFrame } from "../../aptero/MsTeams";
+import { isInsideTeams, isOutsideTeams } from "../../aptero/MsTeams";
 
 export default function CreateProjectPage({ history, location }) {
   const api = useContext(ApiContext);
@@ -123,7 +123,7 @@ export default function CreateProjectPage({ history, location }) {
                   <SearchInput placeholder="Search scenes..." value={params.q} onChange={onChangeQuery} />
                 </ProjectGridHeaderRow>
                 <ProjectGridHeaderRow>
-                  {!isInsideIFrame() && <Button as={Link} to="/scenes/new">
+                  {isOutsideTeams() && <Button as={Link} to="/scenes/new">
                     Import From Blender
                   </Button>}
                   <Button as={Link} to="/projects/new">

@@ -77,6 +77,7 @@ import TriggerNodeEditor from "./ui/properties/TriggerNodeEditor";
 import GenericKitSource from "./ui/assets/sources/GenericKitSource";
 import ButtonNodeEditor from "./ui/properties/ButtonNodeEditor";
 import ButtonNodeGPTEditor from "./ui/properties/ButtonNodeGPTEditor";
+import { isInsideTeams, isOutsideTeams } from "./aptero/MsTeams";
 
 export function createEditor(api, settings) {
   const editor = new Editor(api, settings);
@@ -111,7 +112,9 @@ export function createEditor(api, settings) {
   //APTERO
   editor.registerNode(TriggerNode, TriggerNodeEditor);
   editor.registerNode(ButtonNode, ButtonNodeEditor);
-  editor.registerNode(ButtonNodeGPT, ButtonNodeGPTEditor);
+  if(isOutsideTeams()) {
+    editor.registerNode(ButtonNodeGPT, ButtonNodeGPTEditor);
+  }
   
   editor.registerNode(TroikaTextNode, TroikaTextNodeEditor);
   editor.registerNode(MirrorNode, MirrorNodeEditor);
