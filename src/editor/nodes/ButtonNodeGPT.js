@@ -2,7 +2,7 @@ import EditorNodeMixin from "./EditorNodeMixin";
 import { getObjectPerfIssues, maybeAddLargeFileIssue } from "../utils/performance";
 import { GLTFLoader } from "../gltf/GLTFLoader";
 import spawnPointModelUrl from "../../assets/spawn-point.glb";
-import gptButtonModel from "../../assets/chatgpt_button.glb";
+import gptButtonModel from "../../assets/apteroelements/chatgpt_button.glb";
 import { BoxBufferGeometry, Euler, Geometry, Mesh, MeshBasicMaterial, Object3D, Color } from "three";
 import serializeColor from "../utils/serializeColor";
 import { isString } from "markdown-it/lib/common/utils";

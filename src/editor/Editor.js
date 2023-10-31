@@ -379,7 +379,7 @@ export default class Editor extends EventEmitter {
 
     const exportContext = { animations };
 
-    clonedScene.prepareForExport(exportContext);
+    await clonedScene.prepareForExport(exportContext);
 
     if (combineMeshes) {
       await clonedScene.combineMeshes();

@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import NodeEditor from "./NodeEditor";
-import { Image } from "styled-icons/boxicons-regular/Image";
 import SelectInput from "../inputs/SelectInput";
 import InputGroup from "../inputs/InputGroup";
 import InputGroupExpandable from "../inputs/InputGroupExpandable";
@@ -13,17 +12,15 @@ import BooleanInput from "../inputs/BooleanInput";
 import Slider from "../inputs/Slider";
 import ColorInput from "../inputs/ColorInput";
 import NumericInput from "../inputs/NumericInput";
-import ChatGPTLogo from "../../assets/ChatGPTLogo.svg";
+import ChatGPTLogo from "../../assets/apteroelements/ChatGPTLogo.svg";
 
 export default function ButtonNodeGPTEditor(props) {
   const { editor, node } = props;
-  console.log(node)
 
   const buttonGPTModels = [
     { label: "GPT-3.5", value: "gpt-3.5-turbo" },
     { label: "GPT-3.5 16k", value: "gpt-3.5-turbo-16k" },
     { label: "GPT-4", value: "gpt-4" },
-    //{ label: "invalid for testing", value: "test" },
   ]
   const btnStyleOptions = [//"rounded-button" | "rounded-text-action-button" | "rounded-action-button" | "rounded-text-button"
     { label: "rounded-button", value: "rounded-button" },
@@ -142,14 +139,9 @@ const gptLogo = React.forwardRef(({ className, style }, ref) => (
     alt="ChatGPT Logo"
   />
 ));
+const preloadImage = new Image();
+preloadImage.src = ChatGPTLogo;
 
-/*
-console.log("!!------Image------")
-console.log(Image)
-console.log("--------------------")
-console.log(gptLogo)
-console.log("------Image------!!")
-*/
 
 ButtonNodeGPTEditor.iconComponent = gptLogo;
 ButtonNodeGPTEditor.description ="A Button that opens ChatGPT.";
