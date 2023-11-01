@@ -15,7 +15,7 @@ const defaultProperties = {
   href: "google.com",
   HBRegion: "NA",
   HBRestricted: false,
-  HBBrowserNav: false,
+  HBBrowserNav: true,
   HBDarkMode: false,
   HBWebGL: false,
   HBRes: 720,

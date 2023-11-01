@@ -222,7 +222,7 @@ export default class HBElementNodeEditor extends Component {
         </PropertyGroup>
 
         <PropertyGroup name="User interface">
-          <InputGroup name="Show Browser Nav" info="Display the browser navigation UI on top of the window">
+          <InputGroup name="Hide Browser Nav" info="If selected: Hide the browser Navigation Bar">
             <BooleanInput value={node.HBBrowserNav} onChange={this.onChangeHBBrowserNav}/>
           </InputGroup>
 
