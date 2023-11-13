@@ -55,6 +55,7 @@ export default function ButtonNodeEditor(props) {
 
 
 
+
   return (
     <NodeEditor description={ButtonNodeEditor.description} {...props}>
       <PropertyGroup name="Appearance">
@@ -62,9 +63,16 @@ export default function ButtonNodeEditor(props) {
           <SelectInput options={btnStyleOptions} value={node.btnStyle} onChange={onChangeBtnStyle} />
         </InputGroup>
         {
-          (node.btnStyle === "rounded-text-button" || node.btnStyle=== "rounded-text-action-button") && (
+          (node.btnStyle === "rounded-text-button" || node.btnStyle === "rounded-text-action-button") && (
             <InputGroup name="Button Text">
               <StringInput value={node.btnText} onChange={onChangeBtnText} />
+            </InputGroup>
+          )
+        }
+        {
+          (node.btnStyle === "rounded-button" || node.btnStyle === "rounded-action-button") && (
+            <InputGroup name="Button Short Text">
+              <StringInput value={node.btnText} onChange={onChangeBtnText} maxLength={3} />
             </InputGroup>
           )
         }

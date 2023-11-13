@@ -91,6 +91,35 @@ const GlobalStyle = createGlobalStyle`
     scrollbar-width: thin;
   }
 
+  
+  /*---aptero---*/
+
+  /* width */
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #282c31; 
+    box-shadow: inset 0 0 8px 0 rgba(0, 0, 0, 0.5);
+    border-radius: 6px;
+  }
+  
+  /* Handle 49515A 414750 */
+  ::-webkit-scrollbar-thumb {
+    background-color: #414750; 
+    border-radius: 6px;
+    border: 1px solid #616C78;
+    box-shadow: inset 0 0 5px 0 rgba(0, 0, 0, 0.5);
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #57606B; 
+  }
+
+  /*------------*/
+
   ::selection {
     color: ${props => props.theme.text};
     background-color: ${props => props.theme.selected};

@@ -120,7 +120,6 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
     return this.config.mode;
   }
   set mode(value) {
-    console.log(value)
     if(value == "spawn" && this.subMode!="attach" && this.subMode!=null){
       this.subMode = null
     }
@@ -285,8 +284,6 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
             break;
         }
     }
-    console.log("Stringifying...");
-    console.log(StringifiedAction, StringifiedTrigger);
     this.setUserData({
       "apt.action.controller.btn1": JSON.stringify([
         {
@@ -333,15 +330,8 @@ this.href = source.href;*/
 
   serialize() {
     //setUserData
-    console.log("Saving config...");
 
     this.compileButtonConfigToUserData(this.config);
-
-    //this.config.style = this.btnStyle; //TEST
-    
-    console.log("Config saved!");
-    console.log(this.config);
-    console.log("--------------------");
 
     return super.serialize({
       [ButtonNode.componentName]: {
@@ -353,43 +343,9 @@ this.href = source.href;*/
   static async deserialize(editor, json) {
 
     const node = await super.deserialize(editor, json);
-
-    //super.deserialize(editor, json);
-    //node.config = JSON.parse(json[ButtonNode.componentName].config);
-    
-    //node.btnStyle = "rounded-text-action-button";
-    console.log(JSON.stringify(json))
-
-    console.log("Searching for: "+ButtonNode.componentName);
-
     const { config } = json.components.find(c => c.name === ButtonNode.componentName).props;
 
-    console.log("Check config: "+config);
-
-    /*if (json[ButtonNode.componentName])
-    {
-      console.log("Component found!");
-
-      if (json[ButtonNode.componentName].config)
-      {console.log("Config component found!");}
-      else
-      {console.log("No config component found!");}
-    }
-    else
-    {console.log("No json component found!");}*/
-    
-    /*if (json[ButtonNode.componentName] && json[ButtonNode.componentName].config) {
-      node.config = JSON.parse(json[ButtonNode.componentName].config);
-      console.log("-->Config found!");
-    }
-    else
-    {
-      console.log("-->No config found!");
-    }*/
-
     node.config = JSON.parse(config);
-
-    //this.compileButtonConfigToUserData(this.config);
     return node;
   }
   
@@ -402,11 +358,5 @@ this.href = source.href;*/
     
     this.remove(this.helper);
   }
-  /*
-  //btnType
-  prepareForExport() {
-    this.remove(this.helper);
-    return super.prepareForExport();
-  }*/
 
 }

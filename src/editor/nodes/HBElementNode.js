@@ -23,6 +23,9 @@ const defaultProperties = {
   HBQlty: "smooth",
   HBuBlock: false,
   HBSession: null,
+  HBPersistent: false,
+  HBNoCursors: false,
+  processingSession: 0,
 };
 
 function generateObject(from) {
