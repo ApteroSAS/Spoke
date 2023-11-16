@@ -14,7 +14,6 @@ let linkHelperTexture = null;
 const defaultProperties = {
   href: "google.com",
   HBRegion: "NA",
-  HBRestricted: false,
   HBBrowserNav: true,
   HBDarkMode: false,
   HBWebGL: false,
@@ -25,6 +24,12 @@ const defaultProperties = {
   HBSession: null,
   HBPersistent: false,
   HBNoCursors: false,
+  HBStready: false,
+  HBRestricted: false,
+  HBPermissions: [],
+  HBForceYoutube: false,
+  isYoutubeLink: false,
+  youtubeAutoPlay: false,
   processingSession: 0,
 };
 
@@ -35,9 +40,28 @@ function generateObject(from) {
   }, {});
 }
 
+function getYouTubeEmbedLink(url, youtubeAutoPlay = false) {
+  // Extract the video ID from the YouTube URL
+  const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+
+  if (match && match[2].length == 11) {
+      // Create the embed link
+      let embedLink = `www.youtube.com/embed/${match[2]}`;
+      if (youtubeAutoPlay) {
+          embedLink += "?autoplay=1";
+      }
+      console.log("Valid YouTube URL", embedLink);
+      return embedLink;
+  } else {
+      console.log('Invalid YouTube URL');
+      return url;
+  }
+}
+
 export default class HBElementNode extends EditorNodeMixin(Object3D) {
   static componentName = "hbelement";
-  static nodeName = "3D Web Browser";
+  static nodeName = "3D Internet Screen";
   static subtype = "aptero";
 
   static async load() {
@@ -114,8 +138,16 @@ export default class HBElementNode extends EditorNodeMixin(Object3D) {
     // Remove http or https from the text using REGEX
     let processedURL = this.href.replace(/(http:\/\/|https:\/\/)/g, "");
 
+    // Process Youtube links if HBForceYoutube and isYoutubeLink are true
+    if (this.HBForceYoutube && this.isYoutubeLink) {
+      processedURL = getYouTubeEmbedLink(processedURL, this.youtubeAutoPlay);
+    }
+
+
     // Force default URL if empty
     if (processedURL === "") processedURL = "google.com"; 
+
+    // Set the URL to the Hyperbeam protocol
     processedURL = processedURL.startsWith("hyperbeam://") ? processedURL : "hyperbeam://" + processedURL;
 
     const linkComponent = generateObject(this);

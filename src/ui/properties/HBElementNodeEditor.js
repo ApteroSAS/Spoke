@@ -12,6 +12,7 @@ import NumericInput from "../inputs/NumericInput";
 import PropertyGroup from "./PropertyGroup";
 import { Button } from "../inputs/Button";
 import styled from "styled-components";
+import Collapsible from "../inputs/Collapsible";
 
 let fetchfrom = 'https://hyperbeam.serverless.aptero.co/';
   // If we are running from localhost, fetch directly using CORS proxy
@@ -100,12 +101,12 @@ function calculateBandwidth(resolution, fps, quality) {
 }
 
 function getBandwidthCategory(bandwidth) {
-  if (bandwidth <= 5) {
-      return 'Low';
-  } else if (bandwidth <= 10) {
-      return 'Mid';
-  } else if (bandwidth <= 17.5) {
-      return 'High';
+  if (bandwidth <= 7) {
+      return 'Optimal';
+  } else if (bandwidth <= 12) {
+      return 'Standard';
+  } else if (bandwidth <= 29) {
+      return '⚠ Intensive';
   } else {
       return 'Too High';
   }
@@ -126,12 +127,16 @@ export default class HBElementNodeEditor extends Component {
   // Properties that will appear on the right side when you select the node
   onChangeHref = href => {
     this.props.editor.setPropertySelected("href", href);
+
+    // Check if it's a youtube link
+    if (href.includes("youtube.com/watch?v=")) {
+      this.props.editor.setPropertySelected("isYoutubeLink", true);
+    } else {
+      this.props.editor.setPropertySelected("isYoutubeLink", false);
+    }
   };
   onChangeRegion = HBRegion => {
     this.props.editor.setPropertySelected("HBRegion", HBRegion);
-  };
-  onChangeHBRestricted = HBRestricted => {
-    this.props.editor.setPropertySelected("HBRestricted", HBRestricted);
   };
   onChangeHBBrowserNav = HBBrowserNav => {
     this.props.editor.setPropertySelected("HBBrowserNav", HBBrowserNav);
@@ -168,6 +173,32 @@ export default class HBElementNodeEditor extends Component {
 
   onProcessSession = processingSession => {
     this.props.editor.setPropertySelected("processingSession", processingSession);
+  }
+
+  onChangeHBStready = HBStready => {
+    this.props.editor.setPropertySelected("HBStready", HBStready);
+  }
+
+  onChangePermissions = (permission) => {
+    let permissions = {...this.props.node.HBPermissions};
+    if (permissions[permission]) {
+      delete permissions[permission];
+    } else {
+      permissions[permission] = true;
+    }
+    this.props.editor.setPropertySelected("HBPermissions", permissions);
+  }
+
+  onChangeRestricted = HBRestricted => {
+    this.props.editor.setPropertySelected("HBRestricted", HBRestricted);
+  }
+
+  onChangeHBForceYoutube = HBForceYoutube => {
+    this.props.editor.setPropertySelected("HBForceYoutube", HBForceYoutube);
+  }
+
+  onChangeYoutubeAutoPlay = youtubeAutoPlay => {
+    this.props.editor.setPropertySelected("youtubeAutoPlay", youtubeAutoPlay);
   }
   
 
@@ -383,21 +414,23 @@ export default class HBElementNodeEditor extends Component {
           <InputGroup name="Url" info="The website that will open by default">
             <StringInput value={node.href} onChange={this.onChangeHref} />
           </InputGroup>
+
+          <InputGroup disabled={!node.isYoutubeLink} name="Youtube Video-Only" info="If selected: Extracts the video Embed URL from the Youtube URL and opens it directly">
+            <BooleanInput value={node.HBForceYoutube} onChange={this.onChangeHBForceYoutube}/>
+          </InputGroup>
+          <InputGroup disabled={!node.HBForceYoutube} name="Youtube AutoPlay" info="If selected: The video will start playing automatically">
+            <BooleanInput value={node.youtubeAutoPlay} onChange={this.onChangeYoutubeAutoPlay}/>
+          </InputGroup>
           
           <InputGroup name="Region" info="Region where the Web Browser should be Host">
             <SelectInput options={HBRegionList} value={node.HBRegion} onChange={this.onChangeRegion} />
           </InputGroup>
 
-          <InputGroup name="No Cursors" info="If selected, All mouse interactions will be ignored">
+          <InputGroup name="No user Input" info="If selected, All mouse and keyboard interactions will be ignored">
             <BooleanInput value={node.HBNoCursors} onChange={this.onChangeHBNoCursors}/>
           </InputGroup>
 
-          <DInputGroup disabled={true} name="Restricted Control" info="If selected, users cannot control the browser by default, and need to be manually granted access by an admin user">
-            <BooleanInput value={node.HBRestricted} onChange={this.onChangeHBRestricted}/>
-          </DInputGroup>
-
-
-          <InputGroup name="Persistent (Optional)" info="Store session state including bookmarks, history, passwords, and cookies. Inactive sessions will be removed 6 months after last use.">
+          <InputGroup name="Persistent session" info="Store session state including bookmarks, history, passwords, and cookies. Inactive sessions will be removed 6 months after last use.">
             <BooleanInput value={node.HBPersistent} onChange={this.onChangeHBPersistent}/>
           </InputGroup>
 
@@ -414,6 +447,84 @@ export default class HBElementNodeEditor extends Component {
             <span>{node.HBPersistent ? node.HBSession ? node.HBSession : "Session not defined" : "Don't use session"}</span>
             {node.HBSession && <Button onClick={this.copySession} style={{ marginLeft: '10px' }}>Copy</Button>}
           </InputGroup>
+          
+          {/* TODO: Convert this into a Permissions script, it could be useful in other elements!*/}
+          <Collapsible label="Input Authorization">
+            <InputGroup name="Activate Restrictions" info="User with one of these access can access mouse and keyboard">
+              <BooleanInput value={node.HBRestricted} onChange={this.onChangeRestricted}/>
+            </InputGroup>
+
+            <Collapsible label="Objects">
+              <InputGroup name="Spawn emoji" disabled={node.HBRestricted ? false : true}>
+                <BooleanInput value={node.HBPermissions["spawn_emoji"] ? true : false} 
+                onChange={() => this.onChangePermissions("spawn_emoji")}/>
+              </InputGroup>
+              <InputGroup name="Spawn/Move Media" disabled={node.HBRestricted ? false : true}>
+                <BooleanInput value={node.HBPermissions["spawn_and_move_media"] ? true : false} 
+                onChange={() => this.onChangePermissions("spawn_and_move_media")}/>
+              </InputGroup>
+              <InputGroup name="Pin objects" disabled={node.HBRestricted ? false : true}>
+                <BooleanInput value={node.HBPermissions["pin_objects"] ? true : false}
+                onChange={() => this.onChangePermissions("pin_objects")}/>
+              </InputGroup>
+              <InputGroup name="Spawn camera" disabled={node.HBRestricted ? false : true}>
+                <BooleanInput value={node.HBPermissions["spawn_camera"] ? true : false}
+                onChange={() => this.onChangePermissions("spawn_camera")}/>
+              </InputGroup>
+              <InputGroup name="Draw Pencil" disabled={node.HBRestricted ? false : true}>
+                <BooleanInput value={node.HBPermissions["spawn_drawing"] ? true : false}
+                onChange={() => this.onChangePermissions("spawn_drawing")}/>
+              </InputGroup>
+            </Collapsible>
+
+            <Collapsible label="Moderation">
+              <InputGroup name="Mute users" disabled={node.HBRestricted ? false : true}>
+                <BooleanInput value={node.HBPermissions["mute_users"] ? true : false}
+                onChange={() => this.onChangePermissions("mute_users")}/>
+              </InputGroup>
+              <InputGroup name="Kick users" disabled={node.HBRestricted ? false : true}>
+                <BooleanInput value={node.HBPermissions["kick_users"] ? true : false}
+                onChange={() => this.onChangePermissions("kick_users")}/>
+              </InputGroup>
+              <InputGroup name="Update roles" disabled={node.HBRestricted ? false : true}>
+                <BooleanInput value={node.HBPermissions["update_roles"] ? true : false}
+                onChange={() => this.onChangePermissions("update_roles")}/>
+              </InputGroup>
+            </Collapsible>
+
+
+            <Collapsible label="Hub Management">
+              <InputGroup name="Update hub" disabled={node.HBRestricted ? false : true}>
+                <BooleanInput value={node.HBPermissions["update_hub"] ? true : false}
+                onChange={() => this.onChangePermissions("update_hub")}/>
+              </InputGroup>
+              <InputGroup name="Update hub promotion" disabled={node.HBRestricted ? false : true}>
+                <BooleanInput value={node.HBPermissions["update_hub_promotion"] ? true : false}
+                onChange={() => this.onChangePermissions("update_hub_promotion")}/>
+              </InputGroup>
+              <InputGroup name="Close hub" disabled={node.HBRestricted ? false : true}>
+                <BooleanInput value={node.HBPermissions["close_hub"] ? true : false}
+                onChange={() => this.onChangePermissions("close_hub")}/>
+              </InputGroup>
+            </Collapsible>
+
+            <Collapsible label="Misceallaneous">
+              <InputGroup name="Fly" disabled={node.HBRestricted ? false : true}>
+                <BooleanInput value={node.HBPermissions["fly"] ? true : false}
+                onChange={() => this.onChangePermissions("fly")}/>
+              </InputGroup>
+              <InputGroup name="Change screen" disabled={node.HBRestricted ? false : true}>
+                <BooleanInput value={node.HBPermissions["change_screen"] ? true : false}
+                onChange={() => this.onChangePermissions("change_screen")}/>
+              </InputGroup>
+              <InputGroup name="Share screen" disabled={node.HBRestricted ? false : true}>
+                <BooleanInput value={node.HBPermissions["share_screen"] ? true : false} 
+                onChange={() => this.onChangePermissions("share_screen")}/>
+              </InputGroup>
+            </Collapsible>
+
+          </Collapsible>
+          
 
         </PropertyGroup>
 
@@ -444,13 +555,17 @@ export default class HBElementNodeEditor extends Component {
           <InputGroup name="Quality" info="Smooth is recommended for videos and streams, while sharp is better when clarity is needed, like presentations (Warning: Sharp uses 3x more bandwith)">
             <SelectInput options={HBQltyList} value={node.HBQlty} onChange={this.onChangeHBQlty} />
           </InputGroup>
+
+          <InputGroup name="Stready Stream" info="When activated: input lag increases but smoothness is improved and frame drops are reduced (Recommended for videos and streams).">
+            <BooleanInput value={node.HBStready} onChange={this.onChangeHBStready}/>
+          </InputGroup>
           
           <InputGroup name="AD-Block" info="Adds uBlock to the browser, blocking certain elements (including ads), this may break some sites">
             <BooleanInput value={node.HBuBlock} onChange={this.onChangeHBuBlock}/>
           </InputGroup>
 
           {bandwidthCategory === 'Too High' && (
-            <InputGroup name="Bandwidth" info = "High bandwidth usage may cause lag and stuttering, consider lowering the resolution, fps or quality settings">
+            <InputGroup name="Bandwidth" info = "High bandwidth usage may cause lag and stuttering, consider lowering the resolution, fps or quality settings. The total bandwith of all 3D Sreens shouldn't exceed 50 mbps">
               <div style={{ background: '#77000099', color: 'yellow', padding: '0.3em 0.6em', fontSize: '1.15em'}}>
                   ⚠ {bandwidth.toFixed(2)} mbps ({bandwidthCategory})
               </div>
