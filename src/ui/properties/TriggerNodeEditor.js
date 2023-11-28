@@ -2,21 +2,35 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import NodeEditor from "./NodeEditor";
 import InputGroup from "../inputs/InputGroup";
-import SelectInput from "../inputs/SelectInput";
-import BooleanInput from "../inputs/BooleanInput";
+import SelectInputIcons, { iconMap } from "../inputs/SelectInputIcons";
 import StringInput from "../inputs/StringInput";
 import { Running } from "styled-icons/fa-solid/Running";
 
-const componentOptions = [
-  {
-    label: "audio-sub-room",
-    value: "audio-sub-room",
-    nodeNames: ["audio-system"],
-    propertyOptions: [
-      { label: "sub room id", value: "sub-room-id", component: "audio-sub-room", input: StringInput, default: "eg 'sub-room-1' or 'default'" }
-    ]
-  }
-];
+const iconList = [
+  { label: "VoiceOver", value: "VoiceOver" },
+  { label: "Add", value: "Add" },
+  { label: "Attach", value: "Attach" },
+  { label: "Audio", value: "Audio" },
+  { label: "Discord", value: "Discord" },
+  { label: "Document", value: "Document" },
+  { label: "Email", value: "Email" },
+  { label: "Gif", value: "GIF" },
+  { label: "Image", value: "Image" },
+  { label: "Pen", value: "Pen" },
+  { label: "Search", value: "Search" },
+  { label: "Shield", value: "Shield" },
+  { label: "Show", value: "Show" },
+  { label: "Text Document", value: "TextDocument" },
+  { label: "Video", value: "Video" },
+
+]
+
+const previewStyle = {
+  height: '50px',
+  filter: "brightness(0) invert(1)",
+  padding: '0.3em'
+}
+
 
 export default class TriggerNodeEditor extends Component {
   static propTypes = {
@@ -31,162 +45,46 @@ export default class TriggerNodeEditor extends Component {
 
   constructor(props) {
     super(props);
-
-    this.state = {
-      options: [{label:"Audio System",value:"audio-system",nodeName:"audio-system"}]
-    };
   }
 
-  onChangeTarget = target => {
-    this.props.editor.setPropertiesSelected({
-      target,
-      enterComponent: null,
-      enterProperty: null,
-      enterValue: null,
-      leaveComponent: null,
-      leaveProperty: null,
-      leaveValue: null
-    });
-  };
+  onChangeSidebarName = value => {
+    this.props.editor.setPropertySelected("sidebarName", value);
+  }
 
-  onChangeEnterComponent = value => {
-    this.props.editor.setPropertiesSelected({
-      enterComponent: value,
-      enterProperty: null,
-      enterValue: null
-    });
-  };
+  onChangeLinkSource = value => {
+    this.props.editor.setPropertySelected("linkSource", value);
+  }
 
-  onChangeEnterProperty = (value, option) => {
-    this.props.editor.setPropertiesSelected({
-      enterProperty: value,
-      enterValue: option.default !== undefined ? option.default : null
-    });
-  };
+  onChangeButtonIcon = value => {
+    this.props.editor.setPropertySelected("buttonIcon", value);
+  }
+  
+  getIconSource = iconName => {
+    return iconMap[iconName];
+  }
 
-  onChangeEnterValue = value => {
-    this.props.editor.setPropertySelected("enterValue", value);
-  };
-
-  onChangeLeaveComponent = value => {
-    this.props.editor.setPropertiesSelected({
-      leaveComponent: value,
-      leaveProperty: null,
-      leaveValue: null
-    });
-  };
-
-  onChangeLeaveProperty = (value, option) => {
-    this.props.editor.setPropertiesSelected({
-      leaveProperty: value,
-      leaveValue: option.default !== undefined ? option.default : null
-    });
-  };
-
-  onChangeLeaveValue = value => {
-    this.props.editor.setPropertySelected("leaveValue", value);
-  };
 
   componentDidMount() {
   }
 
   render() {
-    const { node, multiEdit } = this.props;
+    const { node } = this.props;
 
-    const targetOption = this.state.options.find(o => o.value === node.target);
-    const target = targetOption ? targetOption.value : null;
-
-    const filteredComponentOptions = targetOption
-      ? componentOptions.filter(o => o.nodeNames.indexOf(targetOption.nodeName) !== -1)
-      : [];
-    const enterComponentOption = filteredComponentOptions.find(o => o.value === node.enterComponent);
-    const enterComponent = enterComponentOption ? enterComponentOption.value : null;
-    const leaveComponentOption = filteredComponentOptions.find(o => o.value === node.leaveComponent);
-    const leaveComponent = leaveComponentOption ? leaveComponentOption.value : null;
-
-    const filteredEnterPropertyOptions = enterComponentOption
-      ? enterComponentOption.propertyOptions.filter(o => o.component === node.enterComponent)
-      : [];
-    const enterPropertyOption = filteredEnterPropertyOptions.find(o => o.value === node.enterProperty);
-    const enterProperty = enterPropertyOption ? enterPropertyOption.value : null;
-
-    const filteredLeavePropertyOptions = leaveComponentOption
-      ? leaveComponentOption.propertyOptions.filter(o => o.component === node.leaveComponent)
-      : [];
-    const leavePropertyOption = filteredLeavePropertyOptions.find(o => o.value === node.leaveProperty);
-    const leaveProperty = leavePropertyOption ? leavePropertyOption.value : null;
-
-    const EnterInput = enterPropertyOption && enterPropertyOption.input;
-    const LeaveInput = leavePropertyOption && leavePropertyOption.input;
+    const selectedIconSrc = this.getIconSource(node.buttonIcon);
 
     return (
       <NodeEditor description={TriggerNodeEditor.description} {...this.props}>
-        <InputGroup name="Target">
-          <SelectInput
-            placeholder={"Select node..."}
-            value={node.target}
-            onChange={this.onChangeTarget}
-            options={this.state.options}
-            disabled={multiEdit}
-          />
+        <InputGroup name="Title name">
+          <StringInput value={node.sidebarName} onChange={this.onChangeSidebarName} />
         </InputGroup>
-        <InputGroup name="Enter Component">
-          <SelectInput
-            placeholder={node.enterComponent || "Select component..."}
-            value={node.enterComponent}
-            onChange={this.onChangeEnterComponent}
-            options={filteredComponentOptions}
-            disabled={multiEdit || !target}
-          />
+        <InputGroup name="Link source">
+          <StringInput value={node.linkSource} onChange={this.onChangeLinkSource} />
         </InputGroup>
-        <InputGroup name="Enter Property">
-          <SelectInput
-            placeholder={node.enterProperty || "Select property..."}
-            value={node.enterProperty}
-            onChange={this.onChangeEnterProperty}
-            options={filteredEnterPropertyOptions}
-            disabled={multiEdit || !enterComponent}
-          />
+        <InputGroup name="Button icon">
+          <SelectInputIcons value={node.buttonIcon} onChange={this.onChangeButtonIcon} options={iconList} />
         </InputGroup>
-        <InputGroup name="Enter Value">
-          {EnterInput ? (
-            <EnterInput
-              value={node.enterValue}
-              onChange={this.onChangeEnterValue}
-              disabled={multiEdit || !(target && enterComponent && enterProperty)}
-            />
-          ) : (
-            <StringInput disabled />
-          )}
-        </InputGroup>
-        <InputGroup name="Leave Component">
-          <SelectInput
-            placeholder={node.leaveComponent || "Select component..."}
-            value={node.leaveComponent}
-            onChange={this.onChangeLeaveComponent}
-            options={filteredComponentOptions}
-            disabled={multiEdit || !target}
-          />
-        </InputGroup>
-        <InputGroup name="Leave Property">
-          <SelectInput
-            placeholder={node.leaveProperty || "Select property..."}
-            value={node.leaveProperty}
-            onChange={this.onChangeLeaveProperty}
-            options={filteredLeavePropertyOptions}
-            disabled={multiEdit || !leaveComponent}
-          />
-        </InputGroup>
-        <InputGroup name="Leave Value">
-          {LeaveInput ? (
-            <LeaveInput
-              value={node.leaveValue}
-              onChange={this.onChangeLeaveValue}
-              disabled={multiEdit || !(target && leaveComponent && leaveProperty)}
-            />
-          ) : (
-            <StringInput disabled />
-          )}
+        <InputGroup name="icon Preview">
+          {selectedIconSrc && <img src={selectedIconSrc} alt={node.buttonIcon} style={previewStyle} />}
         </InputGroup>
       </NodeEditor>
     );

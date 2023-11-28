@@ -2,13 +2,17 @@ import { Material, BoxBufferGeometry, Object3D, Mesh, BoxHelper, Vector3 } from 
 import EditorNodeMixin from "./EditorNodeMixin";
 
 const requiredProperties = [
-  "target",
+  "sidebarName",
+  "linkSource",
+  "buttonIcon",
+
+  /*"target",
   "enterComponent",
   "enterProperty",
   "enterValue",
   "leaveComponent",
   "leaveProperty",
-  "leaveValue"
+  "leaveValue"*/
 ];
 
 export default class TriggerNode extends EditorNodeMixin(Object3D) {
@@ -30,6 +34,10 @@ export default class TriggerNode extends EditorNodeMixin(Object3D) {
     const props = json.components.find(c => c.name === "trigger").props;
 
     node.target = props.target;
+    node.sidebarName = props.sidebarName;
+    node.linkSource = props.linkSource;
+    node.buttonIcon = props.buttonIcon;
+    // legacy properties
     node.enterComponent = props.enterComponent;
     node.enterProperty = props.enterProperty;
     node.enterValue = props.enterValue;
@@ -49,6 +57,10 @@ export default class TriggerNode extends EditorNodeMixin(Object3D) {
     this.helper = box;
     this.add(box);
     this.target = null;
+    this.sidebarName = null;
+    this.linkSource = null;
+    this.buttonIcon = null;
+    // legacy properties
     this.enterComponent = null;
     this.enterProperty = null;
     this.enterValue = null;
@@ -73,6 +85,10 @@ export default class TriggerNode extends EditorNodeMixin(Object3D) {
     }
 
     this.target = source.target;
+    this.sidebarName = source.sidebarName;
+    this.linkSource = source.linkSource;
+    this.buttonIcon = source.buttonIcon;
+
     this.enterComponent = source.enterComponent;
     this.enterProperty = source.enterProperty;
     this.enterValue = source.enterValue;
@@ -87,6 +103,10 @@ export default class TriggerNode extends EditorNodeMixin(Object3D) {
     return super.serialize({
       "trigger": {
         target: this.target,
+        sidebarName: this.sidebarName,
+        linkSource: this.linkSource,
+        buttonIcon: this.buttonIcon,
+
         enterComponent: this.enterComponent,
         enterProperty: this.enterProperty,
         enterValue: this.enterValue,
@@ -113,13 +133,17 @@ export default class TriggerNode extends EditorNodeMixin(Object3D) {
 
     this.addGLTFComponent("trigger", {
       size: { x: scale.x, y: scale.y, z: scale.z },
-      target: this.gltfIndexForUUID(this.target),
+      sidebarName: this.sidebarName,
+      linkSource: this.linkSource,
+      buttonIcon: this.buttonIcon,
+
+      /*target: this.gltfIndexForUUID(this.target),
       enterComponent: this.enterComponent,
       enterProperty: this.enterProperty,
       enterValue: this.enterValue,
       leaveComponent: this.leaveComponent,
       leaveProperty: this.leaveProperty,
-      leaveValue: this.leaveValue
+      leaveValue: this.leaveValue*/
     });
   }
 }
