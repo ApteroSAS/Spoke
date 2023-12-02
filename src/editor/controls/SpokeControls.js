@@ -720,12 +720,31 @@ export default class SpokeControls extends EventEmitter {
     this.updateTransformGizmoScale();
   }
 
-  raycastNode(coords) {
+  /*raycastNode(coords) {
     this.raycaster.setFromCamera(coords, this.camera);
     this.raycasterResults.length = 0;
     this.raycaster.intersectObject(this.scene, true, this.raycasterResults);
     return getIntersectingNode(this.raycasterResults, this.scene);
-  }
+  }*/
+  raycastNode(coords) {
+    // Existing raycasting logic...
+    this.raycaster.setFromCamera(coords, this.camera);
+    this.raycasterResults.length = 0;
+    this.raycaster.intersectObject(this.scene, true, this.raycasterResults);
+
+    // Filter out the locked items before iterating
+    const unlockedItems = this.raycasterResults.filter(result => {
+        return !(window.lockedItems && window.lockedItems.includes(result.object.parent.uuid));
+    });
+
+    // If there are unlocked items, pass them to getIntersectingNode
+    if (unlockedItems.length > 0) {
+        return getIntersectingNode(unlockedItems, this.scene);
+    }
+
+    return null; // Return null if no selectable object is found
+}
+
 
   focus(objects) {
     const box = this.box;

@@ -18,6 +18,7 @@ import { ProjectDiagram } from "styled-icons/fa-solid/ProjectDiagram";
 import useUpload from "../assets/useUpload";
 import { AllFileTypes } from "../assets/fileTypes";
 import NodeIssuesIcon from "./NodeIssuesIcon";
+import NodeStatesToggles from "./NodeStatesToggles";
 
 const uploadOptions = {
   multiple: true,
@@ -458,6 +459,7 @@ function TreeNode({
                   </TreeNodeLabel>
                 )}
               </TreeNodeLabelContainer>
+              <NodeStatesToggles node={node} /> {/*aptero*/}
               {node.object.issues.length > 0 && <NodeIssuesIcon node={node.object} />}
             </TreeNodeSelectTarget>
           </TreeNodeContent>
@@ -625,7 +627,8 @@ export default function HierarchyPanel() {
 
   const onObjectChanged = useCallback(
     (objects, propertyName) => {
-      if (propertyName === "name" || propertyName === "enabled" || !propertyName) {
+      if (propertyName === "name" || propertyName === "enabled" || !propertyName 
+      || propertyName === "_visible") { //aptero
         updateNodeHierarchy();
       }
     },

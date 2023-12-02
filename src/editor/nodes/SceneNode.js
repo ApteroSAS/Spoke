@@ -139,6 +139,12 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         node.mediaConeOuterAngle = props.mediaConeOuterAngle;
         node.mediaConeOuterGain = props.mediaConeOuterGain;
       }
+
+      // Locked items
+      const lockedItems = json.components.find(c => c.name === "locked-items");
+      if (lockedItems) {
+        window.lockedItems = lockedItems.props.lockedItems;
+      }
     }
 
     return node;
@@ -266,6 +272,19 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   }
 
   serialize() {
+    // Filter non-string values and removed objects from the window.lockedItems array
+    if (window.lockedItems) {
+      window.lockedItems = window.lockedItems.filter(item => typeof item === "string");
+
+      // Remove objects that don't exist anymore
+      window.lockedItems = window.lockedItems.filter(item => {
+        const object = getNodeWithUUID(this, item);
+        return object;
+      });
+    } else {
+      window.lockedItems = [];
+    }
+
     const sceneJson = {
       version: JSON_VERSION,
       root: this.uuid,
@@ -312,7 +331,13 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
               name: "editor-settings",
               props: {
                 enabled: true,
-                modifiedProperties: this.modifiedProperties
+                modifiedProperties: this.modifiedProperties,
+              }
+            },
+            {
+              name: "locked-items",
+              props: {
+                lockedItems: window.lockedItems //aptero
               }
             }
           ]
