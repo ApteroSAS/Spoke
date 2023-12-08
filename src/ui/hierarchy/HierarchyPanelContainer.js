@@ -42,13 +42,15 @@ const PanelContainer = styled.div`
 
 const TreeDepthContainer = styled.li``;
 
-function treeNodeBackgroundColor({ root, selected, active, theme }) {
+function treeNodeBackgroundColor({ root, selected, active, theme, groupHasSelectedChild }) {
   if (selected) {
     if (active) {
       return theme.bluePressed;
     } else {
       return theme.selected;
     }
+  } else if (groupHasSelectedChild && !root) {
+    return theme.hover2;
   } else {
     if (root) {
       return theme.panel2;
@@ -130,7 +132,7 @@ const TreeNodeIcon = styled.div`
 
 const TreeNodeLabel = styled.div`
   background-color: ${props => (props.isOver && props.canDrop ? "rgba(255, 255, 255, 0.3)" : "transparent")};
-  color: ${props => (props.isOver && props.canDrop ? props.theme.text : "inherit")};
+  color: ${props => (!props.enabled ? "gray" : props.isOver && props.canDrop ? props.theme.text : "inherit")};
   border-radius: 4px;
   padding: 0 2px;
   text-decoration: ${props => (props.enabled ? "none" : "line-through")};
@@ -422,6 +424,7 @@ function TreeNode({
           root={depth === 0}
           selected={selected}
           active={active}
+          groupHasSelectedChild={node.groupHasSelectedChild} //aptero
         >
           <TreeNodeDropTarget
             ref={beforeDropTarget}
@@ -510,6 +513,10 @@ TreeNode.propTypes = {
 
 const MemoTreeNode = memo(TreeNode, areEqual);
 
+function hasSelectedChild(node, selectedNodes) {
+  return node.children.some(child => selectedNodes.includes(child));
+} /*aptero*/
+
 function* treeWalker(editor, expandedNodes) {
   const stack = [];
 
@@ -530,6 +537,8 @@ function* treeWalker(editor, expandedNodes) {
     const isExpanded = expandedNodes[object.id] || object === editor.scene;
     const enabled = parentEnabled && object.enabled;
 
+    const groupHasSelectedChild = hasSelectedChild(object, editor.selected); /*aptero*/
+
     yield {
       id: object.id,
       isLeaf: object.children.filter(c => c.isNode).length === 0,
@@ -541,7 +550,8 @@ function* treeWalker(editor, expandedNodes) {
       active: editor.selected.length > 0 && object === editor.selected[editor.selected.length - 1],
       enabled,
       childIndex,
-      lastChild
+      lastChild,
+      groupHasSelectedChild /*aptero*/,
     };
 
     if (object.children.length !== 0 && isExpanded) {

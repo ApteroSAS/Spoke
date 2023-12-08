@@ -65,6 +65,17 @@ const HBQltyList = [
   { label: "Smooth", value: "smooth" },
   { label: "Sharp", value: "sharp" },
 ]
+const youtubeCCLangs = [
+  { label: "English", value: "en"},
+  { label: "French", value: "fr"},
+  { label: "Spanish", value: "es"},
+  { label: "Korean", value: "ko"},
+  { label: "Chinese", value: "zh"},
+  { label: "German", value: "de"},
+  { label: "Portuguese", value: "pt"},
+  { label: "Russian", value: "ru"},
+  { label: "Japanese", value: "ja"},
+]
 
 /* 
   System to calculate bandwidth based on resolution, fps and quality settings
@@ -129,7 +140,7 @@ export default class HBElementNodeEditor extends Component {
     this.props.editor.setPropertySelected("href", href);
 
     // Check if it's a youtube link
-    if (href.includes("youtube.com/watch?v=")) {
+    if (href.includes("youtube.com/watch?v=") || href.includes("youtu.be/")) {
       this.props.editor.setPropertySelected("isYoutubeLink", true);
     } else {
       this.props.editor.setPropertySelected("isYoutubeLink", false);
@@ -170,6 +181,25 @@ export default class HBElementNodeEditor extends Component {
       this.handleSession(false);
     }
   }
+  onChangeHBFalloffDistance = HBFalloffDistance => {
+    this.props.editor.setPropertySelected("HBFalloffDistance", HBFalloffDistance);
+  }
+  onChangeYoutubeCC = youtubeCC => {
+    this.props.editor.setPropertySelected("youtubeCC", youtubeCC);
+  }
+  onChangeyoutubeCCLang = youtubeCCLang => {
+    this.props.editor.setPropertySelected("youtubeCCLang", youtubeCCLang);
+  }
+  onChangeyoutubeCCLangOther = youtubeCCLangOther => {
+    this.props.editor.setPropertySelected("youtubeCCLangOther", youtubeCCLangOther);
+  }
+  onChangeYoutubePlaylistID = youtubePlaylistID => {
+    this.props.editor.setPropertySelected("youtubePlaylistID", youtubePlaylistID);
+  }
+  onChangeYoutubeLoop = youtubeLoop => {
+    this.props.editor.setPropertySelected("youtubeLoop", youtubeLoop);
+  }
+  
 
   onProcessSession = processingSession => {
     this.props.editor.setPropertySelected("processingSession", processingSession);
@@ -415,12 +445,30 @@ export default class HBElementNodeEditor extends Component {
             <StringInput value={node.href} onChange={this.onChangeHref} />
           </InputGroup>
 
-          <InputGroup disabled={!node.isYoutubeLink} name="Youtube Video-Only" info="If selected: Extracts the video Embed URL from the Youtube URL and opens it directly">
-            <BooleanInput value={node.HBForceYoutube} onChange={this.onChangeHBForceYoutube}/>
-          </InputGroup>
-          <InputGroup disabled={!node.HBForceYoutube} name="Youtube AutoPlay" info="If selected: The video will start playing automatically">
-            <BooleanInput value={node.youtubeAutoPlay} onChange={this.onChangeYoutubeAutoPlay}/>
-          </InputGroup>
+          <Collapsible label="Youtube EMBED Properties">
+            <InputGroup disabled={!node.isYoutubeLink} name="Extract Embed Video" info="If selected: Extracts the video Embed URL from the Youtube URL and opens it directly, instead of the whole page">
+              <BooleanInput value={node.HBForceYoutube} onChange={this.onChangeHBForceYoutube}/>
+            </InputGroup>
+            <InputGroup disabled={!node.isYoutubeLink || !node.HBForceYoutube} name="AutoPlay" info="If selected: The video will start playing automatically">
+              <BooleanInput value={node.youtubeAutoPlay} onChange={this.onChangeYoutubeAutoPlay}/>
+            </InputGroup>
+            <InputGroup disabled={!node.isYoutubeLink || !node.HBForceYoutube} name="Activate Captions" info="Please not that this doesn't work with auto-generated Captions, make sure your Captions language is available in the video">
+              <BooleanInput value={node.youtubeCC} onChange={this.onChangeYoutubeCC}/>
+            </InputGroup>
+            <InputGroup disabled={!node.isYoutubeLink || !node.HBForceYoutube || !node.youtubeCC} name="Captions Language">
+              <SelectInput options={youtubeCCLangs} value={node.youtubeCCLang} onChange={this.onChangeyoutubeCCLang}/>
+            </InputGroup>
+            <InputGroup disabled={!node.isYoutubeLink || !node.HBForceYoutube || !node.youtubeCC} name="Other Captions Language" info="If the language you want is not in the list, you can use ISO 639-1 codes here">
+              <StringInput value={node.youtubeCCLangOther} onChange={this.onChangeyoutubeCCLangOther}/>
+            </InputGroup>
+            <InputGroup disabled={!node.isYoutubeLink || !node.HBForceYoutube} name="Play list ID" info="Example: https://youtube.com/playlist?list=PLWuBUsupPv5AyFGMJvXb7eMcgGb1zpCEv&si=yh7ZSpmCn1xum-NW">
+              <StringInput value={node.youtubePlaylistID} onChange={this.onChangeYoutubePlaylistID}/>
+            </InputGroup>
+            <InputGroup disabled={!node.isYoutubeLink || !node.HBForceYoutube} name="Loop">
+              <BooleanInput value={node.youtubeLoop} onChange={this.onChangeYoutubeLoop}/>
+            </InputGroup>
+
+          </Collapsible>
           
           <InputGroup name="Region" info="Region where the Web Browser should be Host">
             <SelectInput options={HBRegionList} value={node.HBRegion} onChange={this.onChangeRegion} />
@@ -532,9 +580,11 @@ export default class HBElementNodeEditor extends Component {
           <InputGroup name="Hide Browser Nav" info="If selected: Hide the browser Navigation Bar">
             <BooleanInput value={node.HBBrowserNav} onChange={this.onChangeHBBrowserNav}/>
           </InputGroup>
-
           <InputGroup name="Dark mode" info="Set the browser profile to dark mode (Some sites may not support this feature)">
             <BooleanInput value={node.HBDarkMode} onChange={this.onChangeHBDarkMode}/>
+          </InputGroup>
+          <InputGroup name="Falloff Distance" info="Minimum Distance from where the audio will start to fadeout (Full volume if any closer)">
+            <NumericInput min={0} max={1000} step={0.5} mediumStep={1} value={node.HBFalloffDistance} onChange={this.onChangeHBFalloffDistance} />
           </InputGroup>
         </PropertyGroup>
         
@@ -548,8 +598,8 @@ export default class HBElementNodeEditor extends Component {
           </InputGroup>
           
           <InputGroup name="FPS" info="24 FPS is recommended for general purposes, as higher values will be more resource intensive">
-            <Slider min={12} max={60} step={4} value={node.HBFps} onChange={this.onChangeHBFps} />
-            <NumericInput min={12} max={60} step={4} mediumStep={1} value={node.HBFps} onChange={this.onChangeHBFps} />
+            <Slider min={24} max={60} step={4} value={node.HBFps} onChange={this.onChangeHBFps} />
+            <NumericInput min={24} max={60} step={4} mediumStep={1} value={node.HBFps} onChange={this.onChangeHBFps} />
           </InputGroup>
           
           <InputGroup name="Quality" info="Smooth is recommended for videos and streams, while sharp is better when clarity is needed, like presentations (Warning: Sharp uses 3x more bandwith)">

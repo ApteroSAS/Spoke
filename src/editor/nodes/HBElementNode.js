@@ -28,8 +28,14 @@ const defaultProperties = {
   HBRestricted: false,
   HBPermissions: [],
   HBForceYoutube: false,
+  HBFalloffDistance: 3,
   isYoutubeLink: false,
   youtubeAutoPlay: false,
+  youtubeCC: false,
+  youtubeCCLang: "en",
+  youtubeCCLangOther: "",
+  youtubePlaylistID: "",
+  youtubeLoop: false,
   processingSession: 0,
 };
 
@@ -40,22 +46,53 @@ function generateObject(from) {
   }, {});
 }
 
-function getYouTubeEmbedLink(url, youtubeAutoPlay = false) {
+function addEmbedQuery(pQuery, query) {
+  if (pQuery.querys === 0) {
+    pQuery.url += "?";
+  } else {
+    pQuery.url += "&";
+  }
+  pQuery.url += query;
+  pQuery.querys++;
+}
+
+function getYouTubeEmbedLink(url, pThis) {
   // Extract the video ID from the YouTube URL
   const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
   const match = url.match(regExp);
 
   if (match && match[2].length == 11) {
-      // Create the embed link
-      let embedLink = `www.youtube.com/embed/${match[2]}`;
-      if (youtubeAutoPlay) {
-          embedLink += "?autoplay=1";
+    // Create the embed link
+    const processQuery = {
+      url: `https://www.youtube.com/embed/${match[2]}`,
+      querys: 0,
+    }
+
+    if (pThis.youtubeAutoPlay) {
+      addEmbedQuery(processQuery, "autoplay=1");
+    }
+    if (pThis.youtubeCC) {
+      addEmbedQuery(processQuery, "cc_load_policy=1");
+      if (pThis.youtubeCCLangOther === "") {
+        addEmbedQuery(processQuery, 
+          `cc_lang_pref=${pThis.youtubeCCLangOther === "" ? pThis.youtubeCCLang : pThis.youtubeCCLangOther}`);
       }
-      console.log("Valid YouTube URL", embedLink);
-      return embedLink;
+    }
+    if (pThis.youtubePlaylistID !== "" || (pThis.youtubePlaylistID === "" && pThis.youtubeLoop)) {
+      // Looping a video requires us to define a playlist as either the video itself or a playlist ID (if defined)
+      // This code takes into consideration both scenarios
+      const playlistID = pThis.youtubePlaylistID === "" ? match[2] : pThis.youtubePlaylistID;
+      addEmbedQuery(processQuery, "playlist=" + playlistID);
+    }
+    if (pThis.youtubeLoop) {
+      addEmbedQuery(processQuery, "loop=1");
+    }
+
+    console.log("Valid YouTube URL", processQuery.url);
+    return processQuery.url;
   } else {
-      console.log('Invalid YouTube URL');
-      return url;
+    console.log('Invalid YouTube URL');
+    return url;
   }
 }
 
@@ -140,7 +177,7 @@ export default class HBElementNode extends EditorNodeMixin(Object3D) {
 
     // Process Youtube links if HBForceYoutube and isYoutubeLink are true
     if (this.HBForceYoutube && this.isYoutubeLink) {
-      processedURL = getYouTubeEmbedLink(processedURL, this.youtubeAutoPlay);
+      processedURL = getYouTubeEmbedLink(processedURL, this);
     }
 
 
@@ -152,8 +189,6 @@ export default class HBElementNode extends EditorNodeMixin(Object3D) {
 
     const linkComponent = generateObject(this);
     linkComponent.href = processedURL;
-
-    console.log("linkComponent", linkComponent);
 
     this.addGLTFComponent("link", linkComponent);
     this.addGLTFComponent("networked", {
