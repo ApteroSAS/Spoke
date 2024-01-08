@@ -1,7 +1,10 @@
 import EditorNodeMixin from "./EditorNodeMixin";
-import { Object3D, PlaneBufferGeometry, MeshBasicMaterial, Mesh, DoubleSide } from "three";
+import { Object3D, PlaneBufferGeometry, MeshBasicMaterial, Mesh, DoubleSide, SphereBufferGeometry, CircleGeometry, ShaderMaterial, } from "three";
+
 import linkIconUrl from "../../assets/apteroelements/HyperbeamPng.png";
 import loadTexture from "../utils/loadTexture";
+import { AudioElementType } from "../objects/AudioParams";
+
 
 let linkHelperTexture = null;
 
@@ -28,7 +31,6 @@ const defaultProperties = {
   HBRestricted: false,
   HBPermissions: [],
   HBForceYoutube: false,
-  HBFalloffDistance: 3,
   isYoutubeLink: false,
   youtubeAutoPlay: false,
   youtubeCC: false,
@@ -37,6 +39,21 @@ const defaultProperties = {
   youtubePlaylistID: "",
   youtubeLoop: false,
   processingSession: 0,
+  // Audio parameters
+  HBFalloffDistance: 3,
+  HBAdvancedAudio: false,
+  audioType: AudioElementType.VIDEO, // or the appropriate type from AudioParams
+  gain: 1.0, // Volume
+  distanceModel: 'linear',
+  rolloffFactor: 1,
+  refDistance: 1,
+  maxDistance: 100,
+  coneInnerAngle: 360,
+  coneOuterAngle: 0,
+  coneOuterGain: 0,
+  showAudioSphere: false,
+  showAudioOuter: false,
+  showAudioInner: false,
 };
 
 function generateObject(from) {
@@ -96,6 +113,56 @@ function getYouTubeEmbedLink(url, pThis) {
   }
 }
 
+// This shader is used to create the gradient for the audio cone, so we can see how the outer gain is applied
+const vertexShader = `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+const fragmentShader = `
+  varying vec2 vUv;
+  uniform float outerGain; // Value from 0 to 1
+
+  void main() {
+    // Calculate radial distance from the center (0.5, 0.5)
+    float r = distance(vUv, vec2(0.5, 0.5)) * 2.0; // Adjusted for [0,1] range
+
+    // Define colors for the center and the border
+    vec3 fullColor = vec3(1.0, 1.0, 0.0);
+    vec3 emptyColor = vec3(1.0, 0.0, 0.0);
+
+
+    // Mix between yellow and red based on outerGain and distance
+    vec3 color = mix(fullColor, emptyColor, smoothstep(0.0, outerGain, r));
+
+    gl_FragColor = vec4(color, 0.5);
+  }
+`;
+
+const fragmentShaderB = `
+  varying vec2 vUv;
+
+  void main() {
+    // Calculate radial distance from the center (0.5, 0.5)
+    float r = distance(vUv, vec2(0.5, 0.5)) * 2.0; // Adjusted for [0,1] range
+
+    // Define colors for the center and the border
+    vec3 fullColor = vec3(1.0, 1.0, 0.0);
+    vec3 emptyColor = vec3(1.0, 0.4, 0.0);
+    vec3 color = mix(fullColor, emptyColor, smoothstep(0.0, 1.0, r));
+
+    gl_FragColor = vec4(color, 0.5);
+  }
+`;
+
+
+
+// Don't glitch out if we ctrl+z when the element is not selected
+let selectStatus = false;
+
 export default class HBElementNode extends EditorNodeMixin(Object3D) {
   static componentName = "hbelement";
   static nodeName = "3D Internet Screen";
@@ -133,15 +200,162 @@ export default class HBElementNode extends EditorNodeMixin(Object3D) {
     const uvScale = planeAspect / textureAspect;
     const uvs = geometry.attributes.uv;
     for (let i = 0; i < uvs.count; i++) {
-        const newY = 0.5 + (uvs.getY(i) - 0.5) * uvScale;
-        uvs.setY(i, newY);
+      const newY = 0.5 + (uvs.getY(i) - 0.5) * uvScale;
+      uvs.setY(i, newY);
     }
     geometry.attributes.uv.needsUpdate = true;
 
     this.helper = new Mesh(geometry, material);
     this.helper.layers.set(1);
     this.add(this.helper);
+
+    // Add a sphere to the helper to make it easier to select
+    const sphereGeometry = new SphereBufferGeometry(this.maxDistance/5, 32, 32);
+    const sphereMaterial = new MeshBasicMaterial({
+      color: 0x0099ff,
+      transparent: true,
+      opacity: 0.15,
+      side: DoubleSide,
+    });
+    this.audioMaxDistanceSphere = new Mesh(sphereGeometry, sphereMaterial);
+    this.audioMaxDistanceSphere.visible = false; // Initially invisible
+    this.add(this.audioMaxDistanceSphere);
+
+    // Outer Radial (INNER CONE)
+    this.audioRadialHelper = this.createRadialHelper(2);
+    this.audioRadialHelper.visible = false; // Initially invisible
+    this.add(this.audioRadialHelper);
+
+    // Outer Radial (OUTER CONE)
+    this.audioRadialHelperOut = this.createRadialHelper(0);
+    this.audioRadialHelperOut.visible = false; // Initially invisible
+    this.add(this.audioRadialHelperOut);
+
+    // Inner Radial
+    this.audioRadialHelperInner = this.createRadialHelper(1);
+    this.audioRadialHelperInner.visible = false; // Initially invisible
+    this.add(this.audioRadialHelperInner);
   }
+  createRadialHelper(type) {
+    const geometry = new CircleGeometry(0.01, 32, 0, Math.PI * 2);
+    let material;
+    if (type === 0) { // Outer radial
+      material = new ShaderMaterial({
+        vertexShader,
+        fragmentShader,
+        uniforms: {
+          outerGain: { value: this.coneOuterGain }
+        },
+        side: DoubleSide,
+        transparent: true,
+        opacity: 0.5,
+      });
+    } else if (type == 1) { // Inner radial
+      material = new MeshBasicMaterial({
+        color: 0xffcc00, // Radial color
+        side: DoubleSide,
+        transparent: true,
+        opacity: 0.5,
+      });
+    } else {//(type == 2) { // Outer radial (inner cone)
+      material = new ShaderMaterial({
+        vertexShader,
+        fragmentShader: fragmentShaderB,
+        side: DoubleSide,
+        transparent: true,
+        opacity: 0.5,
+      });
+    }
+    const radial = new Mesh(geometry, material);
+    radial.rotation.x = -Math.PI / 2; // Plane top
+    // Move up a bit to avoid Z-fighting with the outer cone
+    if (type === 0 || type === 2) {
+      radial.position.y = .001;
+      radial.rotation.z = type === 0 ? -Math.PI / 2 : Math.PI / 2; //Rotate 180°
+    } else {
+      radial.rotation.z = Math.PI / 2; // Face front
+    }
+
+    // Adjust the geometry to create the radial shape based on the cone angles
+    this.updateRadialGeometry(radial, type);
+
+    return radial;
+  }
+  updateRadialGeometry(radial, type) {
+    // Calculate the start and end angles based on coneInnerAngle and coneOuterAngle
+    const baseAngle = -Math.PI;
+    let radAngle;
+    if (type === 0) {
+      radAngle = this.coneOuterAngle * Math.PI / 180;
+    } else if (type === 2) {
+      radAngle = (360 - this.coneOuterAngle) * Math.PI / 180;
+    } else {
+      radAngle = this.coneInnerAngle * Math.PI / 180;
+    }
+
+    const startAngle = baseAngle-radAngle * 0.5;
+    const endAngle = baseAngle+radAngle * 0.5;
+
+    // Create a new geometry representing the sector (radial mouth)
+    // Make it invisible if the coneOuterAngle is 0
+    if (radAngle === 0) {
+      radial.geometry = new CircleGeometry(0.01, 3, 0, 0.01);
+    } else {
+      radial.geometry = new CircleGeometry(this.maxDistance/5, 32, startAngle, endAngle - startAngle);
+    }
+    radial.geometry.verticesNeedUpdate = true;
+  }
+
+  // Override onSelect
+  onSelect() {
+    super.onSelect(); // Call the base class method
+    selectStatus = true;
+    if (this.showAudioSphere && this.HBAdvancedAudio) {
+      this.audioMaxDistanceSphere.visible = true; // Show the sphere when selected
+    }
+    if (this.showAudioOuter && this.HBAdvancedAudio) {
+      this.audioRadialHelper.visible = true;
+      this.audioRadialHelperOut.visible = true;
+    }
+    if (this.showAudioInner && this.HBAdvancedAudio) {
+      this.audioRadialHelperInner.visible = true;
+    }
+  }
+
+  // Override onDeselect
+  onDeselect() {
+    super.onDeselect(); // Call the base class method
+    this.audioMaxDistanceSphere.visible = false; // Hide the sphere when deselected
+    this.audioRadialHelper.visible = false;
+    this.audioRadialHelperOut.visible = false;
+    this.audioRadialHelperInner.visible = false;
+    selectStatus = false;
+  }
+  onUpdate() {
+    super.onUpdate();
+    if (this.HBAdvancedAudio && selectStatus) {
+
+      this.audioMaxDistanceSphere.visible = this.showAudioSphere ? true : false;
+
+      this.audioRadialHelper.visible = this.showAudioOuter ? true : false;
+      this.audioRadialHelperOut.visible = this.showAudioOuter ? true : false;
+
+      this.audioRadialHelperInner.visible = this.showAudioInner ? true : false;
+
+
+      // Update shader uniform
+      if (this.audioRadialHelperOut.material instanceof ShaderMaterial) {
+        this.audioRadialHelperOut.material.uniforms.outerGain.value = this.coneOuterGain;
+        this.audioRadialHelperOut.material.needsUpdate = true;
+      }
+
+      this.audioMaxDistanceSphere.geometry = new SphereBufferGeometry(this.maxDistance/5, 32, 32);
+      this.updateRadialGeometry(this.audioRadialHelper, 0);
+      this.updateRadialGeometry(this.audioRadialHelperInner, 1);
+      this.updateRadialGeometry(this.audioRadialHelperOut, 2);
+    }
+  }
+
 
   copy(source, recursive = true) {
     if (recursive) {

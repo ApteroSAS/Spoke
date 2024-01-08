@@ -10,9 +10,23 @@ import SelectInput from "../inputs/SelectInput";
 import Slider from "../inputs/Slider";
 import NumericInput from "../inputs/NumericInput";
 import PropertyGroup from "./PropertyGroup";
+import CompoundNumericInput from "../inputs/CompoundNumericInput";
+import NumericInputGroup from "../inputs/NumericInputGroup";
+import SoundCurvePreview from "../inputs/SoundCurvePreview";
+import LocalHide from "./LocalHide";
+
 import { Button } from "../inputs/Button";
 import styled from "styled-components";
 import Collapsible from "../inputs/Collapsible";
+import {
+  AudioType as AudioTypeList,
+  AudioTypeOptions,
+  Defaults,
+  DistanceModelOptions,
+  DistanceModelType,
+  SourceType
+} from "../../editor/objects/AudioParams";
+
 
 let fetchfrom = 'https://hyperbeam.serverless.aptero.co/';
   // If we are running from localhost, fetch directly using CORS proxy
@@ -124,6 +138,14 @@ function getBandwidthCategory(bandwidth) {
 }
 
 
+const setProperty = (editor, property, value) => {
+  if (editor && typeof editor.setPropertySelected === 'function') {
+    editor.setPropertySelected(property, value);
+  } else {
+    console.error('Editor is not defined or setPropertySelected is not a function');
+  }
+};
+
 export default class HBElementNodeEditor extends Component {
   static propTypes = {
     editor: PropTypes.object,
@@ -133,7 +155,7 @@ export default class HBElementNodeEditor extends Component {
   static iconComponent = HyperbeamLogo;
   static description = `A 3D Element that allows multiple users to browse the web on the same 3D screen.`;
 
-
+  
 
   // Properties that will appear on the right side when you select the node
   onChangeHref = href => {
@@ -146,33 +168,39 @@ export default class HBElementNodeEditor extends Component {
       this.props.editor.setPropertySelected("isYoutubeLink", false);
     }
   };
-  onChangeRegion = HBRegion => {
-    this.props.editor.setPropertySelected("HBRegion", HBRegion);
-  };
-  onChangeHBBrowserNav = HBBrowserNav => {
-    this.props.editor.setPropertySelected("HBBrowserNav", HBBrowserNav);
-  };
-  onChangeHBDarkMode = HBDarkMode => {
-    this.props.editor.setPropertySelected("HBDarkMode", HBDarkMode);
-  };
-  onChangeHBWebGL = HBWebGL => {
-    this.props.editor.setPropertySelected("HBWebGL", HBWebGL);
-  };
-  onChangeHBRes = HBRes => {
-    this.props.editor.setPropertySelected("HBRes", HBRes);
-  };
-  onChangeHBFps = HBFps => {
-    this.props.editor.setPropertySelected("HBFps", HBFps);
-  };
-  onChangeHBQlty = HBQlty => {
-    this.props.editor.setPropertySelected("HBQlty", HBQlty);
-  };
-  onChangeHBuBlock = HBuBlock => {
-    this.props.editor.setPropertySelected("HBuBlock", HBuBlock);
-  }
-  onChangeHBNoCursors = HBNoCursors => {
-    this.props.editor.setPropertySelected("HBNoCursors", HBNoCursors);
-  }
+
+  onChangeRegion = HBRegion => setProperty(this.props.editor, "HBRegion", HBRegion);
+  onChangeHBBrowserNav = HBBrowserNav => setProperty(this.props.editor, "HBBrowserNav", HBBrowserNav);
+  onChangeHBDarkMode = HBDarkMode => setProperty(this.props.editor, "HBDarkMode", HBDarkMode);
+  onChangeHBWebGL = HBWebGL => setProperty(this.props.editor, "HBWebGL", HBWebGL);
+  onChangeHBRes = HBRes => setProperty(this.props.editor, "HBRes", HBRes);
+  onChangeHBFps = HBFps => setProperty(this.props.editor, "HBFps", HBFps);
+  onChangeHBQlty = HBQlty => setProperty(this.props.editor, "HBQlty", HBQlty);
+  onChangeHBuBlock = HBuBlock => setProperty(this.props.editor, "HBuBlock", HBuBlock);
+  onChangeHBNoCursors = HBNoCursors => setProperty(this.props.editor, "HBNoCursors", HBNoCursors);
+  onChangeHBFalloffDistance = HBFalloffDistance => setProperty(this.props.editor, "HBFalloffDistance", HBFalloffDistance);
+  onChangeYoutubeCC = youtubeCC => setProperty(this.props.editor, "youtubeCC", youtubeCC);
+  onChangeyoutubeCCLang = youtubeCCLang => setProperty(this.props.editor, "youtubeCCLang", youtubeCCLang);
+  onChangeyoutubeCCLangOther = youtubeCCLangOther => setProperty(this.props.editor, "youtubeCCLangOther", youtubeCCLangOther);
+  onChangeYoutubePlaylistID = youtubePlaylistID => setProperty(this.props.editor, "youtubePlaylistID", youtubePlaylistID);
+  onChangeYoutubeLoop = youtubeLoop => setProperty(this.props.editor, "youtubeLoop", youtubeLoop);
+  onChangeHBStready = HBStready => setProperty(this.props.editor, "HBStready", HBStready);
+  onChangeRestricted = HBRestricted => setProperty(this.props.editor, "HBRestricted", HBRestricted);
+  onChangeHBForceYoutube = HBForceYoutube => setProperty(this.props.editor, "HBForceYoutube", HBForceYoutube);
+  onChangeYoutubeAutoPlay = youtubeAutoPlay => setProperty(this.props.editor, "youtubeAutoPlay", youtubeAutoPlay);
+  onChangeHBAdvancedAudio = HBAdvancedAudio => setProperty(this.props.editor, "HBAdvancedAudio", HBAdvancedAudio);
+
+
+  onProcessSession = processingSession => setProperty(this.props.editor, "processingSession", processingSession);
+  onChangeYoutubePlaylistID = youtubePlaylistID => setProperty(this.props.editor, "youtubePlaylistID", youtubePlaylistID);
+  onChangeYoutubeLoop = youtubeLoop => setProperty(this.props.editor, "youtubeLoop", youtubeLoop);
+  onChangeHBStready = HBStready => setProperty(this.props.editor, "HBStready", HBStready);
+  onChangeRestricted = HBRestricted => setProperty(this.props.editor, "HBRestricted", HBRestricted);
+  onChangeHBForceYoutube = HBForceYoutube => setProperty(this.props.editor, "HBForceYoutube", HBForceYoutube);
+  onChangeShowAudioSphere = showAudioSphere => setProperty(this.props.editor, "showAudioSphere", showAudioSphere);
+  onChangeShowAudioOuter = showAudioOuter => setProperty(this.props.editor, "showAudioOuter", showAudioOuter);
+  onChangeShowAudioInner = showAudioInner => setProperty(this.props.editor, "showAudioInner", showAudioInner);
+
   onChangeHBPersistent = async HBPersistent => {
     this.props.editor.setPropertySelected("HBPersistent", HBPersistent);
 
@@ -181,34 +209,7 @@ export default class HBElementNodeEditor extends Component {
       this.handleSession(false);
     }
   }
-  onChangeHBFalloffDistance = HBFalloffDistance => {
-    this.props.editor.setPropertySelected("HBFalloffDistance", HBFalloffDistance);
-  }
-  onChangeYoutubeCC = youtubeCC => {
-    this.props.editor.setPropertySelected("youtubeCC", youtubeCC);
-  }
-  onChangeyoutubeCCLang = youtubeCCLang => {
-    this.props.editor.setPropertySelected("youtubeCCLang", youtubeCCLang);
-  }
-  onChangeyoutubeCCLangOther = youtubeCCLangOther => {
-    this.props.editor.setPropertySelected("youtubeCCLangOther", youtubeCCLangOther);
-  }
-  onChangeYoutubePlaylistID = youtubePlaylistID => {
-    this.props.editor.setPropertySelected("youtubePlaylistID", youtubePlaylistID);
-  }
-  onChangeYoutubeLoop = youtubeLoop => {
-    this.props.editor.setPropertySelected("youtubeLoop", youtubeLoop);
-  }
   
-
-  onProcessSession = processingSession => {
-    this.props.editor.setPropertySelected("processingSession", processingSession);
-  }
-
-  onChangeHBStready = HBStready => {
-    this.props.editor.setPropertySelected("HBStready", HBStready);
-  }
-
   onChangePermissions = (permission) => {
     let permissions = {...this.props.node.HBPermissions};
     if (permissions[permission]) {
@@ -219,21 +220,18 @@ export default class HBElementNodeEditor extends Component {
     this.props.editor.setPropertySelected("HBPermissions", permissions);
   }
 
-  onChangeRestricted = HBRestricted => {
-    this.props.editor.setPropertySelected("HBRestricted", HBRestricted);
-  }
-
-  onChangeHBForceYoutube = HBForceYoutube => {
-    this.props.editor.setPropertySelected("HBForceYoutube", HBForceYoutube);
-  }
-
-  onChangeYoutubeAutoPlay = youtubeAutoPlay => {
-    this.props.editor.setPropertySelected("youtubeAutoPlay", youtubeAutoPlay);
-  }
+  onChangeAudioType = audioType => setProperty(this.props.editor, "audioType", audioType);
+  onChangeGain = gain => setProperty(this.props.editor, "gain", gain);
+  onChangeDistanceModel = distanceModel => setProperty(this.props.editor, "distanceModel", distanceModel);
+  onChangeRolloffFactor = rolloffFactor => setProperty(this.props.editor, "rolloffFactor", rolloffFactor);
+  onChangeRefDistance = refDistance => setProperty(this.props.editor, "refDistance", refDistance);
+  onChangeMaxDistance = maxDistance => setProperty(this.props.editor, "maxDistance", maxDistance);
+  onChangeConeInnerAngle = coneInnerAngle => setProperty(this.props.editor, "coneInnerAngle", coneInnerAngle);
+  onChangeConeOuterAngle = coneOuterAngle => setProperty(this.props.editor, "coneOuterAngle", coneOuterAngle);
+  onChangeConeOuterGain = coneOuterGain => setProperty(this.props.editor, "coneOuterGain", coneOuterGain);
   
-
   handleSession = async (addsession = true) => {
-
+    
     /*
       This script has different behaviours deppending if we are using it
       with the Checkmark that Enables Persistent Sessions or the Button that
@@ -583,9 +581,147 @@ export default class HBElementNodeEditor extends Component {
           <InputGroup name="Dark mode" info="Set the browser profile to dark mode (Some sites may not support this feature)">
             <BooleanInput value={node.HBDarkMode} onChange={this.onChangeHBDarkMode}/>
           </InputGroup>
-          <InputGroup name="Falloff Distance" info="Minimum Distance from where the audio will start to fadeout (Full volume if any closer)">
-            <NumericInput min={0} max={1000} step={0.5} mediumStep={1} value={node.HBFalloffDistance} onChange={this.onChangeHBFalloffDistance} />
+
+          <InputGroup name="Advance Audio Setup">
+            <BooleanInput value={node.HBAdvancedAudio} onChange={this.onChangeHBAdvancedAudio}/>
+          </InputGroup>     
+          {(node.HBAdvancedAudio) && (
+            
+<>
+          <InputGroup name="Audio Type">
+            <SelectInput options={AudioTypeOptions} value={node.audioType} onChange={this.onChangeAudioType} />
           </InputGroup>
+          <InputGroup name="Volume">
+            <CompoundNumericInput value={node.gain} onChange={this.onChangeGain} />
+          </InputGroup>
+          {node.audioType === AudioTypeList.PannerNode && (
+            <>
+              <InputGroup
+                name="Distance Model"
+                info="The algorithim used to calculate audio rolloff."
+              >
+                <SelectInput
+                  options={DistanceModelOptions}
+                  value={node.distanceModel}
+                  onChange={this.onChangeDistanceModel}
+                />
+              </InputGroup>
+
+              {node.distanceModel === DistanceModelType.linear ? (
+                <InputGroup
+                  name="Rolloff Factor"
+                  info="A double value describing how quickly the volume is reduced as the source moves away from the listener. 0 to 1"
+                >
+                  <CompoundNumericInput
+                    min={0}
+                    max={1}
+                    smallStep={0.001}
+                    mediumStep={0.01}
+                    largeStep={0.1}
+                    value={node.rolloffFactor}
+                    onChange={this.onChangeRolloffFactor}
+                  />
+                </InputGroup>
+              ) : (
+                <NumericInputGroup
+                  name="Rolloff Factor"
+                  info="A double value describing how quickly the volume is reduced as the source moves away from the listener. 0 to 1"
+                  min={0}
+                  smallStep={0.1}
+                  mediumStep={1}
+                  largeStep={10}
+                  value={node.rolloffFactor}
+                  onChange={this.onChangeRolloffFactor}
+                />
+              )}
+              <NumericInputGroup
+                name="Ref Distance"
+                info="A double value representing the reference distance for reducing volume as the audio source moves further from the listener."
+                min={0}
+                smallStep={0.1}
+                mediumStep={1}
+                largeStep={10}
+                value={node.refDistance}
+                unit="m"
+                onChange={this.onChangeRefDistance}
+              />
+              <NumericInputGroup
+                name="Max Distance"
+                info="A double value representing the maximum distance between the audio source and the listener, after which the volume is not reduced any further."
+                min={0.00001}
+                smallStep={0.1}
+                mediumStep={1}
+                largeStep={10}
+                value={node.maxDistance}
+                unit="m"
+                onChange={this.onChangeMaxDistance}
+              >
+                <LocalHide value={node.showAudioSphere} updateVis={this.onChangeShowAudioSphere} />
+              </NumericInputGroup>
+              <NumericInputGroup
+                name="Cone Inner Angle"
+                info="A double value describing the angle, in degrees, of a cone inside of which there will be no volume reduction."
+                min={0}
+                max={360}
+                smallStep={0.1}
+                mediumStep={1}
+                largeStep={10}
+                value={node.coneInnerAngle}
+                unit="°"
+                onChange={this.onChangeConeInnerAngle}
+                >
+                <LocalHide value={node.showAudioInner} updateVis={this.onChangeShowAudioInner}/>
+              </NumericInputGroup>
+              <NumericInputGroup
+                name="Cone Outer Angle"
+                info="A double value describing the angle, in degrees, of a cone outside of which the volume will be reduced by a constant value, defined by the coneOuterGain attribute."
+                min={0}
+                max={360}
+                smallStep={0.1}
+                mediumStep={1}
+                largeStep={10}
+                value={node.coneOuterAngle}
+                unit="°"
+                onChange={this.onChangeConeOuterAngle}
+              >
+                <LocalHide value={node.showAudioOuter} updateVis={this.onChangeShowAudioOuter}/>
+              </NumericInputGroup>
+              <InputGroup
+                name="Cone Outer Gain"
+                info="A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard."
+              >
+                <CompoundNumericInput
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={node.coneOuterGain}
+                  onChange={this.onChangeConeOuterGain}
+                />
+              </InputGroup>
+
+              <SoundCurvePreview
+                gain={node.gain}
+                distanceModel={node.distanceModel}
+                rolloffFactor={node.rolloffFactor}
+                refDistance={node.refDistance}
+                maxDistance={node.maxDistance}
+                coneInnerAngle={node.coneInnerAngle}
+                coneOuterAngle={node.coneOuterAngle}
+                coneOuterGain={node.coneOuterGain}
+                updateAudioSphere={this.onChangeShowAudioSphere}
+              />
+            </>
+          )}
+          </>
+          )}
+        
+        {(!node.HBAdvancedAudio) && (
+          <>
+            <InputGroup name="Falloff Distance" info="Minimum Distance from where the audio will start to fadeout (Full volume if any closer)">
+            <NumericInput min={0} max={1000} step={0.5} mediumStep={1} value={node.HBFalloffDistance} onChange={this.onChangeHBFalloffDistance} />
+            </InputGroup>
+          </>
+        )}
         </PropertyGroup>
         
         <PropertyGroup name="Performance">
