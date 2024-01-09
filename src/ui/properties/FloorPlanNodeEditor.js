@@ -99,6 +99,7 @@ class FloorPlanNodeEditor extends Component {
             {!node.autoCellSize && (
               <NumericInputGroup
                 name="Cell Size"
+                info="The width and length of each cell in the Navmesh Grid."
                 value={node.cellSize}
                 smallStep={0.001}
                 mediumStep={0.01}
@@ -110,6 +111,7 @@ class FloorPlanNodeEditor extends Component {
             )}
             <NumericInputGroup
               name="Cell Height"
+              info="The height of each cell in the Navmesh Grid."
               value={node.cellHeight}
               smallStep={0.001}
               mediumStep={0.01}
@@ -120,6 +122,7 @@ class FloorPlanNodeEditor extends Component {
             />
             <NumericInputGroup
               name="Agent Height"
+              info="The height of the agent that will be walking on the Navmesh. So if a ceiling is 1.8m high, and the agent is 2m tall, the zone will be considered unwalkable."
               value={node.agentHeight}
               smallStep={0.001}
               mediumStep={0.01}
@@ -130,6 +133,7 @@ class FloorPlanNodeEditor extends Component {
             />
             <NumericInputGroup
               name="Agent Radius"
+              info="The radius of the agent that will be walking on the Navmesh. So if a corridor is 1m wide, and the agent is 1.2m wide, the zone will be considered unwalkable"
               value={node.agentRadius}
               min={0}
               smallStep={0.001}
@@ -140,6 +144,7 @@ class FloorPlanNodeEditor extends Component {
             />
             <NumericInputGroup
               name="Maximum Step Height"
+              info="The maximum height that the agent can climb. So if a step is 0.2m high, and the agent can only climb 0.1m, the agent will not be able to climb the step."
               value={node.agentMaxClimb}
               min={0}
               smallStep={0.001}
@@ -150,6 +155,7 @@ class FloorPlanNodeEditor extends Component {
             />
             <NumericInputGroup
               name="Maximum Slope"
+              info="The maximum slope that the agent can climb. So if a slope is 45°, and the agent can only climb 30° or less, the agent will not be able to climb the slope."
               value={node.agentMaxSlope}
               min={0.00001}
               max={90}
@@ -161,6 +167,7 @@ class FloorPlanNodeEditor extends Component {
             />
             <NumericInputGroup
               name="Minimum Region Area"
+              info="The minimum area that a region must be to be considered walkable."
               value={node.regionMinSize}
               min={0.1}
               smallStep={0.1}
@@ -171,16 +178,23 @@ class FloorPlanNodeEditor extends Component {
             />
           </>
         ) : (
-          <InputGroup name="Custom Navmesh Url">
+          <InputGroup 
+            name="Custom Navmesh Url" 
+            info="The url of the custom navmesh file. The file must be in .obj format."
+          >
             <ModelInput value={node.navMeshSrc} onChange={this.onChangeNavMeshSrc} />
           </InputGroup>
         )}
-        <InputGroup name="Force Trimesh">
+        <InputGroup 
+          name="Force Trimesh"
+          info="If enabled, the navmesh will be generated as a trimesh instead of a grid. This is useful for complex geometry, but will be slower to generate."
+        >
           <BooleanInput value={node.forceTrimesh} onChange={this.onChangeForceTrimesh} />
         </InputGroup>
         {!node.forceTrimesh && settings.enableExperimentalFeatures && (
           <NumericInputGroup
             name="Collision Geo Triangle Threshold"
+            info="The maximum number of triangles that can be used to generate the collision geometry."
             value={node.maxTriangles}
             min={10}
             max={10000}

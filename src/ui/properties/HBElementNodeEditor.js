@@ -443,30 +443,30 @@ export default class HBElementNodeEditor extends Component {
             <StringInput value={node.href} onChange={this.onChangeHref} />
           </InputGroup>
 
-          <Collapsible label="Youtube EMBED Properties">
-            <InputGroup disabled={!node.isYoutubeLink} name="Extract Embed Video" info="If selected: Extracts the video Embed URL from the Youtube URL and opens it directly, instead of the whole page">
-              <BooleanInput value={node.HBForceYoutube} onChange={this.onChangeHBForceYoutube}/>
-            </InputGroup>
-            <InputGroup disabled={!node.isYoutubeLink || !node.HBForceYoutube} name="AutoPlay" info="If selected: The video will start playing automatically">
+          <InputGroup disabled={!node.isYoutubeLink} name="Extract YouTube Embed Video" info="If selected: Extracts the video Embed URL from the Youtube URL and opens it directly, instead of the whole page">
+            <BooleanInput value={node.HBForceYoutube} onChange={this.onChangeHBForceYoutube}/>
+          </InputGroup>
+
+          {(node.isYoutubeLink && node.HBForceYoutube) && (<>
+            <InputGroup name="AutoPlay" info="If selected: The video will start playing automatically">
               <BooleanInput value={node.youtubeAutoPlay} onChange={this.onChangeYoutubeAutoPlay}/>
             </InputGroup>
-            <InputGroup disabled={!node.isYoutubeLink || !node.HBForceYoutube} name="Activate Captions" info="Please not that this doesn't work with auto-generated Captions, make sure your Captions language is available in the video">
+            <InputGroup name="Activate Captions" info="Please note that this doesn't work with auto-generated Captions, make sure your Captions language is available in the video">
               <BooleanInput value={node.youtubeCC} onChange={this.onChangeYoutubeCC}/>
             </InputGroup>
             <InputGroup disabled={!node.isYoutubeLink || !node.HBForceYoutube || !node.youtubeCC} name="Captions Language">
               <SelectInput options={youtubeCCLangs} value={node.youtubeCCLang} onChange={this.onChangeyoutubeCCLang}/>
             </InputGroup>
-            <InputGroup disabled={!node.isYoutubeLink || !node.HBForceYoutube || !node.youtubeCC} name="Other Captions Language" info="If the language you want is not in the list, you can use ISO 639-1 codes here">
+            <InputGroup disabled={!node.isYoutubeLink || !node.HBForceYoutube || !node.youtubeCC} name="Other Captions Language" info="If the language you want is not in the list, you can use ISO 639-1 codes here, for example for English: en">
               <StringInput value={node.youtubeCCLangOther} onChange={this.onChangeyoutubeCCLangOther}/>
             </InputGroup>
-            <InputGroup disabled={!node.isYoutubeLink || !node.HBForceYoutube} name="Play list ID" info="Example: https://youtube.com/playlist?list=PLWuBUsupPv5AyFGMJvXb7eMcgGb1zpCEv&si=yh7ZSpmCn1xum-NW">
+            <InputGroup name="Play list ID" info="Example: https://youtube.com/playlist?list=PLWuBUsupPv5AyFGMJvXb7eMcgGb1zpCEv&si=yh7ZSpmCn1xum-NW">
               <StringInput value={node.youtubePlaylistID} onChange={this.onChangeYoutubePlaylistID}/>
             </InputGroup>
-            <InputGroup disabled={!node.isYoutubeLink || !node.HBForceYoutube} name="Loop">
+            <InputGroup name="Loop">
               <BooleanInput value={node.youtubeLoop} onChange={this.onChangeYoutubeLoop}/>
             </InputGroup>
-
-          </Collapsible>
+          </>)}
           
           <InputGroup name="Region" info="Region where the Web Browser should be Host">
             <SelectInput options={HBRegionList} value={node.HBRegion} onChange={this.onChangeRegion} />
@@ -493,13 +493,13 @@ export default class HBElementNodeEditor extends Component {
             <span>{node.HBPersistent ? node.HBSession ? node.HBSession : "Session not defined" : "Don't use session"}</span>
             {node.HBSession && <Button onClick={this.copySession} style={{ marginLeft: '10px' }}>Copy</Button>}
           </InputGroup>
-          
-          {/* TODO: Convert this into a Permissions script, it could be useful in other elements!*/}
-          <Collapsible label="Input Authorization">
-            <InputGroup name="Activate Restrictions" info="User with one of these access can access mouse and keyboard">
-              <BooleanInput value={node.HBRestricted} onChange={this.onChangeRestricted}/>
-            </InputGroup>
+        </PropertyGroup>
 
+        <PropertyGroup name="Authorization">
+          <InputGroup name="Activate Restrictions" info="User with one of these access can access mouse and keyboard">
+            <BooleanInput value={node.HBRestricted} onChange={this.onChangeRestricted}/>
+          </InputGroup>
+          {(node.HBRestricted) && (<>
             <Collapsible label="Objects">
               <InputGroup name="Spawn emoji" disabled={node.HBRestricted ? false : true}>
                 <BooleanInput value={node.HBPermissions["spawn_emoji"] ? true : false} 
@@ -568,9 +568,7 @@ export default class HBElementNodeEditor extends Component {
                 onChange={() => this.onChangePermissions("share_screen")}/>
               </InputGroup>
             </Collapsible>
-
-          </Collapsible>
-          
+          </>)}
 
         </PropertyGroup>
 
