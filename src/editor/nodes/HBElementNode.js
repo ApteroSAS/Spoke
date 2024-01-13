@@ -39,6 +39,7 @@ const defaultProperties = {
   youtubePlaylistID: "",
   youtubeLoop: false,
   processingSession: 0,
+  universalStream: false,
   // Audio parameters
   HBFalloffDistance: 3,
   HBAdvancedAudio: false,

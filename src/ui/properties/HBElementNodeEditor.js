@@ -189,14 +189,12 @@ export default class HBElementNodeEditor extends Component {
   onChangeHBForceYoutube = HBForceYoutube => setProperty(this.props.editor, "HBForceYoutube", HBForceYoutube);
   onChangeYoutubeAutoPlay = youtubeAutoPlay => setProperty(this.props.editor, "youtubeAutoPlay", youtubeAutoPlay);
   onChangeHBAdvancedAudio = HBAdvancedAudio => setProperty(this.props.editor, "HBAdvancedAudio", HBAdvancedAudio);
+  
+  onChangeUniversalStream = universalStream => setProperty(this.props.editor, "universalStream", universalStream);
 
 
   onProcessSession = processingSession => setProperty(this.props.editor, "processingSession", processingSession);
-  onChangeYoutubePlaylistID = youtubePlaylistID => setProperty(this.props.editor, "youtubePlaylistID", youtubePlaylistID);
-  onChangeYoutubeLoop = youtubeLoop => setProperty(this.props.editor, "youtubeLoop", youtubeLoop);
-  onChangeHBStready = HBStready => setProperty(this.props.editor, "HBStready", HBStready);
-  onChangeRestricted = HBRestricted => setProperty(this.props.editor, "HBRestricted", HBRestricted);
-  onChangeHBForceYoutube = HBForceYoutube => setProperty(this.props.editor, "HBForceYoutube", HBForceYoutube);
+
   onChangeShowAudioSphere = showAudioSphere => setProperty(this.props.editor, "showAudioSphere", showAudioSphere);
   onChangeShowAudioOuter = showAudioOuter => setProperty(this.props.editor, "showAudioOuter", showAudioOuter);
   onChangeShowAudioInner = showAudioInner => setProperty(this.props.editor, "showAudioInner", showAudioInner);
@@ -474,6 +472,9 @@ export default class HBElementNodeEditor extends Component {
 
           <InputGroup name="No user Input" info="If selected, All mouse and keyboard interactions will be ignored">
             <BooleanInput value={node.HBNoCursors} onChange={this.onChangeHBNoCursors}/>
+          </InputGroup>
+          <InputGroup name="Universal Stream" info="If selected, Users from all Rooms with this Scene will see the same content">
+            <BooleanInput value={node.universalStream} onChange={this.onChangeUniversalStream}/>
           </InputGroup>
 
           <InputGroup name="Persistent session" info="Store session state including bookmarks, history, passwords, and cookies. Inactive sessions will be removed 6 months after last use.">

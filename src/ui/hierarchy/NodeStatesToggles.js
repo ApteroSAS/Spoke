@@ -48,15 +48,21 @@ export default function NodeStatesToggles({ node }) {
 
   const editor = useContext(EditorContext);
 
-  const toggleVisibility = useCallback(() => {
+  const toggleVisibility = useCallback((event) => {
+    event.stopPropagation();
+    event.preventDefault();
     editor.setProperty(node.object, '_visible', !node.object._visible);
   }, [node, editor]);
 
-  const toggleEnabled = useCallback(() => {
-    editor.setPropertySelected('enabled', !node.enabled);
+  const toggleEnabled = useCallback((event) => {
+    event.stopPropagation();
+    event.preventDefault();
+    editor.setProperty(node.object, 'enabled', !node.enabled);
   }, [node, editor]);
 
-  const toggleLocked = useCallback(() => {
+  const toggleLocked = useCallback((event) => {
+    event.stopPropagation();
+    event.preventDefault();
     // Make lockedState a part of the window.lockedItems array now instead of the node.object
     if (!window.lockedItems) {
       window.lockedItems = [];
@@ -92,17 +98,17 @@ export default function NodeStatesToggles({ node }) {
   return (
     <>
       <InfoTooltip info={lockedState ? "Unlock" : "Lock"}>
-        <IconContainer onClick={toggleLocked}>
+        <IconContainer onMouseDown={toggleLocked}>
           {lockedState ? <LockIcon size={14} /> : <UnlockIcon size={14} />}
         </IconContainer>
       </InfoTooltip>
       <InfoTooltip info={node.object._visible ? "Hide" : "Unhide"}>
-        <IconContainer onClick={toggleVisibility}>
+        <IconContainer onMouseDown={toggleVisibility}>
           {node.object._visible ? <VisIcon size={14} /> : <VisOffIcon size={14} />}
         </IconContainer>
       </InfoTooltip>
       <InfoTooltip info={node.enabled ? "Disable" : "Enable"}>
-        <IconContainer onClick={toggleEnabled}>
+        <IconContainer onMouseDown={toggleEnabled}>
           {node.enabled ? <ToggleOnIcon size={14} /> : <ToggleOffIcon size={14} />}
         </IconContainer>
       </InfoTooltip>

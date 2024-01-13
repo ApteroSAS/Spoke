@@ -4,6 +4,7 @@ import NodeEditor from "./NodeEditor";
 import InputGroup from "../inputs/InputGroup";
 import SelectInputIcons, { iconMap } from "../inputs/SelectInputIcons";
 import StringInput from "../inputs/StringInput";
+import BooleanInput from "../inputs/BooleanInput";
 import { Running } from "styled-icons/fa-solid/Running";
 
 const iconList = [
@@ -47,6 +48,14 @@ export default class TriggerNodeEditor extends Component {
     super(props);
   }
 
+  onChangeAudioMode = value => {
+    this.props.editor.setPropertySelected("audioMode", value);
+  }
+
+  onChangeUniversalAudio = value => {
+    this.props.editor.setPropertySelected("universalAudio", value);
+  }
+
   onChangeSidebarName = value => {
     this.props.editor.setPropertySelected("sidebarName", value);
   }
@@ -77,9 +86,20 @@ export default class TriggerNodeEditor extends Component {
         <InputGroup name="Title name">
           <StringInput value={node.sidebarName} onChange={this.onChangeSidebarName} />
         </InputGroup>
-        <InputGroup name="Link source">
-          <StringInput value={node.linkSource} onChange={this.onChangeLinkSource} />
+
+        <InputGroup name="Audio mode" info="Use zone for Audio call">
+          <BooleanInput value={node.audioMode} onChange={this.onChangeAudioMode} />
         </InputGroup>
+        {(node.audioMode) ? (<>
+          <InputGroup name="Universal Audio" info="Share Audio with ALL room instances">
+            <BooleanInput value={node.universalAudio} onChange={this.onChangeUniversalAudio} />
+          </InputGroup>
+        </>) : (<>
+          <InputGroup name="Link source">
+            <StringInput value={node.linkSource} onChange={this.onChangeLinkSource} />
+          </InputGroup>
+        </>)
+        }
         <InputGroup name="Button icon">
           <SelectInputIcons value={node.buttonIcon} onChange={this.onChangeButtonIcon} options={iconList} />
         </InputGroup>

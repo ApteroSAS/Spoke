@@ -5,6 +5,8 @@ const requiredProperties = [
   "sidebarName",
   "linkSource",
   "buttonIcon",
+  "audioMode",
+  "universalAudio"
 
   /*"target",
   "enterComponent",
@@ -35,8 +37,10 @@ export default class TriggerNode extends EditorNodeMixin(Object3D) {
 
     node.target = props.target;
     node.sidebarName = props.sidebarName;
-    node.linkSource = props.linkSource;
+    node.linkSource = props.linkSource ? props.linkSource : "";
     node.buttonIcon = props.buttonIcon;
+    node.audioMode = node.audioMode? props.audioMode : false;
+    node.universalAudio = props.universalAudio? props.universalAudio : false;
     // legacy properties
     node.enterComponent = props.enterComponent;
     node.enterProperty = props.enterProperty;
@@ -60,6 +64,8 @@ export default class TriggerNode extends EditorNodeMixin(Object3D) {
     this.sidebarName = null;
     this.linkSource = null;
     this.buttonIcon = null;
+    this.audioMode = null;
+    this.universalAudio = null;
     // legacy properties
     this.enterComponent = null;
     this.enterProperty = null;
@@ -86,8 +92,10 @@ export default class TriggerNode extends EditorNodeMixin(Object3D) {
 
     this.target = source.target;
     this.sidebarName = source.sidebarName;
-    this.linkSource = source.linkSource;
+    this.linkSource = source.linkSource ? source.linkSource : "";
     this.buttonIcon = source.buttonIcon;
+    this.audioMode = source.audioMode ? source.audioMode : false;
+    this.universalAudio = source.universalAudio ? source.universalAudio : false;
 
     this.enterComponent = source.enterComponent;
     this.enterProperty = source.enterProperty;
@@ -104,8 +112,10 @@ export default class TriggerNode extends EditorNodeMixin(Object3D) {
       "trigger": {
         target: this.target,
         sidebarName: this.sidebarName,
-        linkSource: this.linkSource,
+        linkSource: this.linkSource ? this.linkSource : "",
         buttonIcon: this.buttonIcon,
+        audioMode: this.audioMode ? this.audioMode : false,
+        universalAudio: this.universalAudio ? this.universalAudio : false,
 
         enterComponent: this.enterComponent,
         enterProperty: this.enterProperty,
@@ -136,6 +146,8 @@ export default class TriggerNode extends EditorNodeMixin(Object3D) {
       sidebarName: this.sidebarName,
       linkSource: this.linkSource,
       buttonIcon: this.buttonIcon,
+      audioMode: this.audioMode,
+      universalAudio: this.universalAudio,
 
       /*target: this.gltfIndexForUUID(this.target),
       enterComponent: this.enterComponent,
