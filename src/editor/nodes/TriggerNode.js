@@ -39,7 +39,7 @@ export default class TriggerNode extends EditorNodeMixin(Object3D) {
     node.sidebarName = props.sidebarName;
     node.linkSource = props.linkSource ? props.linkSource : "";
     node.buttonIcon = props.buttonIcon;
-    node.audioMode = node.audioMode? props.audioMode : false;
+    node.audioMode = props.audioMode? props.audioMode : false;
     node.universalAudio = props.universalAudio? props.universalAudio : false;
     // legacy properties
     node.enterComponent = props.enterComponent;
