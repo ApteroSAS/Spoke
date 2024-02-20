@@ -164,6 +164,12 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
   set actConfig(value) {
     this.config.actConfig = value;
   }
+  get actReclick() {
+    return this.config.actReclick;
+  }
+  set actReclick(value) {
+    this.config.actReclick = value;
+  }
   get actTitle() {
     return this.config.actTitle;
   }
@@ -175,6 +181,25 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
   }
   set actMode(value) {
     this.config.actMode = value;
+  }
+  // Animation
+  get actLoop() {
+    return this.config.actLoop;
+  }
+  set actLoop(value) {
+    this.config.actLoop = value;
+  }
+  get actRepeat() {
+    return this.config.actRepeat;
+  }
+  set actRepeat(value) {
+    this.config.actRepeat = value;
+  }
+  get actSpeed() {
+    return this.config.actSpeed;
+  }
+  set actSpeed(value) {
+    this.config.actSpeed = value;
   }
 
 
@@ -220,8 +245,10 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
 
     switch (this.mode) {
       case "Spawn":
+      case "spawn":
         switch (this.subMode) {
           case "Attach":
+          case "attach":
             //create spawn_attachAction
             StringifiedAction = {
               type: "spawn_attach",
@@ -229,6 +256,7 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
               mediaFrame: this.actMediaFrame,
               attributes: this.actAttributes
             };
+            console.log("spawn_attachAction A", StringifiedAction);
             break;
           default:
             //create spawnAction
@@ -240,15 +268,22 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
         }
         break;
       case "Animation":
+      case "animation":
         //create animationAction
         StringifiedAction = {
           type: "animation",
-          data: this.actData
+          data: this.actData,
+          loop: this.actLoop !== undefined ? this.actLoop : 0, // Toggle
+          repeat: this.actRepeat !== undefined ? this.actRepeat : 1, // Times
+          speed: this.actSpeed !== undefined ? this.actSpeed : 1,
+          reclick: this.actReclick !== undefined ? this.actReclick : 0
         };
         break;
       case "Link":
+      case "link":
         switch (this.subMode) {
           case "API":
+          case "api":
             //create urlAction with mode = rest_get or rest_post
             StringifiedAction = {
               type: "url",
@@ -259,6 +294,7 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
             };
             break;
           case "Sidebar":
+          case "sidebar":
             //create sidebar_iframeAction
             StringifiedAction = {
               type: "sidebar_iframe",
@@ -267,6 +303,7 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
             };
             break;
           case "Redirection":
+          case "redirection":
             //create urlAction with mode = change
             StringifiedAction = {
               type: "url",
@@ -284,6 +321,15 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
             break;
         }
     }
+    console.log("spawn_attachAction B", StringifiedAction);
+    let cLog = "-------BUTON CONFIG--------"
+    cLog += "\nThis mode--->" + this.mode
+    cLog += "\nThis subMode--->" + this.subMode
+    cLog += "\nStringifiedAction--->" + JSON.stringify(StringifiedAction)
+    cLog += "\nStringifiedTrigger--->" + JSON.stringify(StringifiedTrigger)
+    cLog += "\n---------------------------"
+    console.log(cLog)
+
     this.setUserData({
       "apt.action.controller.btn1": JSON.stringify([
         {

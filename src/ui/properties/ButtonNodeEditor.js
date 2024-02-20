@@ -7,10 +7,12 @@ import InputGroup from "../inputs/InputGroup";
 import useSetPropertySelected from "./useSetPropertySelected";
 import StringInput from "../inputs/StringInput";
 import PropertyGroup from "./PropertyGroup";
+import BooleanInput from "../inputs/BooleanInput";
+import NumericInput from "../inputs/NumericInput";
+
 
 export default function ButtonNodeEditor(props) {
   const { editor, node } = props;
-  console.log(node)
   const buttonTypeOptions = [
     { label: "Spawn", value: "spawn" },
     { label: "Animation", value: "animation" },
@@ -53,8 +55,31 @@ export default function ButtonNodeEditor(props) {
   const onChangeBtnAuthorizationPermission = useSetPropertySelected(editor, "btnAuthorizationPermission");
   const onChangeBtnAuthorizationEmail = useSetPropertySelected(editor, "btnAuthorizationEmail");
 
+  const onChangeLoop = useSetPropertySelected(editor, "actLoop");
+  const onChangeRepeat = useSetPropertySelected(editor, "actRepeat");
+  const onChangeSpeed = useSetPropertySelected(editor, "actSpeed");
+  const onChangeReclick = useSetPropertySelected(editor, "actReclick");
 
 
+  function findParentAnimations(node) {
+    let animations = [];
+    let parentNode = node.parent; // Assuming 'node' is your ButtonNode and has a reference to its parent
+  
+    while (parentNode) {
+      const parentObject = parentNode.model;
+      if (parentObject && parentObject.animations && parentObject.animations.length > 0) {
+        animations = animations.concat(parentObject.animations.map(animation => animation.name));
+      }
+      parentNode = parentNode.parent; // Move up to the next parent
+    }
+  
+    return animations;
+  }
+  
+  const animationOptions = findParentAnimations(node).map(animationName => ({
+    label: animationName,
+    value: animationName
+  }));
 
   return (
     <NodeEditor description={ButtonNodeEditor.description} {...props}>
@@ -84,6 +109,16 @@ export default function ButtonNodeEditor(props) {
         </InputGroup>
       </PropertyGroup>
       <PropertyGroup name="Behavior">
+
+        {node.mode === "animation" 
+        && (!animationOptions || (animationOptions && animationOptions.length === 0)) 
+        && (!node.parent || node.parent && !node.parent.model) 
+        && (
+          <div style={{ background: '#77000099', color: 'yellow', padding: '0.3em 0.6em' }}>
+            ⚠ No valid Parent detected for this Button!
+          </div>
+        )}
+
         <InputGroup
           name="Type"
           info={`How to choose the types of button:
@@ -123,10 +158,35 @@ export default function ButtonNodeEditor(props) {
         }
         {
           node.mode === "animation" && (
-            <InputGroup name="Animation Name" info="Name of the animation to trigger. Must be present in one of the parents of the button."
-            >
-              <StringInput value={node.actData} onChange={onChangeAnimationName} />
-            </InputGroup>
+            <>
+              <InputGroup name="Animation Name" info="Name of the animation to trigger. Must be present in one of the parents of the button.">
+                <SelectInput
+                options={animationOptions}
+                value={node.actData} // This assumes 'actData' holds the selected animation name
+                onChange={onChangeAnimationName}/>
+              </InputGroup>
+
+              <InputGroup name="Loop" info="Toggle infinite looping">
+                <BooleanInput value={node.actLoop} onChange={onChangeLoop} />
+              </InputGroup>
+              <InputGroup disabled={node.actLoop} name="Repeat" info="Repeat a fixed number of times (default: 1)">
+                <NumericInput value={node.actRepeat === undefined ? 1 : node.actRepeat} onChange={onChangeRepeat} min={1} precision={1} displayPrecision={1}/>
+              </InputGroup>
+              <InputGroup name="Speed" info="Speed of the animation 
+0 = Pause/Resume
+-1 = Stop and Reset
+1 = Default speed">
+                <NumericInput value={node.actSpeed === undefined ? 1 : node.actSpeed} onChange={onChangeSpeed} displayPrecision={0.1}/>
+              </InputGroup>
+
+              <InputGroup name="Reclick" info="Interaction if the button is clicked again while the animation is playing">
+                <SelectInput options={[
+                  { label: "Pause/Resume", value: 0 },
+                  { label: "Reset & Play again", value: 1 },
+                  { label: "Reset & Stop", value: 2 },
+                ]} value={node.actReclick === undefined ? 0 : node.actReclick} onChange={onChangeReclick} />
+              </InputGroup>
+            </>
           )
         }
         {node.mode === "Link" && (
