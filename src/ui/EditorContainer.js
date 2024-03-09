@@ -738,7 +738,6 @@ class EditorContainer extends Component {
       const editor = this.state.editor;
 
       const { glbBlob } = await editor.exportScene(abortController.signal, options);
-
       this.hideDialog();
 
       const el = document.createElement("a");

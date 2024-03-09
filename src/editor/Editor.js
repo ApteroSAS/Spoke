@@ -356,8 +356,11 @@ export default class Editor extends EventEmitter {
       await floorPlanNode.generate(signal);
     }
 
+    
+    window.sceneExportCloning = true; //aptero: added for composed objects, like the Trigger audio zone
     const clonedScene = cloneObject3D(scene, true);
     const animations = clonedScene.getAnimationClips();
+    window.sceneExportCloning = false;
 
     for (const clip of animations) {
       for (const track of clip.tracks) {

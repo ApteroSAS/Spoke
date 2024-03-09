@@ -33,10 +33,10 @@ export default function ButtonNodeEditor(props) {
     { label: "POST", value: "rest_post" }
   ]
   const btnStyleOptions = [//"rounded-button" | "rounded-text-action-button" | "rounded-action-button" | "rounded-text-button"
-    { label: "rounded-button", value: "rounded-button" },
-    { label: "rounded-text-action-button", value: "rounded-text-action-button" },
-    { label: "rounded-action-button", value: "rounded-action-button" },
-    { label: "rounded-text-button", value: "rounded-text-button" }
+    { label: "Rounded Button", value: "rounded-button" },
+    { label: "Rounded Action Button", value: "rounded-action-button" },
+    { label: "Text Action Button", value: "rounded-text-action-button" },
+    { label: "Text Button", value: "rounded-text-button" }
   ]
 
   
@@ -97,7 +97,7 @@ export default function ButtonNodeEditor(props) {
         {
           (node.btnStyle === "rounded-button" || node.btnStyle === "rounded-action-button") && (
             <InputGroup name="Button Short Text">
-              <StringInput value={node.btnText} onChange={onChangeBtnText} maxLength={3} />
+              <StringInput value={node.btnText} onChange={onChangeBtnText} maxLength={5} />
             </InputGroup>
           )
         }

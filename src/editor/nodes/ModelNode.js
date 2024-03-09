@@ -426,6 +426,14 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       });
     }
 
+    // Add Prefix to the model animations on export to avoid name conflicts with other components.
+    this.model.animations.forEach(animation => {
+      if (!animation.name.startsWith("ApteroANIM_")) {
+        const objectUuid = this.model.parent.uuid;
+        animation.name = "ApteroANIM_"+animation.name+"_"+objectUuid;
+      }
+    });
+
     if (this.billboard) {
       this.addGLTFComponent("billboard", {});
     }

@@ -55,6 +55,9 @@ const defaultProperties = {
   showAudioSphere: false,
   showAudioOuter: false,
   showAudioInner: false,
+  audioChannel: 0,
+  screenShareMode: false,
+  screenShareMuted: false,
 };
 
 function generateObject(from) {
@@ -166,7 +169,7 @@ let selectStatus = false;
 
 export default class HBElementNode extends EditorNodeMixin(Object3D) {
   static componentName = "hbelement";
-  static nodeName = "3D Internet Screen";
+  static nodeName = "3D Internet Browser";
   static subtype = "aptero";
 
   static async load() {
@@ -401,6 +404,12 @@ export default class HBElementNode extends EditorNodeMixin(Object3D) {
 
     // Set the URL to the Hyperbeam protocol
     processedURL = processedURL.startsWith("hyperbeam://") ? processedURL : "hyperbeam://" + processedURL;
+
+    // Force URL if set to Screen Share
+
+    if (this.screenShareMode) {
+      processedURL = "hyperbeam://horus.aptero.co/view/"
+    }
 
     const linkComponent = generateObject(this);
     linkComponent.href = processedURL;

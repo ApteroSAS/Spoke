@@ -3,9 +3,11 @@ import { getObjectPerfIssues, maybeAddLargeFileIssue } from "../utils/performanc
 import { GLTFLoader } from "../gltf/GLTFLoader";
 import spawnPointModelUrl from "../../assets/spawn-point.glb";
 import boutonCubeBleuUrl from "../../assets/bouton_cube_bleu.glb";
+import boutonCubeWideBleuUrl from "../../assets/bouton_cube_wide_bleu.glb";
 import { BoxBufferGeometry, Euler, Geometry, Mesh, MeshBasicMaterial, Object3D } from "three";
 
 let ButtonHelperModel = null;
+let ButtonHelperModelWide = null;
 /*
 const Trigger = {
   type: "btn-ask" | "btn",
@@ -70,9 +72,7 @@ const defaultConfig = {
 
 export default class ButtonNode extends EditorNodeMixin(Object3D) {
   static componentName = "button";
-
   static nodeName = "Button";
-
   static subtype = "aptero";
 
   //TODO : customize the config through the ButtonNodeEditor
@@ -102,6 +102,7 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
   }
   set btnStyle(value) {
     this.config.btnStyle = value;
+    this.updateHelperModel();
   }
   get btnAuthorizationPermission() {
     return this.config.btnAuthorizationPermission;
@@ -204,28 +205,67 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
 
 
   static async load() {
-    const { scene } = await new GLTFLoader(boutonCubeBleuUrl).loadGLTF();
+    // Load regular button model
 
-    scene.traverse(child => {
+    const regularModel = await new GLTFLoader(boutonCubeBleuUrl).loadGLTF();
+    regularModel.scene.traverse(child => {
       if (child.isMesh) {
         child.layers.set(1);
       }
     });
+    regularModel.scene.rotation.set(Math.PI / 2, 0, 0);
+    ButtonHelperModel = regularModel.scene;
 
-    scene.rotation.set(Math.PI / 2, 0, 0);
 
-    ButtonHelperModel = scene;
+    // Load wide button model
+    const wideModel = await new GLTFLoader(boutonCubeWideBleuUrl).loadGLTF();
+    wideModel.scene.traverse(child => {
+      if (child.isMesh) {
+        child.layers.set(1);
+      }
+    });
+    wideModel.scene.rotation.set(Math.PI / 2, 0, 0);
+    ButtonHelperModelWide = wideModel.scene;
   }
+
   constructor(editor) {
     super(editor, new BoxBufferGeometry(), new MeshBasicMaterial());
-
-    if (ButtonHelperModel) {
-      this.helper = ButtonHelperModel.clone();
-      this.add(this.helper);
-    } else {
-      console.warn("SpawnPointNode: helper model was not loaded before creating a new SpawnPointNode");
-      this.helper = null;
+    this.updateHelperModel(); // Call this method to set the initial helper model
+    //Update model the next tick too, to ensure the model is loaded
+    setTimeout(() => {
+      this.updateHelperModel();
+    }, 0);
+  }
+  updateHelperModel() {
+    // Ensure models are loaded
+    if (!ButtonHelperModel || !ButtonHelperModelWide) {
+      console.warn("Button models are not loaded yet.");
+      return;
     }
+
+    // Remove existing helper if any
+    if (this.helper) {
+      this.remove(this.helper);
+    }
+
+    // Select and clone the appropriate model based on btnStyle
+    if (this.btnStyle === "rounded-text-action-button" || this.btnStyle === "rounded-text-button") {
+      this.helper = ButtonHelperModelWide.clone();
+    } else {
+      this.helper = ButtonHelperModel.clone();
+    }
+
+    // Add the selected helper model to the node
+    this.add(this.helper);
+
+    // Update the helper model so the Shadow is properly updated
+    this.helper.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+        child.updateMatrix();
+      }
+    });
   }
   compileButtonConfigToUserData(config) {
     this.rotation.toVector3();
@@ -256,7 +296,6 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
               mediaFrame: this.actMediaFrame,
               attributes: this.actAttributes
             };
-            console.log("spawn_attachAction A", StringifiedAction);
             break;
           default:
             //create spawnAction
@@ -269,15 +308,19 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
         break;
       case "Animation":
       case "animation":
-        //create animationAction
-        StringifiedAction = {
-          type: "animation",
-          data: this.actData,
-          loop: this.actLoop !== undefined ? this.actLoop : 0, // Toggle
-          repeat: this.actRepeat !== undefined ? this.actRepeat : 1, // Times
-          speed: this.actSpeed !== undefined ? this.actSpeed : 1,
-          reclick: this.actReclick !== undefined ? this.actReclick : 0
-        };
+        // For some reason, Disabled buttons are being processed anyways, so we will ONLY process the animation if "enabled" is true
+        if (this.enabled) {
+          const objectUuid = this.parent.uuid;
+          //create animationAction
+          StringifiedAction = {
+            type: "animation",
+            data: "ApteroANIM_"+this.actData+"_"+objectUuid,
+            loop: this.actLoop !== undefined ? this.actLoop : 0, // Toggle
+            repeat: this.actRepeat !== undefined ? this.actRepeat : 1, // Times
+            speed: this.actSpeed !== undefined ? this.actSpeed : 1,
+            reclick: this.actReclick !== undefined ? this.actReclick : 0
+          };
+        }
         break;
       case "Link":
       case "link":
@@ -321,14 +364,6 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
             break;
         }
     }
-    console.log("spawn_attachAction B", StringifiedAction);
-    let cLog = "-------BUTON CONFIG--------"
-    cLog += "\nThis mode--->" + this.mode
-    cLog += "\nThis subMode--->" + this.subMode
-    cLog += "\nStringifiedAction--->" + JSON.stringify(StringifiedAction)
-    cLog += "\nStringifiedTrigger--->" + JSON.stringify(StringifiedTrigger)
-    cLog += "\n---------------------------"
-    console.log(cLog)
 
     this.setUserData({
       "apt.action.controller.btn1": JSON.stringify([
@@ -378,6 +413,8 @@ this.href = source.href;*/
     //setUserData
 
     this.compileButtonConfigToUserData(this.config);
+
+    this.updateHelperModel();
 
     return super.serialize({
       [ButtonNode.componentName]: {

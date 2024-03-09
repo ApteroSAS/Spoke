@@ -96,7 +96,9 @@ module.exports = env => {
       before: function(app) {
         // be flexible with people accessing via a local reticulum on another port
         app.use(cors({ origin: /hubs\.local(:\d*)?$/ }));
-      }
+      },
+      hot: false, // Please let me work in peace
+      liveReload: false // I mean it
     },
 
     output: {

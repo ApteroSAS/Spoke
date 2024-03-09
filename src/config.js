@@ -71,8 +71,10 @@ import TroikaTextNodeEditor from "./ui/properties/TroikaTextNodeEditor";
 
 //APTERO
 import TriggerNode from "./editor/nodes/TriggerNode";
+import TriggerAudioNode from "./editor/nodes/TriggerAudioNode";
 import ButtonNode from "./editor/nodes/ButtonNode";
 import TriggerNodeEditor from "./ui/properties/TriggerNodeEditor";
+import TriggerAudioNodeEditor from "./ui/properties/TriggerAudioNodeEditor";
 import GenericKitSource from "./ui/assets/sources/GenericKitSource";
 import ButtonNodeEditor from "./ui/properties/ButtonNodeEditor";
 import ButtonNodeGPT from "./editor/nodes/ButtonNodeGPT";
@@ -113,6 +115,7 @@ export function createEditor(api, settings) {
   
   //APTERO
   editor.registerNode(TriggerNode, TriggerNodeEditor);
+  editor.registerNode(TriggerAudioNode, TriggerAudioNodeEditor);
   editor.registerNode(ButtonNode, ButtonNodeEditor);
   if(isOutsideTeams()) {
     editor.registerNode(ButtonNodeGPT, ButtonNodeGPTEditor);

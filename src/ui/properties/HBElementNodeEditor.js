@@ -227,6 +227,10 @@ export default class HBElementNodeEditor extends Component {
   onChangeConeInnerAngle = coneInnerAngle => setProperty(this.props.editor, "coneInnerAngle", coneInnerAngle);
   onChangeConeOuterAngle = coneOuterAngle => setProperty(this.props.editor, "coneOuterAngle", coneOuterAngle);
   onChangeConeOuterGain = coneOuterGain => setProperty(this.props.editor, "coneOuterGain", coneOuterGain);
+
+  onChangeAudioChannel = audioChannel => setProperty(this.props.editor, "audioChannel", audioChannel);
+  onChangeScreenShareMode = screenShareMode => setProperty(this.props.editor, "screenShareMode", screenShareMode);
+  onChangeScreenShareMuted = screenShareMuted => setProperty(this.props.editor, "screenShareMuted", screenShareMuted);
   
   handleSession = async (addsession = true) => {
     
@@ -247,7 +251,6 @@ export default class HBElementNodeEditor extends Component {
       url = url.replace(/(http:\/\/|https:\/\/)/g, ""); 
       url = "https://"+url;
 
-      console.log("SET URL", url);
 
       let clearSession = null;
       let response = null;
@@ -280,7 +283,6 @@ export default class HBElementNodeEditor extends Component {
 
         if (response) {
           const data = await response.json();
-          console.log("data", data);
 
           if (data.session_id) {
             if (processState == 2) {
@@ -339,7 +341,6 @@ export default class HBElementNodeEditor extends Component {
       
         if (responseB) {
           const data = await responseB.json();
-          console.log("data", data);
 
           if (data.session_id) {
             if (processState !== 1) {
@@ -437,13 +438,30 @@ export default class HBElementNodeEditor extends Component {
       <NodeEditor description={HBElementNodeEditor.description} {...this.props}>
 
         <PropertyGroup name="Setup">
-          <InputGroup name="Url" info="The website that will open by default">
-            <StringInput value={node.href} onChange={this.onChangeHref} />
+          <InputGroup name="Screen Share Mode" info="If selected, the Element wil be used to Share the Screen">
+            <BooleanInput value={node.screenShareMode} onChange={this.onChangeScreenShareMode}/>
           </InputGroup>
 
-          <InputGroup disabled={!node.isYoutubeLink} name="Extract YouTube Embed Video" info="If selected: Extracts the video Embed URL from the Youtube URL and opens it directly, instead of the whole page">
-            <BooleanInput value={node.HBForceYoutube} onChange={this.onChangeHBForceYoutube}/>
-          </InputGroup>
+          {node.screenShareMode ?
+            (<>
+              <InputGroup name="Audio Channel" info="Audio zone from where to get Screen share info">
+                <NumericInput value={node.audioChannel} onChange={this.onChangeAudioChannel} precision={1} displayPrecision={1}/>
+              </InputGroup>
+
+              <InputGroup name="Disable Audio" info="Disable Audio capture from screen sharing (Enabled audio capture may cause audio loop if users are speaking)">
+                <BooleanInput value={node.screenShareMuted} onChange={this.onChangeScreenShareMuted} />
+              </InputGroup>
+            </>) : (
+            <InputGroup name="Url" info="The website that will open by default">
+              <StringInput value={node.href} onChange={this.onChangeHref} />
+            </InputGroup>)
+          }
+          
+          {node.isYoutubeLink &&
+            <InputGroup name="Extract YouTube Embed Video" info="If selected: Extracts the video Embed URL from the Youtube URL and opens it directly, instead of the whole page">
+              <BooleanInput value={node.HBForceYoutube} onChange={this.onChangeHBForceYoutube}/>
+            </InputGroup>
+          }
 
           {(node.isYoutubeLink && node.HBForceYoutube) && (<>
             <InputGroup name="AutoPlay" info="If selected: The video will start playing automatically">
