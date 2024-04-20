@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useCallback } from "react";
 import PropTypes from "prop-types";
 import NodeEditor from "./NodeEditor";
 import { Image } from "styled-icons/boxicons-regular/Image";
@@ -9,6 +9,7 @@ import StringInput from "../inputs/StringInput";
 import PropertyGroup from "./PropertyGroup";
 import BooleanInput from "../inputs/BooleanInput";
 import NumericInput from "../inputs/NumericInput";
+import { Button } from "../inputs/Button";
 
 
 export default function ButtonNodeEditor(props) {
@@ -39,26 +40,15 @@ export default function ButtonNodeEditor(props) {
     { label: "Text Button", value: "rounded-text-button" }
   ]
 
-  
-  const onChangeMode= useSetPropertySelected(editor, "mode");
-  const onChangeAnimationName = useSetPropertySelected(editor, "actData");
-  const onChangeObjectUrl = useSetPropertySelected(editor, "actUrl");
-  const onChangeSubMode = useSetPropertySelected(editor, "subMode");
-  const onChangeMediaframe = useSetPropertySelected(editor, "actMediaFrame");
-  const onChangeAttribute = useSetPropertySelected(editor, "actAttribute");
-  const onChangeApiMode = useSetPropertySelected(editor, "actMode");
-  const onChangeApiData = useSetPropertySelected(editor, "actData");
-  const onChangeApiConfig = useSetPropertySelected(editor, "actConfig");
-  const onChangeSidebarTitle = useSetPropertySelected(editor, "actTitle");
+  // Button Style 
   const onChangeBtnText = useSetPropertySelected(editor, "btnText");
   const onChangeBtnStyle = useSetPropertySelected(editor, "btnStyle");
   const onChangeBtnAuthorizationPermission = useSetPropertySelected(editor, "btnAuthorizationPermission");
   const onChangeBtnAuthorizationEmail = useSetPropertySelected(editor, "btnAuthorizationEmail");
+  // Button Behavior
 
-  const onChangeLoop = useSetPropertySelected(editor, "actLoop");
-  const onChangeRepeat = useSetPropertySelected(editor, "actRepeat");
-  const onChangeSpeed = useSetPropertySelected(editor, "actSpeed");
-  const onChangeReclick = useSetPropertySelected(editor, "actReclick");
+  
+  const onChangeArrayAct = useSetPropertySelected(editor, 'apteroActions');
 
 
   function findParentAnimations(node) {
@@ -109,121 +99,173 @@ export default function ButtonNodeEditor(props) {
         </InputGroup>
       </PropertyGroup>
       <PropertyGroup name="Behavior">
+        {node.config.actions.map((action, index) => (
+          <div key={index}>
+            {
+              index !== 0 && 
+              <hr 
+                style={{ 
+                  borderColor: "#5D646C",
+                  marginTop: "1em",
+                  marginBottom: "1em",
+                }} 
+              />
+            }
 
-        {node.mode === "animation" 
-        && (!animationOptions || (animationOptions && animationOptions.length === 0)) 
-        && (!node.parent || node.parent && !node.parent.model) 
-        && (
-          <div style={{ background: '#77000099', color: 'yellow', padding: '0.3em 0.6em' }}>
-            ⚠ No valid Parent detected for this Button!
-          </div>
-        )}
+            {node.mode === "animation" 
+            && (!animationOptions || (animationOptions && animationOptions.length === 0)) 
+            && (!node.parent || node.parent && !node.parent.model) 
+            && (
+              <div style={{ background: '#77000099', color: 'yellow', padding: '0.3em 0.6em' }}>
+                ⚠ No valid Parent detected for this Button!
+              </div>
+            )}
 
-        <InputGroup
-          name="Type"
-          info={`How to choose the types of button:
-'Spawn' = Spawn linked element
-'Animation' = Trigger named animation in first parent that has it
-'Link' = for everything API and navigation related
-`}
-        >
-          <SelectInput options={buttonTypeOptions} value={node.mode} onChange={onChangeMode} />
-        </InputGroup>
-        {
-          node.mode === "spawn" && (
-            <>
             <InputGroup
-              name="Sub Mode"
-              info={`How to choose the sub type of button:
-'free' = spawn where the button is
-'attach' = spawn where the mentioned MediaFrame is`}
+              name="Type"
+              info={`How to choose the types of button:
+    'Spawn' = Spawn linked element
+    'Animation' = Trigger named animation in first parent that has it
+    'Link' = for everything API and navigation related
+    `}
             >
-              <SelectInput options={spawnSubModeOptions} value={node.subMode} onChange={onChangeSubMode} />
+              <SelectInput
+                options={buttonTypeOptions}
+                value={action.mode}
+                onChange={(newValue) => onChangeArrayAct([index, { mode: newValue }])}
+              />
             </InputGroup>
-            <InputGroup name="Object url" info="url of the element to spawn.">
-              <StringInput value={node.actUrl} onChange={onChangeObjectUrl} />
-            </InputGroup>
-            {node.subMode === "attach" && (
+            {
+              action.mode === "spawn" && (
+                <>
+                <InputGroup
+                  name="Sub Mode"
+                  info={`How to choose the sub type of button:
+    'free' = spawn where the button is
+    'attach' = spawn where the mentioned MediaFrame is`}
+                >
+                  <SelectInput options={spawnSubModeOptions} value={action.subMode} onChange={(newValue) => onChangeArrayAct([index, { subMode: newValue }])} />
+                </InputGroup>
+                <InputGroup name="Object url" info="url of the element to spawn.">
+                  <StringInput value={action.actUrl} onChange={(newValue) => onChangeArrayAct([index, { actUrl: newValue }])} />
+                </InputGroup>
+                {action.subMode === "attach" && (
+                  <>
+                    <InputGroup name="Media Frame" info="Name of the Media frame to attach to.">
+                      <StringInput value={action.actMediaFrame} onChange={(newValue) => onChangeArrayAct([index, { actMediaFrame: newValue }])} />
+                    </InputGroup>
+                    <InputGroup name="Attributes  (Optional)" info="Attributes of the Media frame to attach to.">
+                      <StringInput value={action.actAttribute} onChange={(newValue) => onChangeArrayAct([index, { actAttribute: newValue }])} />
+                    </InputGroup>
+                  </>
+                )}
+              </>
+              )
+            }
+            {
+              action.mode === "animation" && (
+                <>
+                  <InputGroup name="Animation Name" info="Name of the animation to trigger. Must be present in one of the parents of the button.">
+                    <SelectInput
+                      options={animationOptions}
+                      value={action.actData}
+                      onChange={(newValue) => onChangeArrayAct([index, { actData: newValue }])}
+                    />
+                  </InputGroup>
+
+                  <InputGroup name="Loop" info="Toggle infinite looping">
+                    <BooleanInput 
+                      value={editor.selected[0].config.actions[index].actLoop}
+                      onChange={(newValue) => onChangeArrayAct([index,{ actLoop: newValue}])}
+                    />
+                  </InputGroup>
+                  <InputGroup disabled={action.actLoop} name="Repeat" info="Repeat a fixed number of times (default: 1)">
+                    <NumericInput 
+                      value={action.actRepeat === undefined ? 1 : action.actRepeat} 
+                      onChange={(newValue) => onChangeArrayAct([index, { actRepeat: newValue }])}
+                      min={1} precision={1} displayPrecision={1}
+                    />
+                  </InputGroup>
+                  <InputGroup name="Speed" info="Speed of the animation 
+    0 = Pause/Resume
+    -1 = Stop and Reset
+    1 = Default speed">
+                    <NumericInput 
+                      value={action.actSpeed === undefined ? 1 : action.actSpeed} 
+                      onChange={(newValue) => onChangeArrayAct([index, { actSpeed: newValue }])}
+                      displayPrecision={0.1}
+                    />
+                  </InputGroup>
+
+                  <InputGroup name="Reclick" info="Interaction if the button is clicked again while the animation is playing">
+                    <SelectInput 
+                      options={[
+                        { label: "Pause/Resume", value: 0 },
+                        { label: "Reset & Play again", value: 1 },
+                        { label: "Reset & Stop", value: 2 },
+                      ]} 
+                      value={action.actReclick === undefined ? 0 : action.actReclick} 
+                      onChange={(newValue) => onChangeArrayAct([index, { actReclick: newValue }])}
+                    />
+                  </InputGroup>
+                </>
+              )
+            }
+            {action.mode === "Link" && (
               <>
-                <InputGroup name="Media Frame" info="Name of the Media frame to attach to.">
-                  <StringInput value={node.actMediaFrame} onChange={onChangeMediaframe} />
+                <InputGroup name="Sub Mode" info={`How to choose the sub type of button:
+    'api' = trigger an API call that you can configure
+    'sidebar' = open a side pannel
+    'redirection' = change the url of the current page
+    'new tab' = open url in new tab, preferred over redirection`}>
+                  <SelectInput options={urlSubModeOptions} value={action.subMode} onChange={(newValue) => onChangeArrayAct([index, { subMode: newValue }])} />
                 </InputGroup>
-                <InputGroup name="Attributes  (Optional)" info="Attributes of the Media frame to attach to.">
-                  <StringInput value={node.actAttribute} onChange={onChangeAttribute} />
+                <InputGroup name="URL">
+                  <StringInput value={action.actUrl} onChange={(newValue) => onChangeArrayAct([index, { actUrl: newValue }])} />
                 </InputGroup>
+                {action.subMode === "API" && (
+                  <>
+                    <InputGroup name="Mode" info="GET or POST">
+                      <SelectInput options={urlModeOptions} value={action.actMode} onChange={(newValue) => onChangeArrayAct([index, { actMode: newValue }])} />
+                    </InputGroup>
+                    <InputGroup name="Data (Optional)" info="JSON Data to send to the API.">
+                      <StringInput value={action.actData} onChange={(newValue) => onChangeArrayAct([index, { actData: newValue }])} />
+                    </InputGroup>
+                    <InputGroup name="Config (Optional)" info="JSON Axios Config of the API call.">
+                      <StringInput value={action.actConfig} onChange={(newValue) => onChangeArrayAct([index, { actConfig: newValue }])} />
+                    </InputGroup>
+                  </>
+                )}
+                {action.subMode === "Sidebar" && (
+                  <InputGroup name="Title" info="Title of the sidebar.">
+                    <StringInput value={action.actTitle} onChange={(newValue) => onChangeArrayAct([index, { actTitle: newValue }]) } />
+                  </InputGroup>
+                )}
               </>
             )}
-          </>
-          )
-        }
-        {
-          node.mode === "animation" && (
-            <>
-              <InputGroup name="Animation Name" info="Name of the animation to trigger. Must be present in one of the parents of the button.">
-                <SelectInput
-                options={animationOptions}
-                value={node.actData} // This assumes 'actData' holds the selected animation name
-                onChange={onChangeAnimationName}/>
-              </InputGroup>
 
-              <InputGroup name="Loop" info="Toggle infinite looping">
-                <BooleanInput value={node.actLoop} onChange={onChangeLoop} />
-              </InputGroup>
-              <InputGroup disabled={node.actLoop} name="Repeat" info="Repeat a fixed number of times (default: 1)">
-                <NumericInput value={node.actRepeat === undefined ? 1 : node.actRepeat} onChange={onChangeRepeat} min={1} precision={1} displayPrecision={1}/>
-              </InputGroup>
-              <InputGroup name="Speed" info="Speed of the animation 
-0 = Pause/Resume
--1 = Stop and Reset
-1 = Default speed">
-                <NumericInput value={node.actSpeed === undefined ? 1 : node.actSpeed} onChange={onChangeSpeed} displayPrecision={0.1}/>
-              </InputGroup>
-
-              <InputGroup name="Reclick" info="Interaction if the button is clicked again while the animation is playing">
-                <SelectInput options={[
-                  { label: "Pause/Resume", value: 0 },
-                  { label: "Reset & Play again", value: 1 },
-                  { label: "Reset & Stop", value: 2 },
-                ]} value={node.actReclick === undefined ? 0 : node.actReclick} onChange={onChangeReclick} />
-              </InputGroup>
-            </>
-          )
-        }
-        {node.mode === "Link" && (
-          <>
-            <InputGroup name="Sub Mode" info={`How to choose the sub type of button:
-'api' = trigger an API call that you can configure
-'sidebar' = open a side pannel
-'redirection' = change the url of the current page
-'new tab' = open url in new tab, preferred over redirection`}>
-              <SelectInput options={urlSubModeOptions} value={node.subMode} onChange={onChangeSubMode} />
-            </InputGroup>
-            <InputGroup name="URL">
-              <StringInput value={node.actUrl} onChange={onChangeObjectUrl} />
-            </InputGroup>
-            {node.subMode === "API" && (
-              <>
-                <InputGroup name="Mode" info="GET or POST">
-                  <SelectInput options={urlModeOptions} value={node.actMode} onChange={onChangeApiMode} />
-                </InputGroup>
-                <InputGroup name="Data (Optional)" info="JSON Data to send to the API.">
-                  <StringInput value={node.actData} onChange={onChangeApiData} />
-                </InputGroup>
-                <InputGroup name="Config (Optional)" info="JSON Axios Config of the API call.">
-                  <StringInput value={node.actConfig} onChange={onChangeApiConfig} />
-                </InputGroup>
-              </>
-            )}
-            {node.subMode === "Sidebar" && (
-              <>
-                <InputGroup name="Title" info="Title of the sidebar.">
-                  <StringInput value={node.actTitle} onChange={onChangeSidebarTitle} />
-                </InputGroup>
-              </>
-            )}
-          </>
-        )}
-
+            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+            <Button 
+                onClick={() => onChangeArrayAct([-2,{}])}
+                style={{ 
+                  marginLeft: '8px',
+                  marginTop: '2px'
+                }}
+              >Add Action</Button>
+              
+              <Button 
+                onClick={() => onChangeArrayAct([-3,{index:index}])}
+                style={{ 
+                  marginLeft: '8px',
+                  marginTop: '2px',
+                  cursor: index === 0 ? 'not-allowed' : 'pointer',
+                }}
+                disabled = {index === 0}
+              >Remove Action</Button>
+            </div>
+          </div>
+        ))}
+        
       </PropertyGroup>
     </NodeEditor>
   );

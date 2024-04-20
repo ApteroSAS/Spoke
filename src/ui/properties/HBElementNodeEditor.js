@@ -759,7 +759,7 @@ export default class HBElementNodeEditor extends Component {
             <SelectInput options={HBQltyList} value={node.HBQlty} onChange={this.onChangeHBQlty} />
           </InputGroup>
 
-          <InputGroup name="Stready Stream" info="When activated: input lag increases but smoothness is improved and frame drops are reduced (Recommended for videos and streams).">
+          <InputGroup name="Steady Stream" info="When activated: input lag increases but smoothness is improved and frame drops are reduced (Recommended for videos and streams).">
             <BooleanInput value={node.HBStready} onChange={this.onChangeHBStready}/>
           </InputGroup>
           

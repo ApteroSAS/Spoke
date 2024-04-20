@@ -8,66 +8,6 @@ import { BoxBufferGeometry, Euler, Geometry, Mesh, MeshBasicMaterial, Object3D }
 
 let ButtonHelperModel = null;
 let ButtonHelperModelWide = null;
-/*
-const Trigger = {
-  type: "btn-ask" | "btn",
-  text: string | null,
-  style: "rounded-button" | "rounded-text-action-button" | "rounded-action-button" | "rounded-text-button" | null,
-  "authorization.permission": string | null,
-  "authorization.email": string | null
-};
-
-const spawn_attachAction = {
-  url: string,
-  mediaFrame: string,
-  attributes: string | null
-};
-
-const spawnAction = {
-  url: string
-};
-
-const animationAction = {
-  data: string//name of animation
-};
-
-const urlAction = {
-  url: string,
-  mode: "rest_get" | "rest_post" | "change" | null,//null = new tab
-  data: any,//data to send
-  config: any//config for axios
-};
-
-const sidebar_iframeAction = {
-  url: string,
-  title: string | null
-};
-
-const Config = {
-  btnType: Trigger.type,
-  btnText: Trigger.text,
-  btnStyle: Trigger.style,
-  btnAuthorizationPermission: Trigger["authorization.permission"],
-  btnAuthorizationEmail: Trigger["authorization.email"],
-  mode: "Spawn" | "Animation" | "Link",
-  SubMode: "Attach" | "API" | "Sidebar" | "Redirection" | "NewTab" | null,
-  actUrl: spawn_attachAction.url | spawnAction.url | animationAction.data | urlAction.url,
-  actMediaFrame: spawn_attachAction.mediaFrame,
-  actAttributes: spawn_attachAction.attributes,
-  actData: urlAction.data,
-  actConfig: urlAction.config,
-  actTitle: sidebar_iframeAction.title,
-  actMode: urlAction.mode
-};/**/
-const defaultConfig = {
-  btnType: "btn",
-  btnText: "OpenSea 2",
-  btnStyle: "rounded-text-action-button",
-  mode: "Link",
-  subMode: "Sidebar",
-  actUrl: "https://meet.aptero.co/service/static/opensea-viewer/index.html?url=https%3A%2F%2Fopensea.io%2Fassets%2Fethereum%2F0x5cc5b05a8a13e3fbdb0bb9fccd98d38e50f90c38%2F1914",
-  actTitle: "Art & Festif"
-};
 
 
 export default class ButtonNode extends EditorNodeMixin(Object3D) {
@@ -81,7 +21,8 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
   //config = {...defaultConfig};
   config = 
   {
-    btnType: "btn"
+    btnType: "btn",
+    actions: []
   };
 
   //write get and set for each config property
@@ -116,93 +57,53 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
   set btnAuthorizationEmail(value) {
     this.config.btnAuthorizationEmail = value;
   }
-  get mode() {
 
-    return this.config.mode;
-  }
-  set mode(value) {
-    if(value == "spawn" && this.subMode!="attach" && this.subMode!=null){
-      this.subMode = null
-    }
-    if(value == "Link" && this.subMode!="API" && this.subMode!="Redirection"  && this.subMode!="Sidebar" && this.subMode!=null){
-      this.subMode = null
-    }
-    this.config.mode = value;
-  }
-  get subMode() {
-    return this.config.subMode;
-  }
-  set subMode(value) {
-    this.config.subMode = value;
-  }
-  get actUrl() {
-    return this.config.actUrl;
-  }
-  set actUrl(value) {
-    this.config.actUrl = value;
-  }
-  get actMediaFrame() {
-    return this.config.actMediaFrame;
-  }
-  set actMediaFrame(value) {
-    this.config.actMediaFrame = value;
-  }
-  get actAttributes() {
-    return this.config.actAttributes;
-  }
-  set actAttributes(value) {
-    this.config.actAttributes = value;
-  }
-  get actData() {
-    return this.config.actData;
-  }
-  set actData(value) {
-    this.config.actData = value;
-  }
-  get actConfig() {
-    return this.config.actConfig;
-  }
-  set actConfig(value) {
-    this.config.actConfig = value;
-  }
-  get actReclick() {
-    return this.config.actReclick;
-  }
-  set actReclick(value) {
-    this.config.actReclick = value;
-  }
-  get actTitle() {
-    return this.config.actTitle;
-  }
-  set actTitle(value) {
-    this.config.actTitle = value;
-  }
-  get actMode() {
-    return this.config.actMode;
-  }
-  set actMode(value) {
-    this.config.actMode = value;
-  }
-  // Animation
-  get actLoop() {
-    return this.config.actLoop;
-  }
-  set actLoop(value) {
-    this.config.actLoop = value;
-  }
-  get actRepeat() {
-    return this.config.actRepeat;
-  }
-  set actRepeat(value) {
-    this.config.actRepeat = value;
-  }
-  get actSpeed() {
-    return this.config.actSpeed;
-  }
-  set actSpeed(value) {
-    this.config.actSpeed = value;
-  }
 
+  get apteroActions() {  
+    // Clone the actions array to avoid modifying the original array
+    const actionsCopy = [];
+    this.config.actions.forEach(action => {
+      actionsCopy.push({ ...action });
+    });
+
+    return [-1, actionsCopy];
+  }
+  set apteroActions(value) {
+    const index = value[0];
+    
+    if (index === -3) {
+      // Remove action
+      const removeIndex = value[1].index;
+      this.config.actions.splice(removeIndex, 1);
+    } else if (index === -2) {
+      // Add action
+      const newAction = {
+        mode: 'spawn', // default mode, adjust based on your needs
+        subMode: null,
+        actUrl: '',
+        actMediaFrame: '',
+        actAttributes: {},
+        actData: '',
+        actConfig: '',
+        actReclick: 0,
+        actTitle: '',
+        actMode: '',
+        actLoop: false,
+        actRepeat: 1,
+        actSpeed: 1
+      };
+
+      this.config.actions.push(newAction);
+    } else if (index === -1) {
+      // Undo action (Restore whole actions array)
+      const actionList = value[1]; //FULL ARRAY
+      this.config.actions = [ ...actionList ];
+    } else {
+      // Set action
+      const actions = value[1];
+      this.config.actions[index] = { ...this.config.actions[index], ...actions };
+    }
+  }
 
   static async load() {
     // Load regular button model
@@ -230,6 +131,10 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
 
   constructor(editor) {
     super(editor, new BoxBufferGeometry(), new MeshBasicMaterial());
+
+    this.config = this.config || {};
+    this.config.actions = this.config.actions || [];
+
     this.updateHelperModel(); // Call this method to set the initial helper model
     //Update model the next tick too, to ensure the model is loaded
     setTimeout(() => {
@@ -269,9 +174,6 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
   }
   compileButtonConfigToUserData(config) {
     this.rotation.toVector3();
-    let StringifiedAction = {};
-    const p = this.position,
-      r = this.rotation.toVector3();
     let StringifiedTrigger = {
       type: 'btn',
       text: this.btnText,
@@ -282,93 +184,82 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
       "authorization.permission": this.btnAuthorizationPermission,
       "authorization.email": this.btnAuthorizationEmail
     };
-
-    switch (this.mode) {
-      case "Spawn":
-      case "spawn":
-        switch (this.subMode) {
-          case "Attach":
-          case "attach":
-            //create spawn_attachAction
-            StringifiedAction = {
+  
+    let StringifiedActions = this.config.actions.map(action => {
+      let actionDetails = {};
+      switch (action.mode) {
+        case "Spawn":
+        case "spawn":
+          if (action.subMode === "Attach" || action.subMode === "attach") {
+            actionDetails = {
               type: "spawn_attach",
-              url: this.actUrl,
-              mediaFrame: this.actMediaFrame,
-              attributes: this.actAttributes
+              url: action.actUrl,
+              mediaFrame: action.actMediaFrame,
+              attributes: action.actAttributes
             };
-            break;
-          default:
-            //create spawnAction
-            StringifiedAction = {
+          } else {
+            actionDetails = {
               type: "spawn",
-              url: this.actUrl
+              url: action.actUrl
             };
-            break;
-        }
-        break;
-      case "Animation":
-      case "animation":
-        // For some reason, Disabled buttons are being processed anyways, so we will ONLY process the animation if "enabled" is true
-        if (this.enabled) {
-          const objectUuid = this.parent.uuid;
-          //create animationAction
-          StringifiedAction = {
-            type: "animation",
-            data: "ApteroANIM_"+this.actData+"_"+objectUuid,
-            loop: this.actLoop !== undefined ? this.actLoop : 0, // Toggle
-            repeat: this.actRepeat !== undefined ? this.actRepeat : 1, // Times
-            speed: this.actSpeed !== undefined ? this.actSpeed : 1,
-            reclick: this.actReclick !== undefined ? this.actReclick : 0
-          };
-        }
-        break;
-      case "Link":
-      case "link":
-        switch (this.subMode) {
-          case "API":
-          case "api":
-            //create urlAction with mode = rest_get or rest_post
-            StringifiedAction = {
+          }
+          break;
+        case "Animation":
+        case "animation":
+          if (this.enabled) {
+            const objectUuid = this.parent ? this.parent.uuid : 'undefined'; // Assuming parent exists
+            actionDetails = {
+              type: "animation",
+              data: `ApteroANIM_${action.actData}_${objectUuid}`,
+              loop: action.actLoop,
+              repeat: action.actRepeat,
+              speed: action.actSpeed,
+              reclick: action.actReclick
+            };
+          }
+          break;
+        case "Link":
+        case "link":
+          if (["API", "api"].includes(action.subMode)) {
+            actionDetails = {
               type: "url",
-              url: this.actUrl,
-              mode: this.actMode,
-              data: this.actData,
-              config: this.actConfig
+              url: action.actUrl,
+              mode: action.actMode,
+              data: action.actData,
+              config: action.actConfig
             };
-            break;
-          case "Sidebar":
-          case "sidebar":
-            //create sidebar_iframeAction
-            StringifiedAction = {
+          } else if (["Sidebar", "sidebar"].includes(action.subMode)) {
+            actionDetails = {
               type: "sidebar_iframe",
-              url: this.actUrl,
-              title: this.actTitle
+              url: action.actUrl,
+              title: action.actTitle
             };
-            break;
-          case "Redirection":
-          case "redirection":
-            //create urlAction with mode = change
-            StringifiedAction = {
+          } else if (action.subMode === "Redirection" || action.subMode === "redirection") {
+            actionDetails = {
               type: "url",
-              url: this.actUrl,
+              url: action.actUrl,
               mode: 'change'
             };
-            break;
-          default:
-            //create urlAction with mode = null
-            StringifiedAction = {
+          } else {
+            actionDetails = {
               type: "url",
-              url: this.actUrl,
+              url: action.actUrl,
               mode: null
             };
-            break;
-        }
-    }
+          }
+          break;
+        default:
+          actionDetails = {
+            type: "unknown"
+          };
+      }
+      return actionDetails;
+    });
 
     this.setUserData({
       "apt.action.controller.btn1": JSON.stringify([
         {
-          actions: [StringifiedAction],
+          actions: StringifiedActions,
           triggers: [StringifiedTrigger]
         }
       ]),
@@ -376,6 +267,7 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
       prop: 1
     });
   }
+  
   setUserData(userData) {
     for (const key in userData) {
       this.userData[key] = userData[key];
@@ -423,14 +315,61 @@ this.href = source.href;*/
     });
 
   }
-  static async deserialize(editor, json) {
+  /*static async deserialize(editor, json) {
 
     const node = await super.deserialize(editor, json);
     const { config } = json.components.find(c => c.name === ButtonNode.componentName).props;
 
     node.config = JSON.parse(config);
     return node;
+  }*/
+  static async deserialize(editor, json) {
+    const node = await super.deserialize(editor, json);
+    const { config } = json.components.find(c => c.name === ButtonNode.componentName).props;
+    
+    node.config = JSON.parse(config);
+    
+    // Check if the old properties exist and convert them to an action object
+    if (node.config.mode || node.config.actUrl) {
+        // This assumes that if 'mode' or 'actUrl' exists, the node is using the old format
+        const actionObject = {
+          mode: node.config.mode,
+          subMode: node.config.subMode,
+          actUrl: node.config.actUrl,
+          actMediaFrame: node.config.actMediaFrame,
+          actAttributes: node.config.actAttributes,
+          actData: node.config.actData,
+          actConfig: node.config.actConfig,
+          actReclick: node.config.actReclick,
+          actTitle: node.config.actTitle,
+          actMode: node.config.actMode,
+          actLoop: node.config.actLoop,
+          actRepeat: node.config.actRepeat,
+          actSpeed: node.config.actSpeed
+        }
+        
+        // Initialize actions array with this single converted action
+        node.config.actions = [actionObject];
+        
+        // Optionally, clean up old properties from the config to avoid confusion
+        delete node.config.mode;
+        delete node.config.subMode;
+        delete node.config.actUrl;
+        // Delete other action-related properties similarly
+    } else {
+        // New format already, ensure actions is an array (if not, initialize it)
+        node.config.actions = node.config.actions || [];
+    }
+
+    return node;
   }
+
+  onDeselect() {
+    super.onDeselect();
+    // Clear array
+    
+  }
+
   
   prepareForExport() {
     super.prepareForExport();

@@ -13,14 +13,15 @@ import Slider from "../inputs/Slider";
 import ColorInput from "../inputs/ColorInput";
 import NumericInput from "../inputs/NumericInput";
 import ChatGPTLogo from "../../assets/apteroelements/ChatGPTLogo.svg";
+import { Robot } from "styled-icons/fa-solid";
 
 export default function ButtonNodeGPTEditor(props) {
   const { editor, node } = props;
 
   const buttonGPTModels = [
-    { label: "GPT-3.5", value: "gpt-3.5-turbo" },
-    { label: "GPT-3.5 16k", value: "gpt-3.5-turbo-16k" },
-    { label: "GPT-4", value: "gpt-4" },
+    { label: "GPT-3.5 Turbo", value: "gpt-3.5-turbo" },
+    { label: "GPT-3.5 Turbo 16k", value: "gpt-3.5-turbo-16k" },
+    { label: "GPT-4 Turbo", value: "gpt-4-turbo" },
   ]
   const btnStyleOptions = [//"rounded-button" | "rounded-text-action-button" | "rounded-action-button" | "rounded-text-button"
     { label: "rounded-button", value: "rounded-button" },
@@ -142,9 +143,13 @@ const gptLogo = React.forwardRef(({ className, style }, ref) => (
 const preloadImage = new Image();
 preloadImage.src = ChatGPTLogo;
 
+const robotIcon = React.forwardRef(({ className, style }, ref) => (
+  <Robot className={className} ref={ref} style={style} />
+));
 
-ButtonNodeGPTEditor.iconComponent = gptLogo;
-ButtonNodeGPTEditor.description ="A Button that opens ChatGPT.";
+//ButtonNodeGPTEditor.iconComponent = gptLogo;
+ButtonNodeGPTEditor.iconComponent = robotIcon;
+ButtonNodeGPTEditor.description ="A Button that opens a selection of AI Chat Bots.";
 ButtonNodeGPTEditor.propTypes = {
   editor: PropTypes.object.isRequired,
   node: PropTypes.object.isRequired
