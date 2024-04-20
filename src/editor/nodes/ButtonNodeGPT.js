@@ -274,8 +274,8 @@ export default class ButtonNodeGPT extends EditorNodeMixin(Object3D) {
       "authorization.email": this.btnAuthorizationEmail
     };
     
-    //const urlbase = "https://meet.aptero.co/service/chatgpt/";
-    const urlbase = "http://localhost:3000/service/chatgpt/"; //Local
+    const urlbase = "https://meet.aptero.co/service/chatgpt/";
+    //const urlbase = "http://localhost:3000/service/chatgpt/"; //Local
 
     var urlprompts = "";
     
