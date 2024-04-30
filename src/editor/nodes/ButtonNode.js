@@ -9,6 +9,22 @@ import { BoxBufferGeometry, Euler, Geometry, Mesh, MeshBasicMaterial, Object3D }
 let ButtonHelperModel = null;
 let ButtonHelperModelWide = null;
 
+const defaultAction = {
+  mode: 'spawn',
+  subMode: null,
+  actUrl: '',
+  actMediaFrame: '',
+  actAttributes: {},
+  actData: '',
+  actConfig: '',
+  actReclick: 0,
+  actTitle: '',
+  actMode: '',
+  actLoop: false,
+  actRepeat: 1,
+  actSpeed: 1
+}
+
 
 export default class ButtonNode extends EditorNodeMixin(Object3D) {
   static componentName = "button";
@@ -76,22 +92,8 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
       const removeIndex = value[1].index;
       this.config.actions.splice(removeIndex, 1);
     } else if (index === -2) {
-      // Add action
-      const newAction = {
-        mode: 'spawn', // default mode, adjust based on your needs
-        subMode: null,
-        actUrl: '',
-        actMediaFrame: '',
-        actAttributes: {},
-        actData: '',
-        actConfig: '',
-        actReclick: 0,
-        actTitle: '',
-        actMode: '',
-        actLoop: false,
-        actRepeat: 1,
-        actSpeed: 1
-      };
+      // Add action with default values
+      const newAction = { ...defaultAction };
 
       this.config.actions.push(newAction);
     } else if (index === -1) {
@@ -134,6 +136,11 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
 
     this.config = this.config || {};
     this.config.actions = this.config.actions || [];
+
+    // Fill if empty
+    if (this.config.actions.length === 0) {
+      this.config.actions.push({ ...defaultAction });
+    }
 
     this.updateHelperModel(); // Call this method to set the initial helper model
     //Update model the next tick too, to ensure the model is loaded
@@ -351,11 +358,9 @@ this.href = source.href;*/
         // Initialize actions array with this single converted action
         node.config.actions = [actionObject];
         
-        // Optionally, clean up old properties from the config to avoid confusion
         delete node.config.mode;
         delete node.config.subMode;
         delete node.config.actUrl;
-        // Delete other action-related properties similarly
     } else {
         // New format already, ensure actions is an array (if not, initialize it)
         node.config.actions = node.config.actions || [];
