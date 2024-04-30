@@ -274,8 +274,13 @@ export default class ButtonNodeGPT extends EditorNodeMixin(Object3D) {
       "authorization.email": this.btnAuthorizationEmail
     };
     
-    const urlbase = "https://meet.aptero.co/service/chatgpt/";
-    //const urlbase = "http://localhost:3000/service/chatgpt/"; //Local
+    
+    let urlbase = "https://meet.aptero.co/service/chatgpt/";
+
+    if (window.location.hostname === "localhost") {
+      urlbase = "http://localhost:3000/service/chatgpt/"; //Local
+      console.log("<---Local mode--->")
+    }
 
     var urlprompts = "";
     
@@ -314,9 +319,9 @@ export default class ButtonNodeGPT extends EditorNodeMixin(Object3D) {
     addParam("customBackground", this.gptCustomBackground);
     addParam("customIconUser", this.gptCustomIconUser);
     addParam("customIconAssistant", this.gptCustomIconAssistant);
-
-    console.log("urlprompts: "+urlprompts)
-    console.log("encryptedUrlprompts: "+encryptedUrlprompts)
+    
+    //console.log("urlprompts: "+urlprompts)
+    //console.log("encryptedUrlprompts: "+encryptedUrlprompts)
 
     StringifiedAction = {
       type: "sidebar_iframe",

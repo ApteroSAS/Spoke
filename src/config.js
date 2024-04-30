@@ -63,6 +63,8 @@ import TenorSource from "./ui/assets/sources/TenorSource";
 import ElementsSource from "./ui/assets/sources/ElementsSource";
 import MyAssetsSource from "./ui/assets/sources/MyAssetsSource";
 import ArchitectureKitSource from "./ui/assets/sources/ArchitectureKitSource";
+//import MegapolisKitSource from "./ui/assets/sources/MegapolisKitSource";
+
 import RockKitSource from "./ui/assets/sources/RockKitSource";
 import HubsSoundPackSource from "./ui/assets/sources/HubsSoundPackSource";
 import ApteroElementsSource from "./ui/assets/sources/ApteroElementsSource";
@@ -129,6 +131,7 @@ export function createEditor(api, settings) {
   editor.registerSource(new ApteroElementsSource(editor));//aptero
   editor.registerSource(new MyAssetsSource(editor));
   editor.registerSource(new ArchitectureKitSource(api));
+  //editor.registerSource(new MegapolisKitSource(api));
   editor.registerSource(new RockKitSource(api));
   editor.registerSource(new GenericKitSource(api));
   //editor.registerSource(new SketchfabSource(api));
