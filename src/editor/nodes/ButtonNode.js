@@ -77,9 +77,11 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
 
   get apteroActions() {  
     // Clone the actions array to avoid modifying the original array
-    const actionsCopy = [];
-    this.config.actions.forEach(action => {
-      actionsCopy.push({ ...action });
+    // Recursively clone the action object
+    // Some actions may contain nested objects, so we need to clone them too
+    // We begin my stringifiying the object, then parsing it back to an object
+    const actionsCopy = this.config.actions.map(action => {
+      return JSON.parse(JSON.stringify(action));
     });
 
     return [-1, actionsCopy];
@@ -288,15 +290,10 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
 
     super.copy(source, recursive);
 
-    //Copy config on the copied object
-    this.config = {...source.config};
-
-    /*this.controls = source.controls;
-this.billboard = source.billboard;
-this.alphaMode = source.alphaMode;
-this.alphaCutoff = source.alphaCutoff;
-this._canonicalUrl = source._canonicalUrl;
-this.href = source.href;*/
+    // Copy config on the copied object
+    //this.config = {...source.config};
+    // We stringify and parse the object to ensure a deep copy
+    this.config = JSON.parse(JSON.stringify(source.config));
 
     if (recursive) {
       const helperIndex = source.children.findIndex(child => child === source.helper);
