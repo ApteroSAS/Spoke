@@ -18,16 +18,17 @@ export default function ButtonNodeEditor(props) {
     { label: "Spawn", value: "spawn" },
     { label: "Animation", value: "animation" },
     { label: "Link", value: "Link" },
+    { label: "Ai ", value: "ai_action" },
   ]
   const spawnSubModeOptions = [
-    { label: "free", value: null },
-    { label: "attach", value: "attach" },
+    { label: "Free", value: null },
+    { label: "Attach", value: "attach" },
   ]
   const urlSubModeOptions = [
-    { label: "api", value: "API" },
-    { label: "sidebar", value: "Sidebar" },
-    { label: "redirection", value: "Redirection" },
-    { label: "new tab", value: null },
+    { label: "API", value: "API" },
+    { label: "Sidebar", value: "Sidebar" },
+    { label: "Redirection", value: "Redirection" },
+    { label: "New tab", value: null },
   ]
   const urlModeOptions = [//rest_get and rest_post
     { label: "GET", value: "rest_get" },
@@ -123,11 +124,12 @@ export default function ButtonNodeEditor(props) {
 
             <InputGroup
               name="Type"
-              info={`How to choose the types of button:
-    'Spawn' = Spawn linked element
-    'Animation' = Trigger named animation in first parent that has it
-    'Link' = for everything API and navigation related
-    `}
+              info={`How to choose the types of button:\n`+
+                `'Spawn' = Spawn linked element\n`+
+                `'Animation' = Trigger named animation in first parent that has it\n`+
+                `'Link' = for everything API and navigation related\n`+
+                `'Ai' = Notify the AI in the room that a button was clicked\n`
+              }
             >
               <SelectInput
                 options={buttonTypeOptions}
@@ -140,9 +142,9 @@ export default function ButtonNodeEditor(props) {
                 <>
                 <InputGroup
                   name="Sub Mode"
-                  info={`How to choose the sub type of button:
-    'free' = spawn where the button is
-    'attach' = spawn where the mentioned MediaFrame is`}
+                  info={`How to choose the sub type of button:\n`+
+                    `'free' = spawn where the button is\n`+
+                    `'attach' = spawn where the mentioned MediaFrame is\n`}
                 >
                   <SelectInput options={spawnSubModeOptions} value={action.subMode} onChange={(newValue) => onChangeArrayAct([index, { subMode: newValue }])} />
                 </InputGroup>
@@ -186,10 +188,10 @@ export default function ButtonNodeEditor(props) {
                       min={1} precision={1} displayPrecision={1}
                     />
                   </InputGroup>
-                  <InputGroup name="Speed" info="Speed of the animation 
-    0 = Pause/Resume
-    -1 = Stop and Reset
-    1 = Default speed">
+                  <InputGroup name="Speed" info={"Speed of the animation\n"+
+                  "0 = Pause/Resume\n"+
+                  "-1 = Stop and Reset\n"+
+                  " 1 = Default speed\n"}>
                     <NumericInput 
                       value={action.actSpeed === undefined ? 1 : action.actSpeed} 
                       onChange={(newValue) => onChangeArrayAct([index, { actSpeed: newValue }])}
@@ -213,11 +215,11 @@ export default function ButtonNodeEditor(props) {
             }
             {action.mode === "Link" && (
               <>
-                <InputGroup name="Sub Mode" info={`How to choose the sub type of button:
-    'api' = trigger an API call that you can configure
-    'sidebar' = open a side pannel
-    'redirection' = change the url of the current page
-    'new tab' = open url in new tab, preferred over redirection`}>
+                <InputGroup name="Sub Mode" info={`How to choose the sub type of button:\n`+
+                  `'api' = trigger an API call that you can configure\n`+
+                  `'sidebar' = open a side pannel\n`+
+                  `'redirection' = change the url of the current page\n`+
+                  `'new tab' = open url in new tab, preferred over redirection\n`}>
                   <SelectInput options={urlSubModeOptions} value={action.subMode} onChange={(newValue) => onChangeArrayAct([index, { subMode: newValue }])} />
                 </InputGroup>
                 <InputGroup name="URL">
@@ -243,6 +245,14 @@ export default function ButtonNodeEditor(props) {
                 )}
               </>
             )}
+            {action.mode === "ai_action" && (<>
+              <InputGroup name="Description" info="Description of the action to send to the AI">
+                <StringInput value={action.description} onChange={(newValue) => onChangeArrayAct([index, { description: newValue }])} />
+              </InputGroup>
+              <InputGroup name="Reaction" info="If activated the Ai will react on the user action (only if an AI chat is visible to the user)">
+                <BooleanInput value={action.triggerReaction} onChange={(newValue) => onChangeArrayAct([index,{ triggerReaction: newValue}])} />
+              </InputGroup>
+            </>)}
 
             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
             <Button 

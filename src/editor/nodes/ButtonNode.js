@@ -257,6 +257,13 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
             };
           }
           break;
+        case "ai_action":
+            actionDetails = {
+              type: "ai_action",
+              description: action.description,
+              triggerReaction: action.triggerReaction,
+            };
+          break;
         default:
           actionDetails = {
             type: "unknown"
