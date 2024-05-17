@@ -35,7 +35,8 @@
     "integration-tests": "concurrently --success \"first\" --kill-others \"ava ./test/integration\" \"yarn test-server\"",
     "update-test-snapshots": "concurrently --success \"first\" --kill-others \"ava -u\" \"yarn test-server\"",
     "storybook": "start-storybook",
-    "deploy-storybook": "storybook-to-ghpages"
+    "deploy-storybook": "storybook-to-ghpages",
+    "docker:publish": "npx dockflow publish"
   },
   "esm": {
     "mode": "auto",
