@@ -17,6 +17,7 @@ const defaultAction = {
   actAttributes: {},
   actData: '',
   actConfig: '',
+  actMainclick: 0,
   actReclick: 0,
   actTitle: '',
   actMode: '',
@@ -95,7 +96,7 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
       this.config.actions.splice(removeIndex, 1);
     } else if (index === -2) {
       // Add action with default values
-      const newAction = { ...defaultAction };
+      const newAction = JSON.parse(JSON.stringify(defaultAction));
 
       this.config.actions.push(newAction);
     } else if (index === -1) {
@@ -141,7 +142,7 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
 
     // Fill if empty
     if (this.config.actions.length === 0) {
-      this.config.actions.push({ ...defaultAction });
+      this.config.actions.push(JSON.parse(JSON.stringify(defaultAction)));
     }
 
     this.updateHelperModel(); // Call this method to set the initial helper model
@@ -223,6 +224,7 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
               loop: action.actLoop,
               repeat: action.actRepeat,
               speed: action.actSpeed,
+              mainclick: action.actMainclick,
               reclick: action.actReclick
             };
           }
@@ -351,6 +353,7 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
           actAttributes: node.config.actAttributes,
           actData: node.config.actData,
           actConfig: node.config.actConfig,
+          actMainclick: node.config.actMainclick,
           actReclick: node.config.actReclick,
           actTitle: node.config.actTitle,
           actMode: node.config.actMode,
@@ -368,6 +371,13 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
     } else {
         // New format already, ensure actions is an array (if not, initialize it)
         node.config.actions = node.config.actions || [];
+        
+        for (let i = 0; i < node.config.actions.length; i++) {
+          // Ensure all actions have the default values
+          node.config.actions[i] = 
+          { ...JSON.parse(JSON.stringify(defaultAction)), ...node.config.actions[i] };
+        }
+        
     }
 
     return node;

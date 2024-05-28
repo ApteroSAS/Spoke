@@ -133,7 +133,7 @@ export default function ButtonNodeEditor(props) {
             >
               <SelectInput
                 options={buttonTypeOptions}
-                value={action.mode}
+                value={editor.selected[0].config.actions[index].mode}
                 onChange={(newValue) => onChangeArrayAct([index, { mode: newValue }])}
               />
             </InputGroup>
@@ -146,18 +146,31 @@ export default function ButtonNodeEditor(props) {
                     `'free' = spawn where the button is\n`+
                     `'attach' = spawn where the mentioned MediaFrame is\n`}
                 >
-                  <SelectInput options={spawnSubModeOptions} value={action.subMode} onChange={(newValue) => onChangeArrayAct([index, { subMode: newValue }])} />
+                  <SelectInput 
+                    options={spawnSubModeOptions} 
+                    value={editor.selected[0].config.actions[index].subMode}
+                    onChange={(newValue) => onChangeArrayAct([index, { subMode: newValue }])} 
+                  />
                 </InputGroup>
                 <InputGroup name="Object url" info="url of the element to spawn.">
-                  <StringInput value={action.actUrl} onChange={(newValue) => onChangeArrayAct([index, { actUrl: newValue }])} />
+                  <StringInput 
+                    value={editor.selected[0].config.actions[index].actUrl}
+                    onChange={(newValue) => onChangeArrayAct([index, { actUrl: newValue }])} 
+                  />
                 </InputGroup>
                 {action.subMode === "attach" && (
                   <>
                     <InputGroup name="Media Frame" info="Name of the Media frame to attach to.">
-                      <StringInput value={action.actMediaFrame} onChange={(newValue) => onChangeArrayAct([index, { actMediaFrame: newValue }])} />
+                      <StringInput 
+                        value={editor.selected[0].config.actions[index].actMediaFrame}
+                        onChange={(newValue) => onChangeArrayAct([index, { actMediaFrame: newValue }])} 
+                      />
                     </InputGroup>
                     <InputGroup name="Attributes  (Optional)" info="Attributes of the Media frame to attach to.">
-                      <StringInput value={action.actAttribute} onChange={(newValue) => onChangeArrayAct([index, { actAttribute: newValue }])} />
+                      <StringInput 
+                        value={editor.selected[0].config.actions[index].actAttribute}
+                        onChange={(newValue) => onChangeArrayAct([index, { actAttribute: newValue }])} 
+                      />
                     </InputGroup>
                   </>
                 )}
@@ -170,7 +183,7 @@ export default function ButtonNodeEditor(props) {
                   <InputGroup name="Animation Name" info="Name of the animation to trigger. Must be present in one of the parents of the button.">
                     <SelectInput
                       options={animationOptions}
-                      value={action.actData}
+                      value={editor.selected[0].config.actions[index].actData}
                       onChange={(newValue) => onChangeArrayAct([index, { actData: newValue }])}
                     />
                   </InputGroup>
@@ -183,30 +196,48 @@ export default function ButtonNodeEditor(props) {
                   </InputGroup>
                   <InputGroup disabled={action.actLoop} name="Repeat" info="Repeat a fixed number of times (default: 1)">
                     <NumericInput 
-                      value={action.actRepeat === undefined ? 1 : action.actRepeat} 
+                      value={editor.selected[0].config.actions[index].actRepeat === undefined ? 1 : 
+                             editor.selected[0].config.actions[index].actRepeat}
                       onChange={(newValue) => onChangeArrayAct([index, { actRepeat: newValue }])}
                       min={1} precision={1} displayPrecision={1}
                     />
                   </InputGroup>
-                  <InputGroup name="Speed" info={"Speed of the animation\n"+
-                  "0 = Pause/Resume\n"+
-                  "-1 = Stop and Reset\n"+
-                  " 1 = Default speed\n"}>
+                  <InputGroup name="Speed" info="Speed of the animation 
+1 = Default speed
+-1 = Reverse
+2 = 2x Speed">
                     <NumericInput 
-                      value={action.actSpeed === undefined ? 1 : action.actSpeed} 
+                      value={editor.selected[0].config.actions[index].actSpeed === undefined ? 1 : 
+                             editor.selected[0].config.actions[index].actSpeed}
                       onChange={(newValue) => onChangeArrayAct([index, { actSpeed: newValue }])}
                       displayPrecision={0.1}
+                    />
+                  </InputGroup>
+
+                  <InputGroup name="Click" info="Interaction if the button is clicked when NO animation is playing (or is paused)">
+                    <SelectInput 
+                      options={[
+                        { label: "Play/Resume", value: 0 },
+                        { label: "Reset", value: 1 },
+                        { label: "Stop", value: 2 },
+                        { label: "Do nothing", value: 3 },
+                      ]} 
+                      value={editor.selected[0].config.actions[index].actMainclick === undefined ? 0 :
+                             editor.selected[0].config.actions[index].actMainclick}
+                      onChange={(newValue) => onChangeArrayAct([index, { actMainclick: newValue }])}
                     />
                   </InputGroup>
 
                   <InputGroup name="Reclick" info="Interaction if the button is clicked again while the animation is playing">
                     <SelectInput 
                       options={[
-                        { label: "Pause/Resume", value: 0 },
-                        { label: "Reset & Play again", value: 1 },
-                        { label: "Reset & Stop", value: 2 },
+                        { label: "Pause", value: 0 },
+                        { label: "Reset", value: 1 },
+                        { label: "Stop", value: 2 },
+                        { label: "Do nothing", value: 3 },
                       ]} 
-                      value={action.actReclick === undefined ? 0 : action.actReclick} 
+                      value={editor.selected[0].config.actions[index].actReclick === undefined ? 0 :
+                             editor.selected[0].config.actions[index].actReclick}
                       onChange={(newValue) => onChangeArrayAct([index, { actReclick: newValue }])}
                     />
                   </InputGroup>
@@ -220,7 +251,10 @@ export default function ButtonNodeEditor(props) {
                   `'sidebar' = open a side pannel\n`+
                   `'redirection' = change the url of the current page\n`+
                   `'new tab' = open url in new tab, preferred over redirection\n`}>
-                  <SelectInput options={urlSubModeOptions} value={action.subMode} onChange={(newValue) => onChangeArrayAct([index, { subMode: newValue }])} />
+                  <SelectInput options={urlSubModeOptions} 
+                    value={editor.selected[0].config.actions[index].subMode}
+                    onChange={(newValue) => onChangeArrayAct([index, { subMode: newValue }])} 
+                  />
                 </InputGroup>
                 <InputGroup name="URL">
                   <StringInput value={action.actUrl} onChange={(newValue) => onChangeArrayAct([index, { actUrl: newValue }])} />
@@ -228,29 +262,47 @@ export default function ButtonNodeEditor(props) {
                 {action.subMode === "API" && (
                   <>
                     <InputGroup name="Mode" info="GET or POST">
-                      <SelectInput options={urlModeOptions} value={action.actMode} onChange={(newValue) => onChangeArrayAct([index, { actMode: newValue }])} />
+                      <SelectInput options={urlModeOptions} 
+                        value={editor.selected[0].config.actions[index].actMode}
+                        onChange={(newValue) => onChangeArrayAct([index, { actMode: newValue }])} 
+                      />
                     </InputGroup>
                     <InputGroup name="Data (Optional)" info="JSON Data to send to the API.">
-                      <StringInput value={action.actData} onChange={(newValue) => onChangeArrayAct([index, { actData: newValue }])} />
+                      <StringInput 
+                        value={editor.selected[0].config.actions[index].actData} 
+                        onChange={(newValue) => onChangeArrayAct([index, { actData: newValue }])} 
+                      />
                     </InputGroup>
                     <InputGroup name="Config (Optional)" info="JSON Axios Config of the API call.">
-                      <StringInput value={action.actConfig} onChange={(newValue) => onChangeArrayAct([index, { actConfig: newValue }])} />
+                      <StringInput 
+                        value={editor.selected[0].config.actions[index].actConfig}
+                        onChange={(newValue) => onChangeArrayAct([index, { actConfig: newValue }])} 
+                      />
                     </InputGroup>
                   </>
                 )}
                 {action.subMode === "Sidebar" && (
                   <InputGroup name="Title" info="Title of the sidebar.">
-                    <StringInput value={action.actTitle} onChange={(newValue) => onChangeArrayAct([index, { actTitle: newValue }]) } />
+                    <StringInput 
+                      value={editor.selected[0].config.actions[index].actTitle}
+                      onChange={(newValue) => onChangeArrayAct([index, { actTitle: newValue }]) } 
+                    />
                   </InputGroup>
                 )}
               </>
             )}
             {action.mode === "ai_action" && (<>
               <InputGroup name="Description" info="Description of the action to send to the AI">
-                <StringInput value={action.description} onChange={(newValue) => onChangeArrayAct([index, { description: newValue }])} />
+                <StringInput 
+                  value={editor.selected[0].config.actions[index].description}
+                  onChange={(newValue) => onChangeArrayAct([index, { description: newValue }])} 
+                />
               </InputGroup>
               <InputGroup name="Reaction" info="If activated the Ai will react on the user action (only if an AI chat is visible to the user)">
-                <BooleanInput value={action.triggerReaction} onChange={(newValue) => onChangeArrayAct([index,{ triggerReaction: newValue}])} />
+                <BooleanInput 
+                  value={editor.selected[0].config.actions[index].triggerReaction}
+                  onChange={(newValue) => onChangeArrayAct([index,{ triggerReaction: newValue}])} 
+                />
               </InputGroup>
             </>)}
 
