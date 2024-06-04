@@ -40,6 +40,11 @@ export default function ButtonNodeEditor(props) {
     { label: "Text Action Button", value: "rounded-text-action-button" },
     { label: "Text Button", value: "rounded-text-button" }
   ]
+  const onEndAnimation = [
+    { label: "Reset", value: 0 },
+    { label: "Pause", value: 1 },
+    { label: "Loop Back", value: 2 },
+  ]
 
   // Button Style 
   const onChangeBtnText = useSetPropertySelected(editor, "btnText");
@@ -239,6 +244,13 @@ export default function ButtonNodeEditor(props) {
                       value={editor.selected[0].config.actions[index].actReclick === undefined ? 0 :
                              editor.selected[0].config.actions[index].actReclick}
                       onChange={(newValue) => onChangeArrayAct([index, { actReclick: newValue }])}
+                    />
+                  </InputGroup>
+                  <InputGroup name="On End" info="Action to take when the animation ends">
+                    <SelectInput
+                      options={onEndAnimation}
+                      value={editor.selected[0].config.actions[index].actOnEnd}
+                      onChange={(newValue) => onChangeArrayAct([index, { actOnEnd: newValue }])}
                     />
                   </InputGroup>
                 </>

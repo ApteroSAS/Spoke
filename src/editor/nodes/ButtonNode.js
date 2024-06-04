@@ -22,6 +22,7 @@ const defaultAction = {
   actTitle: '',
   actMode: '',
   actLoop: false,
+  actOnEnd: 0,
   actRepeat: 1,
   actSpeed: 1
 }
@@ -222,6 +223,7 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
               type: "animation",
               data: `ApteroANIM_${action.actData}_${objectUuid}`,
               loop: action.actLoop,
+              onEnd: action.actOnEnd,
               repeat: action.actRepeat,
               speed: action.actSpeed,
               mainclick: action.actMainclick,
@@ -358,6 +360,7 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
           actTitle: node.config.actTitle,
           actMode: node.config.actMode,
           actLoop: node.config.actLoop,
+          actOnEnd: node.config.actOnEnd,
           actRepeat: node.config.actRepeat,
           actSpeed: node.config.actSpeed
         }
