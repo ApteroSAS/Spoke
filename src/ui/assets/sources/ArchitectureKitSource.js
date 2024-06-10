@@ -5,7 +5,7 @@ export default class ArchitectureKitSource extends KitSource {
   constructor(api) {
     super(
       api,
-      "https://assets-prod.reticulum.io/kits/architecture/ArchKit-64274f78e194a993850e208cbaa2fe7c5a35a955.gltf"
+      "https://meet.aptero.co/service/static/kit/ArchKit/ArchKit-4127950833cadf21d6b6dec45b402639a0467e3a.gltf"
     );
     this.id = "architecture-kit";
     this.name = "Architecture Kit";
