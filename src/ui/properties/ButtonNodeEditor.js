@@ -58,24 +58,50 @@ export default function ButtonNodeEditor(props) {
 
 
   function findParentAnimations(node) {
-    let animations = [];
+    let animList = [];
     let parentNode = node.parent; // Assuming 'node' is your ButtonNode and has a reference to its parent
   
     while (parentNode) {
       const parentObject = parentNode.model;
+      // Fill animList with the animations, the parent uuid, and the object name
       if (parentObject && parentObject.animations && parentObject.animations.length > 0) {
-        animations = animations.concat(parentObject.animations.map(animation => animation.name));
+        animList = animList.concat(parentObject.animations.map(animation => ({
+          label: animation.name,
+          value: parentNode.uuid, // We set the id only at first, for checking purposes
+          parentName: parentNode.name,
+        })));
       }
+
       parentNode = parentNode.parent; // Move up to the next parent
     }
-  
-    return animations;
+
+    // Add the name of the parent object IF we have more than one
+    if (animList.length > 0) {
+      let lastObject = null;
+      let objectCount = 0;
+
+      for (let i = 0; i < animList.length; i++) {
+        if (lastObject !== animList[i].value) {
+          lastObject = animList[i].value;
+          objectCount++;
+        }
+      }
+
+      for (let i = 0; i < animList.length; i++) {
+        let objectId = animList[i].value;
+        let parentName = animList[i].parentName;
+        let animationName = animList[i].label;
+        if (objectCount > 1) {
+          animList[i].label = parentName + " / " + animationName;
+        }
+        // We now set the PROPER value here
+        animList[i].value = animationName + "_" + objectId ;
+      }
+    }
+    return animList;
   }
   
-  const animationOptions = findParentAnimations(node).map(animationName => ({
-    label: animationName,
-    value: animationName
-  }));
+  const animationOptions = findParentAnimations(node);
 
   return (
     <NodeEditor description={ButtonNodeEditor.description} {...props}>

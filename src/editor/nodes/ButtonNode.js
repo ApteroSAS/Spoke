@@ -218,10 +218,9 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
         case "Animation":
         case "animation":
           if (this.enabled) {
-            const objectUuid = this.parent ? this.parent.uuid : 'undefined'; // Assuming parent exists
             actionDetails = {
               type: "animation",
-              data: `ApteroANIM_${action.actData}_${objectUuid}`,
+              data: `ApteroANIM_${action.actData}`,
               loop: action.actLoop,
               onEnd: action.actOnEnd,
               repeat: action.actRepeat,
