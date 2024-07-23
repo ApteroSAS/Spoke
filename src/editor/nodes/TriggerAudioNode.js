@@ -97,8 +97,10 @@ export default class TriggerAudioNode extends EditorNodeMixin(Object3D) {
       this.logoModel.updateMatrix();
 
       // Update the y scale of the barrierModel too
-      this.barrierModel.scale.y = this.barrierUserScale.y / this.scale.y;
-      this.barrierModel.updateMatrix();
+      if (this.barrierModel) {
+        this.barrierModel.scale.y = this.barrierUserScale.y / this.scale.y;
+        this.barrierModel.updateMatrix();
+      }
     }
 
     // Update LOGO

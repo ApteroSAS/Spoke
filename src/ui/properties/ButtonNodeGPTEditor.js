@@ -23,6 +23,7 @@ export default function ButtonNodeGPTEditor(props) {
     { label: "GPT-3.5 Turbo 16k", value: "gpt-3.5-turbo-16k" },
     { label: "GPT-4 Turbo", value: "gpt-4-turbo" },
     { label: "GPT-4o", value: "gpt-4o" },
+    { label: "GPT-4o-mini", value: "gpt-4o-mini" },
   ]
   const btnStyleOptions = [//"rounded-button" | "rounded-text-action-button" | "rounded-action-button" | "rounded-text-button"
     { label: "rounded-button", value: "rounded-button" },
