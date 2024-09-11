@@ -86,10 +86,7 @@ const GlobalStyle = createGlobalStyle`
     text-align: left;
   }
 
-  /* scrollbar-width is not inherited so apply to all elements. */
-  * {
-    scrollbar-width: thin;
-  }
+ 
 
   
   /*---aptero---*/
@@ -159,7 +156,6 @@ const GlobalStyle = createGlobalStyle`
     font-size: 12px;
     color: ${props => props.theme.text};
     background-color: ${props => props.theme.background};
-    scrollbar-color: #282c31 #5d646c;
   }
 
   .Modal {
