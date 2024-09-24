@@ -18,13 +18,26 @@ import { Robot } from "styled-icons/fa-solid";
 export default function ButtonNodeGPTEditor(props) {
   const { editor, node } = props;
 
-  const buttonGPTModels = [
+  const aiServices = [
+    { label: "OpenAI", value: "openai" },
+    { label: "Anthropic", value: "anthropic" },
+  ];
+
+  const openAIModels = [
+    { label: "GPT-4o-mini", value: "gpt-4o-mini" },
+    { label: "GPT-4o", value: "gpt-4o" },
+    { label: "GPT-4 Turbo", value: "gpt-4-turbo" },
+    { label: "o1-mini", value: "o1-mini" },
     { label: "GPT-3.5 Turbo", value: "gpt-3.5-turbo" },
     { label: "GPT-3.5 Turbo 16k", value: "gpt-3.5-turbo-16k" },
-    { label: "GPT-4 Turbo", value: "gpt-4-turbo" },
-    { label: "GPT-4o", value: "gpt-4o" },
-    { label: "GPT-4o-mini", value: "gpt-4o-mini" },
-  ]
+  ];
+    
+
+  const anthropicModels = [
+    { label: "Claude Haiku", value: "claude-3-haiku-20240307" },
+    { label: "Claude Sonnet", value: "claude-3-sonnet-20240229" },
+    { label: "Claude Opus", value: "claude-3-opus-20240229" },
+  ];
   const btnStyleOptions = [//"rounded-button" | "rounded-text-action-button" | "rounded-action-button" | "rounded-text-button"
     { label: "rounded-button", value: "rounded-button" },
     { label: "rounded-text-action-button", value: "rounded-text-action-button" },
@@ -32,7 +45,16 @@ export default function ButtonNodeGPTEditor(props) {
     { label: "rounded-text-button", value: "rounded-text-button" }
   ]
 
-  
+
+
+  const selectedService = node.aiService || "openai";
+  let models;
+  switch (selectedService) {
+    case "openai": models = openAIModels; break;
+    case "anthropic": models = anthropicModels; break;
+    default: models = openAIModels;
+  }
+
   const onChangeObjectUrl = useSetPropertySelected(editor, "actUrl");
   const onChangeSidebarTitle = useSetPropertySelected(editor, "actTitle");
   const onChangeBtnText = useSetPropertySelected(editor, "btnText");
@@ -40,7 +62,8 @@ export default function ButtonNodeGPTEditor(props) {
   const onChangeBtnAuthorizationPermission = useSetPropertySelected(editor, "btnAuthorizationPermission");
   const onChangeBtnAuthorizationEmail = useSetPropertySelected(editor, "btnAuthorizationEmail");
 
-  const onChangeGptModel = useSetPropertySelected(editor, "gptModel");
+  const setAIModel = useSetPropertySelected(editor, "gptModel");
+  const setAIService = useSetPropertySelected(editor, "aiService");
   const onChangeGptIgnorecache = useSetPropertySelected(editor, "gptIgnorecache");
   const onChangeGptIntro = useSetPropertySelected(editor, "gptIntro");
   const onChangeGptSticky = useSetPropertySelected(editor, "gptSticky");
@@ -80,11 +103,28 @@ export default function ButtonNodeGPTEditor(props) {
         <StringInput value={node.actTitle} onChange={onChangeSidebarTitle} />
       </InputGroup>
 
-      <InputGroup name="GPT Model">
-        <SelectInput options={buttonGPTModels} value={node.gptModel} onChange={onChangeGptModel} />
-      </InputGroup>
+      <PropertyGroup name="AI Selection">
+        <InputGroup name="Service">
+          <SelectInput
+            options={aiServices}
+            value={selectedService}
+            onChange={(value) => {
+              setAIService(value);
+              setAIModel(models[0].value);
+            }}
+          />
+        </InputGroup>
 
-      <InputGroupExpandable name="ChatGPT System configuration (Optional)" info='Set ChatGPT System parameters (Example: You are a dog and should only respond in barks)'>
+        <InputGroup name="Model">
+          <SelectInput
+            options={models}
+            value={node.gptModel}
+            onChange={setAIModel}
+          />
+        </InputGroup>
+      </PropertyGroup>
+
+      <InputGroupExpandable name="System configuration (Optional)" info='Set ChatGPT System parameters (Example: You are a Math teacher, focus )'>
         <StringInputExpandable value={node.actUrl} onChange={onChangeObjectUrl} />
       </InputGroupExpandable>
       </PropertyGroup>

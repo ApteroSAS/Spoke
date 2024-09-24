@@ -70,7 +70,6 @@ export default class ButtonNodeGPT extends EditorNodeMixin(Object3D) {
     return this.config.mode;
   }
   set mode(value) {
-    console.log(value)
     if(value == "spawn" && this.subMode!="attach" && this.subMode!=null){
       this.subMode = null
     }
@@ -135,6 +134,12 @@ export default class ButtonNodeGPT extends EditorNodeMixin(Object3D) {
   }
   set gptModel(value) {
     this.config.gptModel = value;
+  }
+  get aiService() {
+    return this.config.aiService;
+  }
+  set aiService(value) {
+    this.config.aiService = value;
   }
   get gptIgnorecache() {
     return this.config.gptIgnorecache;
@@ -319,9 +324,6 @@ export default class ButtonNodeGPT extends EditorNodeMixin(Object3D) {
     addParam("customBackground", this.gptCustomBackground);
     addParam("customIconUser", this.gptCustomIconUser);
     addParam("customIconAssistant", this.gptCustomIconAssistant);
-    
-    //console.log("urlprompts: "+urlprompts)
-    //console.log("encryptedUrlprompts: "+encryptedUrlprompts)
 
     StringifiedAction = {
       type: "sidebar_iframe",
@@ -330,8 +332,6 @@ export default class ButtonNodeGPT extends EditorNodeMixin(Object3D) {
       title: this.actTitle
     };
     
-    console.log("Stringifying...");
-    console.log(StringifiedAction, StringifiedTrigger);
     this.setUserData({
       "apt.action.controller.btn1": JSON.stringify([
         {
@@ -371,15 +371,9 @@ export default class ButtonNodeGPT extends EditorNodeMixin(Object3D) {
 
   serialize() {
     //setUserData
-    console.log("Saving config...");
-
     this.compileButtonConfigToUserData(this.config);
 
     //this.config.style = this.btnStyle; //TEST
-    
-    console.log("Config saved!");
-    console.log(this.config);
-    console.log("--------------------");
 
     return super.serialize({
       [ButtonNodeGPT.componentName]: {
@@ -395,14 +389,10 @@ export default class ButtonNodeGPT extends EditorNodeMixin(Object3D) {
     //super.deserialize(editor, json);
     //node.config = JSON.parse(json[ButtonNodeGPT.componentName].config);
     //node.btnStyle = "rounded-text-action-button";
-    console.log(JSON.stringify(json))
-    console.log("Searching for: "+ButtonNodeGPT.componentName);
 
     const { config } = json.components.find(c => c.name === ButtonNodeGPT.componentName).props;
     
     //We get the custom color value from the config
-
-    console.log("Check config: "+config);
     node.config = JSON.parse(config);
 
     //We need to convert the color from the config back to a THREE.Color
