@@ -151,6 +151,8 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
     setTimeout(() => {
       this.updateHelperModel();
     }, 0);
+
+
   }
   updateHelperModel() {
     // Ensure models are loaded
@@ -317,6 +319,17 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
 
   serialize() {
     //setUserData
+
+    // Make sure the MEDIA FRAME still exists at the time of saving
+    this.config.actions.forEach((action) => {
+      if (action.subMode === "attach" && action.actMediaFrame) {
+        const mediaFrameExists = this.editor.scene.getObjectByName(action.actMediaFrame);
+        if (!mediaFrameExists) {
+          action.actMediaFrame = "";
+          console.log("[!!!] Media Frame not found. Removing reference from ButtonNode.");
+        }
+      }
+    });
 
     this.compileButtonConfigToUserData(this.config);
 

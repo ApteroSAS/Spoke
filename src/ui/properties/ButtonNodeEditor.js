@@ -46,6 +46,21 @@ export default function ButtonNodeEditor(props) {
     { label: "Loop Back", value: 2 },
   ]
 
+  // Get all media-frame objects
+  const getMediaFrameOptions = () => {
+    const mediaFrames = [];
+    editor.scene.traverse((obj) => {
+      if (obj.nodeName === "media-frame" || obj.nodeName === "Media Frame") {
+        mediaFrames.push({ label: obj.name, value: obj.name });
+      }
+    });
+    return mediaFrames;
+  };
+
+  // Get the current list of media frames dynamically when needed
+  const mediaFrameOptions = getMediaFrameOptions();
+
+
   // Button Style 
   const onChangeBtnText = useSetPropertySelected(editor, "btnText");
   const onChangeBtnStyle = useSetPropertySelected(editor, "btnStyle");
@@ -192,10 +207,11 @@ export default function ButtonNodeEditor(props) {
                 {action.subMode === "attach" && (
                   <>
                     <InputGroup name="Media Frame" info="Name of the Media frame to attach to.">
-                      <StringInput 
-                        value={editor.selected[0].config.actions[index].actMediaFrame}
-                        onChange={(newValue) => onChangeArrayAct([index, { actMediaFrame: newValue }])} 
-                      />
+                    <SelectInput
+                      options={mediaFrameOptions}
+                      value={editor.selected[0].config.actions[index].actMediaFrame}
+                      onChange={(newValue) => onChangeArrayAct([index, { actMediaFrame: newValue }])}
+                    />
                     </InputGroup>
                     <InputGroup name="Attributes  (Optional)" info="Attributes of the Media frame to attach to.">
                       <StringInput 
