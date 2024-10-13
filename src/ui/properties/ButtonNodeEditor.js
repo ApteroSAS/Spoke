@@ -1,4 +1,4 @@
-import React, { Component, useCallback } from "react";
+import React, { Component, useCallback, useState } from "react";
 import PropTypes from "prop-types";
 import NodeEditor from "./NodeEditor";
 import { Image } from "styled-icons/boxicons-regular/Image";
@@ -10,7 +10,9 @@ import PropertyGroup from "./PropertyGroup";
 import BooleanInput from "../inputs/BooleanInput";
 import NumericInput from "../inputs/NumericInput";
 import { Button } from "../inputs/Button";
-
+import FileUploader from './FileUploader';
+import { InfoTooltip } from "../layout/Tooltip";
+import Vector3Input from "../inputs/Vector3Input";
 
 export default function ButtonNodeEditor(props) {
   const { editor, node } = props;
@@ -38,13 +40,31 @@ export default function ButtonNodeEditor(props) {
     { label: "Rounded Button", value: "rounded-button" },
     { label: "Rounded Action Button", value: "rounded-action-button" },
     { label: "Text Action Button", value: "rounded-text-action-button" },
-    { label: "Text Button", value: "rounded-text-button" }
+    { label: "Text Button", value: "rounded-text-button" },
+    { label: "Custom Model", value: "rounded-text-custom-button" }
   ]
   const onEndAnimation = [
     { label: "Reset", value: 0 },
     { label: "Pause", value: 1 },
     { label: "Loop Back", value: 2 },
   ]
+
+  // Create a local state to store the input value before applying it
+  const [localCustomModelUrl, setLocalCustomModelUrl] = useState(node.customModelUrl || "");
+  
+  const onChangeCustomModelUrl = useSetPropertySelected(editor, "customModelUrl");
+  const onChangeCustomModelScale = useSetPropertySelected(editor, "customModelScale");
+  const onChangeCustomModelOffset = useSetPropertySelected(editor, "customModelOffset");
+
+  const handleCustomModelUpload = (newCustomModelUrl) => {
+    setLocalCustomModelUrl(newCustomModelUrl);
+    onChangeCustomModelUrl(newCustomModelUrl);
+  };
+
+  const handleReloadModel = () => {
+    // Apply the local state to the actual node and trigger reload
+    onChangeCustomModelUrl(localCustomModelUrl);
+  };
 
   // Get all media-frame objects
   const getMediaFrameOptions = () => {
@@ -138,6 +158,56 @@ export default function ButtonNodeEditor(props) {
             </InputGroup>
           )
         }
+
+        {node.btnStyle === "rounded-text-custom-button" && (
+          <>
+            <InputGroup name="Custom Model URL" info="URL for the custom button GLB model">
+              <FileUploader
+                label="▲"
+                hint="Upload GLB/GTLF"
+                onUpload={handleCustomModelUpload}
+                source={editor.sources[2]} // My assets
+                multiple={false}
+                accepts={[".glb", ".gltf"]}
+              />
+              <InfoTooltip info={"Reload model"}>
+                <Button
+                  disabled={localCustomModelUrl === "" || localCustomModelUrl === undefined}
+                  onClick={handleReloadModel}
+                  style={{ marginRight: "0.2em", marginLeft: "0.2em" }}
+                >
+                  ↻
+                </Button>
+              </InfoTooltip>
+              <StringInput
+                value={localCustomModelUrl}
+                onChange={(value) => setLocalCustomModelUrl(value)}
+              />
+            </InputGroup>
+
+            <InputGroup name="Custom Model Offset" info="Offset for the custom button GLB model">
+              <Vector3Input
+                value={node.customModelOffset}
+                onChange={onChangeCustomModelOffset}
+                smallStep={0.01}
+                mediumStep={0.1}
+                largeStep={1}
+              />
+            </InputGroup>
+
+            <InputGroup name="Custom Model Scale" info="Scale for the custom button GLB model">
+              <Vector3Input
+                uniformScaling
+                value={node.customModelScale}
+                onChange={onChangeCustomModelScale}
+                smallStep={0.01}
+                mediumStep={0.1}
+                largeStep={1}
+              />
+            </InputGroup>
+          </>
+        )}
+
         <InputGroup name="Authorization Permission (Optional)" info='Permission required to see the button. One of "tweet", "spawn_camera", "spawn_drawing", "spawn_and_move_media", "pin_objects", "spawn_emoji", "fly", "update_hub", "update_hub_promotion", "update_roles", "close_hub", "mute_users", "kick_users", "change_screen", "show_spawn_and_move_media", "share_screen"'>
           <StringInput value={node.btnAuthorizationPermission} onChange={onChangeBtnAuthorizationPermission} />
         </InputGroup>

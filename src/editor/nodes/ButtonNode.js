@@ -1,13 +1,16 @@
 import EditorNodeMixin from "./EditorNodeMixin";
 import { getObjectPerfIssues, maybeAddLargeFileIssue } from "../utils/performance";
 import { GLTFLoader } from "../gltf/GLTFLoader";
+import { GLTFLoader as ModelLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import spawnPointModelUrl from "../../assets/spawn-point.glb";
 import boutonCubeBleuUrl from "../../assets/bouton_cube_bleu.glb";
 import boutonCubeWideBleuUrl from "../../assets/bouton_cube_wide_bleu.glb";
-import { BoxBufferGeometry, Euler, Geometry, Mesh, MeshBasicMaterial, Object3D } from "three";
+import { BoxBufferGeometry, Euler, Geometry, Mesh, MeshBasicMaterial, Object3D, Vector3 } from "three";
 
 let ButtonHelperModel = null;
 let ButtonHelperModelWide = null;
+
+const loader = new ModelLoader();
 
 const defaultAction = {
   mode: 'spawn',
@@ -44,6 +47,25 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
   };
 
   //write get and set for each config property
+  get customModelUrl() {
+    return this.config.customModelUrl;
+  }
+  set customModelUrl(value) {
+    this.config.customModelUrl = value;
+  }
+  get customModelScale() {
+    return this.config.customModelScale;
+  }
+  set customModelScale(value) {
+    this.config.customModelScale = value;
+  }
+  get customModelOffset() {
+    return this.config.customModelOffset;
+  }
+  set customModelOffset(value) {
+    this.config.customModelOffset = value;
+  }
+  
   get btnType() {
     return this.config.btnType;
   }
@@ -123,7 +145,6 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
     regularModel.scene.rotation.set(Math.PI / 2, 0, 0);
     ButtonHelperModel = regularModel.scene;
 
-
     // Load wide button model
     const wideModel = await new GLTFLoader(boutonCubeWideBleuUrl).loadGLTF();
     wideModel.scene.traverse(child => {
@@ -140,6 +161,9 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
 
     this.config = this.config || {};
     this.config.actions = this.config.actions || [];
+    this.config.customModelUrl = this.config.customModelUrl || "";
+    this.config.customModelScale = this.config.customModelScale || new Vector3(1, 1, 1);
+    this.config.customModelOffset = this.config.customModelOffset || new Vector3(0, 0, 0);
 
     // Fill if empty
     if (this.config.actions.length === 0) {
@@ -151,9 +175,60 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
     setTimeout(() => {
       this.updateHelperModel();
     }, 0);
-
-
   }
+
+  onReloadModel() {
+    this.clearHelperModel();
+
+    if (this.config.customModelUrl && this.config.customModelUrl !== '') {
+      const fileExtension = this.config.customModelUrl.split('.').pop().toLowerCase();
+      if (fileExtension === 'glb' || fileExtension === 'gltf') {
+        loader.load(this.config.customModelUrl, (gltf) => {
+          const customModel = gltf.scene;
+          customModel.scale.copy(this.config.customModelScale);
+          customModel.position.copy(this.config.customModelOffset);
+
+          console.log("customModel", customModel);  // Log animations
+
+          this.helper = customModel;
+          this.add(this.helper);
+        }, undefined, (error) => {
+          console.error('Error loading custom model:', error);
+        });
+      }
+    } else {
+      this.updateHelperModel();
+    }
+  }
+
+  onChange(property, value) {
+    super.onChange(property, value);
+  
+    if (this.btnStyle === 'rounded-text-custom-button') {
+      if (property === 'customModelScale' && this.helper) {
+        this.helper.scale.copy(this.config.customModelScale);
+        this.helper.updateMatrix();
+      }
+  
+      if (property === 'customModelOffset' && this.helper) {
+        this.helper.position.copy(this.config.customModelOffset);
+        this.helper.updateMatrix();
+      }
+  
+      if (property === 'customModelUrl') {
+        this.onReloadModel();
+      }
+    }
+  }
+  
+  
+  clearHelperModel() {
+    if (this.helper) {
+      this.remove(this.helper);
+      this.helper = null;
+    }
+  }
+
   updateHelperModel() {
     // Ensure models are loaded
     if (!ButtonHelperModel || !ButtonHelperModelWide) {
@@ -162,28 +237,30 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
     }
 
     // Remove existing helper if any
-    if (this.helper) {
-      this.remove(this.helper);
-    }
+    this.clearHelperModel();
 
     // Select and clone the appropriate model based on btnStyle
-    if (this.btnStyle === "rounded-text-action-button" || this.btnStyle === "rounded-text-button") {
+    if (this.btnStyle === 'rounded-text-custom-button') {
+      this.onReloadModel();
+    } else if (this.btnStyle === "rounded-text-action-button" || this.btnStyle === "rounded-text-button") {
       this.helper = ButtonHelperModelWide.clone();
     } else {
       this.helper = ButtonHelperModel.clone();
     }
 
-    // Add the selected helper model to the node
-    this.add(this.helper);
+    if (this.helper) {
+      // Add the selected helper model to the node
+      this.add(this.helper);
 
-    // Update the helper model so the Shadow is properly updated
-    this.helper.traverse((child) => {
-      if (child.isMesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
-        child.updateMatrix();
-      }
-    });
+      // Update the helper model so the Shadow is properly updated
+      this.helper.traverse((child) => {
+        if (child.isMesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+          child.updateMatrix();
+        }
+      });
+    }
   }
   compileButtonConfigToUserData(config) {
     this.rotation.toVector3();
@@ -195,7 +272,12 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
       rotation: { x: 0, y: 0, z: 0 },
       size: 1,
       "authorization.permission": this.btnAuthorizationPermission,
-      "authorization.email": this.btnAuthorizationEmail
+      "authorization.email": this.btnAuthorizationEmail,
+      customModelProperties: {
+        url: this.customModelUrl,
+        scale: this.customModelScale,
+        offset: this.customModelOffset
+      }
     };
   
     let StringifiedActions = this.config.actions.map(action => {
@@ -297,7 +379,7 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
   }
   copy(source, recursive = true) {
     if (recursive) {
-      this.remove(this.helper);
+      this.clearHelperModel();
     }
 
     super.copy(source, recursive);
@@ -342,14 +424,6 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
     });
 
   }
-  /*static async deserialize(editor, json) {
-
-    const node = await super.deserialize(editor, json);
-    const { config } = json.components.find(c => c.name === ButtonNode.componentName).props;
-
-    node.config = JSON.parse(config);
-    return node;
-  }*/
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json);
     const { config } = json.components.find(c => c.name === ButtonNode.componentName).props;
@@ -392,8 +466,15 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
           node.config.actions[i] = 
           { ...JSON.parse(JSON.stringify(defaultAction)), ...node.config.actions[i] };
         }
-        
     }
+
+    node.config.customModelUrl = node.config.customModelUrl || "";
+    node.config.customModelScale = node.config.customModelScale
+      ? new Vector3(node.config.customModelScale.x, node.config.customModelScale.y, node.config.customModelScale.z)
+      : new Vector3(1, 1, 1);
+    node.config.customModelOffset = node.config.customModelOffset
+      ? new Vector3(node.config.customModelOffset.x, node.config.customModelOffset.y, node.config.customModelOffset.z)
+      : new Vector3(0, 0, 0);
 
     return node;
   }
@@ -411,8 +492,18 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
     //SetUserData for export (not for the editor)
     this.compileButtonConfigToUserData(this.config);
     super.serialize({ [ButtonNode.componentName]: { config: JSON.stringify(this.config) } });
+
+    if (this.btnStyle === 'rounded-text-custom-button') {
+      console.log("Helper",this.helper);
+      // console log any animation the helper may have
+      this.helper.traverse((child) => {
+        if (child.isMesh) {
+          console.log(child);
+        }
+      });
+    }
     
-    this.remove(this.helper);
+    this.clearHelperModel();
   }
 
 }
