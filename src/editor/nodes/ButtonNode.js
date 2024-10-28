@@ -258,6 +258,11 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
           child.castShadow = true;
           child.receiveShadow = true;
           child.updateMatrix();
+
+          if (child.material && child.material.isMeshStandardMaterial) {
+            child.material.envMap = this.editor.scene.environmentMap;
+            child.material.needsUpdate = true;
+          }
         }
       });
     }
