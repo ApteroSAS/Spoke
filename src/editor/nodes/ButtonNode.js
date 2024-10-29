@@ -65,6 +65,30 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
   set customModelOffset(value) {
     this.config.customModelOffset = value;
   }
+  get clickAnimation() {
+    return this.config.clickAnimation;
+  }
+  set clickAnimation(value) {
+    this.config.clickAnimation = value;
+  }
+  get clickAnimationSpeed() {
+    return this.config.clickAnimationSpeed;
+  }
+  set clickAnimationSpeed(value) {
+    this.config.clickAnimationSpeed = value;
+  }
+  get hoverAnimation() {
+    return this.config.hoverAnimation;
+  }
+  set hoverAnimation(value) {
+    this.config.hoverAnimation = value;
+  }
+  get hoverAnimationSpeed() {
+    return this.config.hoverAnimationSpeed;
+  }
+  set hoverAnimationSpeed(value) {
+    this.config.hoverAnimationSpeed = value;
+  }
   
   get btnType() {
     return this.config.btnType;
@@ -180,31 +204,74 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
   onReloadModel() {
     this.clearHelperModel();
 
+    console.log("Reloading model");
+
+    if (!this.config.customModelUrl || this.config.customModelUrl === '') {
+      return;
+    }
+
     if (this.config.customModelUrl && this.config.customModelUrl !== '') {
       const fileExtension = this.config.customModelUrl.split('.').pop().toLowerCase();
-      if (fileExtension === 'glb' || fileExtension === 'gltf') {
-        loader.load(this.config.customModelUrl, (gltf) => {
-          const customModel = gltf.scene;
-          customModel.scale.copy(this.config.customModelScale);
-          customModel.position.copy(this.config.customModelOffset);
 
-          console.log("customModel", customModel);  // Log animations
+      return new Promise((resolve, reject) => {
+        if (fileExtension === 'glb' || fileExtension === 'gltf') {
 
-          this.helper = customModel;
-          this.add(this.helper);
-        }, undefined, (error) => {
-          console.error('Error loading custom model:', error);
-        });
-      }
+          this.updateMatrixWorld();
+          
+          loader.load(this.config.customModelUrl, (gltf) => {
+            this.config.customAnimations = gltf.animations || [];
+
+            const customModel = gltf.scene.clone();
+            customModel.scale.copy(this.config.customModelScale);
+            customModel.position.copy(this.config.customModelOffset);
+
+            this.helper = customModel;
+            this.editor.renderer.addBatchedObject(this.helper);
+            console.log("this.helper",this.helper);
+            
+            if (this.helper) {
+              this.helper.traverse(object => {
+                if (object.material && object.material.isMeshStandardMaterial) {
+                  object.material.envMap = this.editor.scene.environmentMap;
+                  object.material.needsUpdate = true;
+                }
+              });
+            }
+            
+            this.add(this.helper);
+            resolve();
+          }, undefined, (error) => {
+            console.error('Error loading custom model:', error);
+            reject(error);
+          });
+        }
+      });
     } else {
       this.updateHelperModel();
+      return Promise.resolve();
     }
   }
+
+  // Work in progress
+  // We'll have an Animation PREVIEW in the editor in the future
+  // Note: Add this also to ModelNode.js once it's ready
+  /*playCustomAnimation(animationName, speed = 1) {
+    if (!this.helper || !this.helper.animations) return;
+    
+    const animationClip = this.helper.animations.find(clip => clip.name === animationName);
+    if (animationClip) {
+      const mixer = new THREE.AnimationMixer(this.helper);
+      const action = mixer.clipAction(animationClip);
+      action.setEffectiveTimeScale(speed);
+      action.play();
+      this.mixer = mixer;
+    }
+  }*/
 
   onChange(property, value) {
     super.onChange(property, value);
   
-    if (this.btnStyle === 'rounded-text-custom-button') {
+    if (this.btnStyle === 'custom-button') {
       if (property === 'customModelScale' && this.helper) {
         this.helper.scale.copy(this.config.customModelScale);
         this.helper.updateMatrix();
@@ -215,15 +282,19 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
         this.helper.updateMatrix();
       }
   
-      if (property === 'customModelUrl') {
+      /*if (property === 'customModelUrl') {
         this.onReloadModel();
-      }
+      }*/
     }
   }
   
   
   clearHelperModel() {
     if (this.helper) {
+      console.log("Clearing helper model");
+      if (this.helper) {
+        this.editor.renderer.removeBatchedObject(this.helper);
+      }
       this.remove(this.helper);
       this.helper = null;
     }
@@ -240,7 +311,7 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
     this.clearHelperModel();
 
     // Select and clone the appropriate model based on btnStyle
-    if (this.btnStyle === 'rounded-text-custom-button') {
+    if (this.btnStyle === 'custom-button') {
       this.onReloadModel();
     } else if (this.btnStyle === "rounded-text-action-button" || this.btnStyle === "rounded-text-button") {
       this.helper = ButtonHelperModelWide.clone();
@@ -248,7 +319,7 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
       this.helper = ButtonHelperModel.clone();
     }
 
-    if (this.helper) {
+    if (this.helper && this.btnStyle !== 'custom-button') {
       // Add the selected helper model to the node
       this.add(this.helper);
 
@@ -281,7 +352,11 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
       customModelProperties: {
         url: this.customModelUrl,
         scale: this.customModelScale,
-        offset: this.customModelOffset
+        offset: this.customModelOffset,
+        clickAnimation: this.clickAnimation,
+        clickAnimationSpeed: this.clickAnimationSpeed,
+        hoverAnimation: this.hoverAnimation,
+        hoverAnimationSpeed: this.hoverAnimationSpeed,
       }
     };
   
@@ -498,7 +573,7 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
     this.compileButtonConfigToUserData(this.config);
     super.serialize({ [ButtonNode.componentName]: { config: JSON.stringify(this.config) } });
 
-    if (this.btnStyle === 'rounded-text-custom-button') {
+    if (this.btnStyle === 'custom-button') {
       console.log("Helper",this.helper);
       // console log any animation the helper may have
       this.helper.traverse((child) => {

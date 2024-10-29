@@ -1,4 +1,4 @@
-import React, { Component, useCallback, useState } from "react";
+import React, { Component, useCallback, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import NodeEditor from "./NodeEditor";
 import { Image } from "styled-icons/boxicons-regular/Image";
@@ -41,7 +41,7 @@ export default function ButtonNodeEditor(props) {
     { label: "Rounded Action Button", value: "rounded-action-button" },
     { label: "Text Action Button", value: "rounded-text-action-button" },
     { label: "Text Button", value: "rounded-text-button" },
-    { label: "Custom Model", value: "rounded-text-custom-button" }
+    { label: "Custom Model", value: "custom-button" }
   ]
   const onEndAnimation = [
     { label: "Reset", value: 0 },
@@ -51,19 +51,58 @@ export default function ButtonNodeEditor(props) {
 
   // Create a local state to store the input value before applying it
   const [localCustomModelUrl, setLocalCustomModelUrl] = useState(node.customModelUrl || "");
+  const [buttonAnimationOptions, setButtonAnimationOptions] = useState([]);
   
   const onChangeCustomModelUrl = useSetPropertySelected(editor, "customModelUrl");
   const onChangeCustomModelScale = useSetPropertySelected(editor, "customModelScale");
   const onChangeCustomModelOffset = useSetPropertySelected(editor, "customModelOffset");
+  const onChangeClickAnimation = useSetPropertySelected(editor, "clickAnimation");
+  const onChangeClickAnimationSpeed = useSetPropertySelected(editor, "clickAnimationSpeed");
+  const onChangeHoverAnimation = useSetPropertySelected(editor, "hoverAnimation");
+  const onChangeHoverAnimationSpeed = useSetPropertySelected(editor, "hoverAnimationSpeed");
 
-  const handleCustomModelUpload = (newCustomModelUrl) => {
-    setLocalCustomModelUrl(newCustomModelUrl);
-    onChangeCustomModelUrl(newCustomModelUrl);
+  const updateButtonAnimationOptions = () => {
+    const animations = node.config.customAnimations || [];
+    const options = animations.map((anim) => ({
+      label: anim.name,
+      value: anim.name,
+    }));
+    setButtonAnimationOptions(options.length > 0 ? options : [{ label: "None", value: "" }]);
   };
 
-  const handleReloadModel = () => {
-    // Apply the local state to the actual node and trigger reload
-    onChangeCustomModelUrl(localCustomModelUrl);
+  // Update the animations when node.config.customAnimations changes
+  useEffect(() => {
+    updateButtonAnimationOptions();
+  }, [node.config.customAnimations]);
+
+  const handleCustomModelUpload = async (newCustomModelUrl) => {
+    try {
+      // Update local state and set the custom model URL
+      setLocalCustomModelUrl(newCustomModelUrl);
+      onChangeCustomModelUrl(newCustomModelUrl);
+      // Reload the model and update animations
+      await node.onReloadModel();
+      updateButtonAnimationOptions();
+    } catch (error) {
+      console.error('Error uploading model:', error);
+    }
+  };
+
+  const handleReloadModel = async () => {
+    try {
+      // Set the custom model URL first
+      onChangeCustomModelUrl(localCustomModelUrl);
+
+      console.log("B")
+  
+      // Wait for the model to reload
+      await node.onReloadModel();
+  
+      // Update the animation options after the model reloads
+      updateButtonAnimationOptions();
+    } catch (error) {
+      console.error('Error reloading model:', error);
+    }
   };
 
   // Get all media-frame objects
@@ -159,7 +198,7 @@ export default function ButtonNodeEditor(props) {
           )
         }
 
-        {node.btnStyle === "rounded-text-custom-button" && (
+        {node.btnStyle === "custom-button" && (
           <>
             <InputGroup name="Custom Model URL" info="URL for the custom button GLB model">
               <FileUploader
@@ -205,6 +244,42 @@ export default function ButtonNodeEditor(props) {
                 largeStep={1}
               />
             </InputGroup>
+
+            <InputGroup name="Click Animation">
+              <SelectInput
+                options={buttonAnimationOptions}
+                value={node.clickAnimation}
+                onChange={onChangeClickAnimation}
+              />
+            </InputGroup>
+            <InputGroup name="Click Animation Speed">
+              <NumericInput
+                value={node.clickAnimationSpeed === undefined ? 1 : node.clickAnimationSpeed}
+                onChange={onChangeClickAnimationSpeed}
+                min={0.1}
+                max={5}
+                step={0.1}
+              />
+            </InputGroup>
+
+            <InputGroup name="Hover Animation">
+              <SelectInput
+                options={buttonAnimationOptions}
+                value={node.hoverAnimation}
+                onChange={onChangeHoverAnimation}
+              />
+            </InputGroup>
+            <InputGroup name="Hover Animation Speed">
+              <NumericInput
+                value={node.hoverAnimationSpeed === undefined ? 1 : node.hoverAnimationSpeed}
+                onChange={onChangeHoverAnimationSpeed}
+                min={0.1}
+                max={5}
+                step={0.1}
+              />
+            </InputGroup>
+
+
           </>
         )}
 
