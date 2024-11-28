@@ -6,6 +6,8 @@ import spawnPointModelUrl from "../../assets/spawn-point.glb";
 import boutonCubeBleuUrl from "../../assets/bouton_cube_bleu.glb";
 import boutonCubeWideBleuUrl from "../../assets/bouton_cube_wide_bleu.glb";
 import { BoxBufferGeometry, Euler, Geometry, Mesh, MeshBasicMaterial, Object3D, Vector3 } from "three";
+import cloneObject3D from "../utils/cloneObject3D";
+
 
 let ButtonHelperModel = null;
 let ButtonHelperModelWide = null;
@@ -221,7 +223,7 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
           loader.load(this.config.customModelUrl, (gltf) => {
             this.config.customAnimations = gltf.animations || [];
 
-            const customModel = gltf.scene.clone();
+            const customModel = cloneObject3D(gltf.scene);
             customModel.scale.copy(this.config.customModelScale);
             customModel.position.copy(this.config.customModelOffset);
 

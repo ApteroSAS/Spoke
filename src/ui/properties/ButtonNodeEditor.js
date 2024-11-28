@@ -92,8 +92,6 @@ export default function ButtonNodeEditor(props) {
     try {
       // Set the custom model URL first
       onChangeCustomModelUrl(localCustomModelUrl);
-
-      console.log("B")
   
       // Wait for the model to reload
       await node.onReloadModel();
