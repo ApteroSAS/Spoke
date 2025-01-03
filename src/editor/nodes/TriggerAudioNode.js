@@ -434,7 +434,7 @@ export default class TriggerAudioNode extends EditorNodeMixin(Object3D) {
           src: this.barrierUrl,
           scale: {
             x: this.barrierUserScale.x * scale.x,
-            y: this.barrierUserScale.y * scale.y,
+            y: this.barrierUserScale.y,
             z: this.barrierUserScale.z * scale.z
           },
           position: {
