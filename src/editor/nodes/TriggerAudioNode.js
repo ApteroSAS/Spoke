@@ -439,7 +439,7 @@ export default class TriggerAudioNode extends EditorNodeMixin(Object3D) {
           },
           position: {
             x: this.barrierOffset.x + this.position.x,
-            y: this.barrierOffset.y + this.position.y,
+            y: this.barrierOffset.y + this.position.y + 0.5 * this.barrierUserScale.y,
             z: this.barrierOffset.z + this.position.z
           },
         },
