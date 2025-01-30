@@ -18,7 +18,7 @@ export const StyledInput = styled.input`
   position: absolute;
 `;
 
-function FileUploader({ label, hint = "", onUpload, showSelectedFile, source, multiple, accepts }) {
+function FileUploader({ label, hint = "", onUpload, showSelectedFile, source, multiple, accepts, hideDefault = false }) {
   const [id] = useState(`file-input-${nextId++}`);
   const [filename, setFilename] = useState('');
   const upload = useUpload({ source, multiple, accepts });
@@ -39,7 +39,12 @@ function FileUploader({ label, hint = "", onUpload, showSelectedFile, source, mu
         <Button as="label" htmlFor={id}>
           {label}
         </Button>
-        <StyledInput id={id} type="file" onChange={handleFileChange} />
+        <StyledInput 
+          id={id}
+          type="file"
+          onChange={handleFileChange}
+          style={{ display: hideDefault ? 'none' : 'block' }}
+        />
         {showSelectedFile && <span>{filename ? filename : "No File chosen"}</span>}
       </FileInputContainer>
     </InfoTooltip>

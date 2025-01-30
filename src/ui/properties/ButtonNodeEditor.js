@@ -206,6 +206,7 @@ export default function ButtonNodeEditor(props) {
                 source={editor.sources[2]} // My assets
                 multiple={false}
                 accepts={[".glb", ".gltf"]}
+                hideDefault={true}
               />
               <InfoTooltip info={"Reload model"}>
                 <Button
