@@ -124,6 +124,19 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
     this.config.btnAuthorizationEmail = value;
   }
 
+  get attachToParentBone() {
+    return this.config.attachToParentBone;
+  }
+  set attachToParentBone(value) {
+    this.config.attachToParentBone = value;
+  }
+  get parentBoneName() {
+    return this.config.parentBoneName;
+  }
+  set parentBoneName(value) {
+    this.config.parentBoneName = value;
+  }
+
 
   get apteroActions() {  
     // Clone the actions array to avoid modifying the original array
@@ -185,11 +198,16 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
   constructor(editor) {
     super(editor, new BoxBufferGeometry(), new MeshBasicMaterial());
 
+    // Set up current config
     this.config = this.config || {};
     this.config.actions = this.config.actions || [];
+
+    // Set up default values for retrocompatibility
     this.config.customModelUrl = this.config.customModelUrl || "";
     this.config.customModelScale = this.config.customModelScale || new Vector3(1, 1, 1);
     this.config.customModelOffset = this.config.customModelOffset || new Vector3(0, 0, 0);
+    this.config.attachToParentBone = this.config.attachToParentBone || false;
+    this.config.parentBoneName = this.config.parentBoneName || "";
 
     // Fill if empty
     if (this.config.actions.length === 0) {
@@ -229,7 +247,6 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
 
             this.helper = customModel;
             this.editor.renderer.addBatchedObject(this.helper);
-            console.log("this.helper",this.helper);
             
             if (this.helper) {
               this.helper.traverse(object => {
@@ -293,7 +310,6 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
   
   clearHelperModel() {
     if (this.helper) {
-      console.log("Clearing helper model");
       if (this.helper) {
         this.editor.renderer.removeBatchedObject(this.helper);
       }
@@ -359,6 +375,9 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
         clickAnimationSpeed: this.clickAnimationSpeed,
         hoverAnimation: this.hoverAnimation,
         hoverAnimationSpeed: this.hoverAnimationSpeed,
+        attachToParentBone: this.attachToParentBone,
+        parentBoneName: this.parentBoneName,
+        parentUUID: this.parent ? this.parent.uuid : null
       }
     };
   
@@ -557,6 +576,8 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
     node.config.customModelOffset = node.config.customModelOffset
       ? new Vector3(node.config.customModelOffset.x, node.config.customModelOffset.y, node.config.customModelOffset.z)
       : new Vector3(0, 0, 0);
+    node.config.attachToParentBone = node.config.attachToParentBone || false;
+    node.config.parentBoneName = node.config.parentBoneName || "";
 
     return node;
   }
@@ -574,16 +595,6 @@ export default class ButtonNode extends EditorNodeMixin(Object3D) {
     //SetUserData for export (not for the editor)
     this.compileButtonConfigToUserData(this.config);
     super.serialize({ [ButtonNode.componentName]: { config: JSON.stringify(this.config) } });
-
-    if (this.btnStyle === 'custom-button') {
-      console.log("Helper",this.helper);
-      // console log any animation the helper may have
-      this.helper.traverse((child) => {
-        if (child.isMesh) {
-          console.log(child);
-        }
-      });
-    }
     
     this.clearHelperModel();
   }

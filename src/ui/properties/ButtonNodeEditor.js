@@ -73,6 +73,7 @@ export default function ButtonNodeEditor(props) {
   // Update the animations when node.config.customAnimations changes
   useEffect(() => {
     updateButtonAnimationOptions();
+    setLocalCustomModelUrl(node.customModelUrl || "");
   }, [node.config.customAnimations]);
 
   const handleCustomModelUpload = async (newCustomModelUrl) => {
@@ -123,15 +124,47 @@ export default function ButtonNodeEditor(props) {
   const onChangeBtnStyle = useSetPropertySelected(editor, "btnStyle");
   const onChangeBtnAuthorizationPermission = useSetPropertySelected(editor, "btnAuthorizationPermission");
   const onChangeBtnAuthorizationEmail = useSetPropertySelected(editor, "btnAuthorizationEmail");
-  // Button Behavior
 
-  
+  // Button Behavior
   const onChangeArrayAct = useSetPropertySelected(editor, 'apteroActions');
 
+  // Bone attachment
+  function getParentBones(node) {
+    const bones = [];
+    // We can look at node.parent, or the parent's .model, depending on your scene structure
+    if (!node.parent) {
+      return bones;
+    }
 
+    const parentModel = node.parent.model;
+    if (parentModel && parentModel.isObject3D) {
+      const parentArmature = parentModel.getObjectByName("Armature");
+      if (parentArmature) {
+        parentArmature.traverse((child) => {
+          if (child.isBone) {
+            bones.push({ label: child.name, value: child.name });
+          }
+        });
+      }
+    }
+    return bones;
+  }
+
+  // Create a local state to hold the available parent bone options
+  const [parentBoneOptions, setParentBoneOptions] = useState([]);
+
+  // Refresh bone list whenever the node changes
+  useEffect(() => {
+    setParentBoneOptions(getParentBones(node));
+  }, [node]);
+
+  const onChangeAttachToParentBone = useSetPropertySelected(editor, "attachToParentBone");
+  const onChangeParentBoneName = useSetPropertySelected(editor, "parentBoneName");
+
+  
   function findParentAnimations(node) {
     let animList = [];
-    let parentNode = node.parent; // Assuming 'node' is your ButtonNode and has a reference to its parent
+    let parentNode = node.parent;
   
     while (parentNode) {
       const parentObject = parentNode.model;
@@ -219,7 +252,10 @@ export default function ButtonNodeEditor(props) {
               </InfoTooltip>
               <StringInput
                 value={localCustomModelUrl}
-                onChange={(value) => setLocalCustomModelUrl(value)}
+                onChange={(value) => {
+                  setLocalCustomModelUrl(value)
+                  onChangeCustomModelUrl(value)
+                }}
               />
             </InputGroup>
 
@@ -289,6 +325,40 @@ export default function ButtonNodeEditor(props) {
           <StringInput value={node.btnAuthorizationEmail} onChange={onChangeBtnAuthorizationEmail} />
         </InputGroup>
       </PropertyGroup>
+      
+      <PropertyGroup name="Bone Attachment">
+        <InputGroup 
+          name="Attach to Parent Bone" 
+          info="Enable to attach this button to one of the parent's bones."
+        >
+          <BooleanInput
+            value={node.attachToParentBone}
+            onChange={(val) => onChangeAttachToParentBone(val)}
+          />
+        </InputGroup>
+
+        {/* Only show the bone dropdown if attachToParentBone is true AND we have bones */}
+        {node.attachToParentBone && parentBoneOptions.length > 0 && (
+          <InputGroup 
+            name="Parent Bone" 
+            info="Choose which bone in the parent's armature to attach to."
+          >
+            <SelectInput
+              options={parentBoneOptions}
+              value={node.parentBoneName}
+              onChange={(val) => onChangeParentBoneName(val)}
+            />
+          </InputGroup>
+        )}
+
+        {/* If attachToParentBone is true but no bones found, show a warning */}
+        {node.attachToParentBone && parentBoneOptions.length === 0 && (
+          <div style={{ background: "#66000099", color: "#fff", padding: "0.3em 0.6em" }}>
+            No armature / bones found in parent!
+          </div>
+        )}
+      </PropertyGroup>
+
       <PropertyGroup name="Behavior">
         {node.config.actions.map((action, index) => (
           <div key={index}>
