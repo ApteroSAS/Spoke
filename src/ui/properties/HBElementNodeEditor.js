@@ -263,7 +263,7 @@ export default class HBElementNodeEditor extends Component {
         response = await fetch(fetchfrom+'computer', {
           method: 'POST',
           hide_cursor: true,
-          max_area: 1920 * 1080,
+          maxarea: 1920 * 1080,
           headers: {
             'Content-Type': 'application/json',
           },
@@ -324,7 +324,7 @@ export default class HBElementNodeEditor extends Component {
           body: JSON.stringify({
             start_url: url,
             hide_cursor: true,
-            max_area: 1920 * 1080,
+            maxarea: 1920 * 1080,
             profile: {
               "save": true,
             },
