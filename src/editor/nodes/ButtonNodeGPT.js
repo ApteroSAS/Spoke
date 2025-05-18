@@ -237,7 +237,7 @@ export default class ButtonNodeGPT extends EditorNodeMixin(Object3D) {
     this.gptIntro = "Hi, I'm Aptero's AI assistant. How can I help you today?";
     this.gptIgnorecache = true;
     this.gptSticky = true;
-    this.gptModel = "gpt-3.5-turbo";
+    this.gptModel = "gpt-4.1-mini";
     this.btnType = "btn";
     this.btnText = "ChatGPT";
     this.btnStyle = "rounded-text-action-button";
