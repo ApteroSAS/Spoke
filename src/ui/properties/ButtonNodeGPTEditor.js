@@ -24,20 +24,31 @@ export default function ButtonNodeGPTEditor(props) {
   ];
 
   const openAIModels = [
-    { label: "GPT-4o-mini", value: "gpt-4o-mini" },
+    // Current & Recommended Models
+    { label: "GPT-4.1", value: "gpt-4.1" },
+    { label: "GPT-4.1 Mini", value: "gpt-4.1-mini" },
+    { label: "GPT-4.1 Nano", value: "gpt-4.1-nano" },
     { label: "GPT-4o", value: "gpt-4o" },
-    { label: "GPT-4 Turbo", value: "gpt-4-turbo" },
-    { label: "o1-mini", value: "o1-mini" },
-    { label: "GPT-3.5 Turbo", value: "gpt-3.5-turbo" },
-    { label: "GPT-3.5 Turbo 16k", value: "gpt-3.5-turbo-16k" },
+    { label: "GPT-4o Mini", value: "gpt-4o-mini" },
+    { label: "o4-mini", value: "o4-mini" },
+
+    // Deprecated or Legacy Models
+    { label: "GPT-4 Turbo [Old]", value: "gpt-4-turbo" },
+    { label: "GPT-3.5 Turbo [Old]", value: "gpt-3.5-turbo" },
+    { label: "GPT-3.5 Turbo 16k [Old]", value: "gpt-3.5-turbo-16k" },
+    { label: "o3-mini [Old]", value: "o3-mini" }
   ];
     
 
   const anthropicModels = [
-    { label: "Claude Haiku", value: "claude-3-haiku-20240307" },
-    { label: "Claude Sonnet", value: "claude-3-sonnet-20240229" },
-    { label: "Claude Opus", value: "claude-3-opus-20240229" },
+    { label: "Claude 3.7 Sonnet", value: "claude-3-7-sonnet-20250219" },
+    { label: "Claude 3.5 Sonnet", value: "claude-3-5-sonnet-20241022" },
+    { label: "Claude 3.5 Haiku", value: "claude-3-5-haiku-20241022" },
+    { label: "Claude 3 Opus", value: "claude-3-opus-20240229" },
+    { label: "Claude 3 Sonnet", value: "claude-3-sonnet-20240229" },
+    { label: "Claude 3 Haiku", value: "claude-3-haiku-20240307" },
   ];
+
   const btnStyleOptions = [//"rounded-button" | "rounded-text-action-button" | "rounded-action-button" | "rounded-text-button"
     { label: "rounded-button", value: "rounded-button" },
     { label: "rounded-text-action-button", value: "rounded-text-action-button" },
